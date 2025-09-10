@@ -4,17 +4,16 @@
     <Declaration><![CDATA[PROGRAM MAIN
 
 VAR
-	bGreenBtn    : BOOL;;
-	bRedBtn		: BOOL;	
 	
-	bTestRef1 : REFERENCE TO BOOL;
 	
 	
 	aInputs AT %I* : ARRAY[1..8] OF BOOL;
 	aOutputs AT %Q* : ARRAY[1..8] OF BOOL;
 	
-
-
+	bGreenBtn    : POINTER TO BOOL:= ADR(aInputs[1]);
+	bRedBtn		: POINTER TO BOOL:= ADR(aInputs[2]);
+	bLight : POINTER TO BOOL := ADR(aOutputs[1]);
+	//bTestRef1 := ADR(aInputs[1]);
 	
 	//input : fbDigitalInput(ioBitRef := bGreenBtn);
 	//input2 : fbDigitalIO(ioBitRef := bTestRef1);
@@ -30,17 +29,17 @@ END_VAR
 aOutputs[8] := aInputs[8]; // Output 8 mirrors input 8
 
 
-//bTestRef1 REF= aInputs[1];
-
-bGreenBtn := aInputs[1];
 
 
+//bGreenBtn := aInputs[1];
 
-IF bGreenBtn THEN
-		aOutputs[1]:=TRUE;
+
+
+IF bGreenBtn^ THEN
+		bLight^:=TRUE;
 		//fbLightOutput.Set(TRUE);
 ELSE
-		aOutputs[1]:=FALSE;
+		bLight^:=FALSE;
 		//fbLightOutput.Set(FALSE);	
 END_IF
 
