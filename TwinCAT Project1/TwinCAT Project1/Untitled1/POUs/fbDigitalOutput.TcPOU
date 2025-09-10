@@ -1,0 +1,26 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.15">
+  <POU Name="fbDigitalOutput" Id="{c42d29ff-6d5a-47ff-94c8-15dae948f0bf}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK fbDigitalOutput EXTENDS fbDigitalIO
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Method Name="Set" Id="{c3a2d6d1-b8ed-43d5-8f12-d62b6d1998f7}">
+      <Declaration><![CDATA[METHOD PUBLIC Set
+VAR_INPUT
+	bValue : BOOL;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[ioBIT := bValue;]]></ST>
+      </Implementation>
+    </Method>
+    <LineIds Name="fbDigitalOutput">
+      <LineId Id="9" Count="0" />
+    </LineIds>
+    <LineIds Name="fbDigitalOutput.Set">
+      <LineId Id="5" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

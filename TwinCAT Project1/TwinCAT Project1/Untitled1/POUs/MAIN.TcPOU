@@ -1,0 +1,44 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.15">
+  <POU Name="MAIN" Id="{2619c018-a97e-4e98-bfde-76b022b13f51}" SpecialFunc="None">
+    <Declaration><![CDATA[PROGRAM MAIN
+VAR
+	bGreenBtn    : BOOL;
+	bRedBtn		: BOOL;	
+	
+	bTestRef1 : REFERENCE TO BOOL;
+	
+	
+	aInputs AT %I* : ARRAY[1..8] OF BOOL;
+	aOutputs AT %Q* : ARRAY[1..8] OF BOOL;
+	
+	
+	//input : fbDigitalInput(ioBitRef := bGreenBtn);
+	//input2 : fbDigitalIO(ioBitRef := bTestRef1);
+	//fbStartInput : fbDigitalInput(ioBitRef := (aInputs[1]));
+	//fbStopInput : fbDigitalInput(ioBitRef := (aInputs[2]));
+	//fbLightOutput : fbDigitalOutput(ioBitRef := (aOutputs[1]));
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[aOutputs[8] := aInputs[8]; // Output 8 mirrors input 8
+
+
+(*
+IF fbStartInput.Get() THEN
+		fbLightOutput.Set(TRUE);
+ELSE
+		fbLightOutput.Set(FALSE);	
+END_IF
+*)]]></ST>
+    </Implementation>
+    <LineIds Name="MAIN">
+      <LineId Id="2" Count="0" />
+      <LineId Id="19" Count="2" />
+      <LineId Id="17" Count="0" />
+      <LineId Id="22" Count="0" />
+      <LineId Id="28" Count="2" />
+      <LineId Id="23" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>
