@@ -4,22 +4,23 @@
     <Declaration><![CDATA[PROGRAM MAIN
 
 VAR
-	
-	
-	
 	aInputs AT %I* : ARRAY[1..8] OF BOOL;
 	aOutputs AT %Q* : ARRAY[1..8] OF BOOL;
 	
 	bGreenBtn    : POINTER TO BOOL:= ADR(aInputs[1]);
 	bRedBtn		: POINTER TO BOOL:= ADR(aInputs[2]);
 	bLight : POINTER TO BOOL := ADR(aOutputs[1]);
-	//bTestRef1 := ADR(aInputs[1]);
+
+	fbStartInput : fbDigitalInput(ioBitRef := ADR(aInputs[1]), switchType := E_SwitchType.NO);
+	fbStopInput : fbDigitalInput(ioBitRef := ADR(aInputs[2]), switchType := E_SwitchType.NC);
+	fbLightOutput : fbDigitalOutput(ioBitRef := ADR(aOutputs[1]), switchType := E_SwitchType.NO);
+	CurrentState: UINT  := 0;
 	
-	//input : fbDigitalInput(ioBitRef := bGreenBtn);
-	//input2 : fbDigitalIO(ioBitRef := bTestRef1);
-	//fbStartInput : fbDigitalInput(ioBitRef := (aInputs[1]));
-	//fbStopInput : fbDigitalInput(ioBitRef := (aInputs[2]));
-	//fbLightOutput : fbDigitalOutput(ioBitRef := (aOutputs[1]));
+	fbCounter : CTU;
+
+	timedLight : BOOL;
+	timer :TON;
+
 END_VAR
 ]]></Declaration>
     <Implementation>
@@ -29,50 +30,51 @@ END_VAR
 aOutputs[8] := aInputs[8]; // Output 8 mirrors input 8
 
 
-
+IF fbStartInput.Get() THEN
+		fbLightOutput.Set(TRUE);
+ELSE 
+		fbLightOutput.Set(FALSE);
+END_IF
 
 //bGreenBtn := aInputs[1];
 
 
-
+(*
 IF bGreenBtn^ THEN
 		bLight^:=TRUE;
-		//fbLightOutput.Set(TRUE);
-ELSE
+ELSE 
 		bLight^:=FALSE;
-		//fbLightOutput.Set(FALSE);	
 END_IF
+*)
 
-(*
+fbCounter(CU:=fbStartInput.Get(),CU:=fbStartInput.Get(), RESET :=fbStopInput.Get() ,PV := UINT_TO_WORD(E_LightStates.COUNT));
+CurrentState:=fbCounter.CV;
+
+
 CASE CurrentState OF
-    E_MyStates.STATE_IDLE:
-        // Actions for the IDLE state
-        Output1 := FALSE;
-        Output2 := FALSE;
-
-    E_MyStates.STATE_RUNNING:
-        // Actions for the RUNNING state
-        Output1 := TRUE;
-        Output2 := TRUE;
-
-    E_MyStates.STATE_STOPPED:
-        // Actions for the STOPPED state
-        Output1 := FALSE;
-        Output2 := TRUE;
-
-    E_MyStates.STATE_ERROR:
-        // Actions for the ERROR state
-        Output1 := TRUE;
-        Output2 := FALSE;
-
+    E_LightStates.OFF:
+		fbLightOutput.Set(FALSE);
+    E_LightStates.ON:
+		fbLightOutput.Set(TRUE);
+    E_LightStates.SLOW_BLINK:
+		timer(IN := NOT timer.Q, PT := T#1S500MS);
+		IF timer.Q THEN 
+			timedLight := NOT timedLight; 
+		END_IF
+		fbLightOutput.Set(timedLight);
+    E_LightStates.FAST_BLINK:
+		timer(IN := NOT timer.Q, PT := T#0S500MS);
+		IF timer.Q THEN 
+			timedLight := NOT timedLight; 
+		END_IF
+		fbLightOutput.Set(timedLight);
 ELSE
-    // Default actions if CurrentState does not match any defined case
-    // This is optional but good practice for handling unexpected values
-    Output1 := FALSE;
-    Output2 := FALSE;
+		fbLightOutput.Set(FALSE);
+		fbCounter(RESET:=TRUE);
+		
 END_CASE
 
-*)]]></ST>
+]]></ST>
     </Implementation>
   </POU>
 </TcPlcObject>

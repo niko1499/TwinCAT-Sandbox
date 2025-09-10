@@ -1,14 +1,11 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.15">
   <POU Name="fbDigitalInput" Id="{cb513b1f-4e9c-4f9b-9fec-6b5dbb71decd}" SpecialFunc="None">
-    <Declaration><![CDATA[FUNCTION_BLOCK fbDigitalInput EXTENDS fbDigitalIO
+    <Declaration><![CDATA[FUNCTION_BLOCK fbDigitalInput EXTENDS DigitalIO
 
 ]]></Declaration>
     <Implementation>
       <ST><![CDATA[]]></ST>
     </Implementation>
-    <LineIds Name="fbDigitalInput">
-      <LineId Id="9" Count="0" />
-    </LineIds>
   </POU>
 </TcPlcObject>

@@ -8,7 +8,8 @@ TYPE E_LightStates :
 	OFF := 0,
 	ON := 1,
 	SLOW_BLINK := 2,
-	FAST_BLINK := 3
+	FAST_BLINK := 3,
+	COUNT :=4 //Max value. Insert new values before and update max. 
 );
 END_TYPE]]></Declaration>
   </DUT>
