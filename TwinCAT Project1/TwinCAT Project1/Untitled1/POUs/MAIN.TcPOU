@@ -2,6 +2,7 @@
 <TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.15">
   <POU Name="MAIN" Id="{2619c018-a97e-4e98-bfde-76b022b13f51}" SpecialFunc="None">
     <Declaration><![CDATA[PROGRAM MAIN
+
 VAR
 	bGreenBtn    : BOOL;
 	bRedBtn		: BOOL;	
@@ -12,6 +13,8 @@ VAR
 	aInputs AT %I* : ARRAY[1..8] OF BOOL;
 	aOutputs AT %Q* : ARRAY[1..8] OF BOOL;
 	
+
+	
 	
 	//input : fbDigitalInput(ioBitRef := bGreenBtn);
 	//input2 : fbDigitalIO(ioBitRef := bTestRef1);
@@ -21,7 +24,13 @@ VAR
 END_VAR
 ]]></Declaration>
     <Implementation>
-      <ST><![CDATA[aOutputs[8] := aInputs[8]; // Output 8 mirrors input 8
+      <ST><![CDATA[
+
+
+aOutputs[8] := aInputs[8]; // Output 8 mirrors input 8
+
+
+
 
 
 (*
@@ -30,14 +39,51 @@ IF fbStartInput.Get() THEN
 ELSE
 		fbLightOutput.Set(FALSE);	
 END_IF
+
+
+CASE CurrentState OF
+    E_MyStates.STATE_IDLE:
+        // Actions for the IDLE state
+        Output1 := FALSE;
+        Output2 := FALSE;
+
+    E_MyStates.STATE_RUNNING:
+        // Actions for the RUNNING state
+        Output1 := TRUE;
+        Output2 := TRUE;
+
+    E_MyStates.STATE_STOPPED:
+        // Actions for the STOPPED state
+        Output1 := FALSE;
+        Output2 := TRUE;
+
+    E_MyStates.STATE_ERROR:
+        // Actions for the ERROR state
+        Output1 := TRUE;
+        Output2 := FALSE;
+
+ELSE
+    // Default actions if CurrentState does not match any defined case
+    // This is optional but good practice for handling unexpected values
+    Output1 := FALSE;
+    Output2 := FALSE;
+END_CASE
+
 *)]]></ST>
     </Implementation>
     <LineIds Name="MAIN">
+      <LineId Id="126" Count="2" />
       <LineId Id="2" Count="0" />
-      <LineId Id="19" Count="2" />
+      <LineId Id="19" Count="0" />
+      <LineId Id="58" Count="2" />
+      <LineId Id="20" Count="1" />
       <LineId Id="17" Count="0" />
       <LineId Id="22" Count="0" />
       <LineId Id="28" Count="2" />
+      <LineId Id="89" Count="1" />
+      <LineId Id="92" Count="25" />
+      <LineId Id="91" Count="0" />
+      <LineId Id="88" Count="0" />
       <LineId Id="23" Count="0" />
     </LineIds>
   </POU>

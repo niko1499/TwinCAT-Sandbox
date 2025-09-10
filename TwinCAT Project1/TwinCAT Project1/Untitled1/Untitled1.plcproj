@@ -18,6 +18,9 @@
     <LibraryReferences>{5aa5fe4a-45f0-467d-8b55-1ed5666c50d3}</LibraryReferences>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="DUTs\E_LightStates.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="PlcTask.TcTTO">
       <SubType>Code</SubType>
     </Compile>
