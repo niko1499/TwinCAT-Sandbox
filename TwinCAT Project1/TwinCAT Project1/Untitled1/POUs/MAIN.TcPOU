@@ -4,7 +4,7 @@
     <Declaration><![CDATA[PROGRAM MAIN
 
 VAR
-	bGreenBtn    : BOOL;
+	bGreenBtn    : BOOL;;
 	bRedBtn		: BOOL;	
 	
 	bTestRef1 : REFERENCE TO BOOL;
@@ -14,7 +14,7 @@ VAR
 	aOutputs AT %Q* : ARRAY[1..8] OF BOOL;
 	
 
-	
+
 	
 	//input : fbDigitalInput(ioBitRef := bGreenBtn);
 	//input2 : fbDigitalIO(ioBitRef := bTestRef1);
@@ -30,17 +30,21 @@ END_VAR
 aOutputs[8] := aInputs[8]; // Output 8 mirrors input 8
 
 
+//bTestRef1 REF= aInputs[1];
+
+bGreenBtn := aInputs[1];
 
 
 
-(*
-IF fbStartInput.Get() THEN
-		fbLightOutput.Set(TRUE);
+IF bGreenBtn THEN
+		aOutputs[1]:=TRUE;
+		//fbLightOutput.Set(TRUE);
 ELSE
-		fbLightOutput.Set(FALSE);	
+		aOutputs[1]:=FALSE;
+		//fbLightOutput.Set(FALSE);	
 END_IF
 
-
+(*
 CASE CurrentState OF
     E_MyStates.STATE_IDLE:
         // Actions for the IDLE state
@@ -71,20 +75,5 @@ END_CASE
 
 *)]]></ST>
     </Implementation>
-    <LineIds Name="MAIN">
-      <LineId Id="126" Count="2" />
-      <LineId Id="2" Count="0" />
-      <LineId Id="19" Count="0" />
-      <LineId Id="58" Count="2" />
-      <LineId Id="20" Count="1" />
-      <LineId Id="17" Count="0" />
-      <LineId Id="22" Count="0" />
-      <LineId Id="28" Count="2" />
-      <LineId Id="89" Count="1" />
-      <LineId Id="92" Count="25" />
-      <LineId Id="91" Count="0" />
-      <LineId Id="88" Count="0" />
-      <LineId Id="23" Count="0" />
-    </LineIds>
   </POU>
 </TcPlcObject>
