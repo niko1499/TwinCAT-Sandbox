@@ -61,6 +61,15 @@ END_IF;]]></ST>
         <ST><![CDATA[GetRawValue := ioBIT^;]]></ST>
       </Implementation>
     </Method>
+    <Method Name="GetSwitchType" Id="{4d37a30f-62b7-4b65-aff7-f16014cdce39}">
+      <Declaration><![CDATA[METHOD PUBLIC GetSwitchType : E_SwitchType
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[GetSwitchType := eSwitchType;]]></ST>
+      </Implementation>
+    </Method>
     <Method Name="SetOverride" Id="{704cf5b0-6ab3-44a2-b7b2-2254e4134628}">
       <Declaration><![CDATA[METHOD PUBLIC SetOverride
 VAR_INPUT
