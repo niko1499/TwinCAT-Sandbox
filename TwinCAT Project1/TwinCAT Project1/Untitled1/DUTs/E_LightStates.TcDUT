@@ -9,7 +9,9 @@ TYPE E_LightStates :
 	ON := 1,
 	SLOW_BLINK := 2,
 	FAST_BLINK := 0,
-	COUNT :=4 //Max value. Insert new values before and update max. 
+	
+	
+	COUNT  //Max value. Insert new values before to keep this as the max. Used to get max enum size when useful as an input to other function blocks.  
 );
 END_TYPE]]></Declaration>
   </DUT>
