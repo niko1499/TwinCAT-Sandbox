@@ -14,7 +14,7 @@ VAR
 	fbStartInput : fbDigitalInput(ioBitRef := ADR(aInputs[1]), switchType := E_SwitchType.NO);
 	fbStopInput : fbDigitalInput(ioBitRef := ADR(aInputs[2]), switchType := E_SwitchType.NC);
 	fbLightOutput : fbDigitalOutput(ioBitRef := ADR(aOutputs[1]), switchType := E_SwitchType.NO);
-	CurrentState: UINT  := 0;
+	CurrentState: UINT  := TO_UINT(E_LightStates.FAST_BLINK);
 	
 	fbCounter : CTU;
 
