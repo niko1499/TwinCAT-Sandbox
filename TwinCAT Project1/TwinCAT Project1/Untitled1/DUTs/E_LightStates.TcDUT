@@ -5,10 +5,10 @@
 {attribute 'strict'}
 TYPE E_LightStates :
 (
-	OFF := 3,
+	FAST_BLINK := 0,//set fast blink as default to indicate plc running and IO mapped at a glance. 
 	ON := 1,
 	SLOW_BLINK := 2,
-	FAST_BLINK := 0,
+	OFF := 3,
 	
 	
 	COUNT  //Max value. Insert new values before to keep this as the max. Used to get max enum size when useful as an input to other function blocks.  

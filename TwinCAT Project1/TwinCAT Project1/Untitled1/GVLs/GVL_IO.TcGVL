@@ -2,8 +2,32 @@
 <TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.15">
   <GVL Name="GVL_IO" Id="{2134f0c0-7bc7-41e7-93e4-4b90a1ce6edf}">
     <Declaration><![CDATA[{attribute 'qualified_only'}
+
+VAR_GLOBAL CONSTANT
+    lightBarPDOstartIndex     : INT := 5;
+    lightBarPDOsecondIndex : INT := lightBarPDOstartIndex+1;
+END_VAR
 VAR_GLOBAL
 		Encoder_Counts AT %I* : UINT;
+		
+		byteArray AT %I* : ARRAY[1..8] OF BOOL;
+		byteInt AT %I* : BYTE;
+		flexChain : FlexChain;
+		(*
+		aLightCurtain AT %I* : ARRAY[1..10] OF POINTER TO BOOL := [flexChain.pdo[lightBarPDOstartIndex].0, 
+																   flexChain.pdo[lightBarPDOstartIndex].1,
+																   flexChain.pdo[lightBarPDOstartIndex].2,
+																   flexChain.pdo[lightBarPDOstartIndex].3,
+																   flexChain.pdo[lightBarPDOstartIndex].4,
+																   flexChain.pdo[lightBarPDOstartIndex].5,
+																   flexChain.pdo[lightBarPDOstartIndex].6,
+																   flexChain.pdo[lightBarPDOstartIndex].7,
+																   flexChain.pdo[lightBarPDOsecondIndex].0,
+																   flexChain.pdo[lightBarPDOsecondIndex].1];
+																   
+																   *)
+																   
+
 END_VAR]]></Declaration>
   </GVL>
 </TcPlcObject>

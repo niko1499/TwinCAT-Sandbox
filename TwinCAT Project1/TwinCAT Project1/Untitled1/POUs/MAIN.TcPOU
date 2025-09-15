@@ -22,6 +22,7 @@ VAR
 	timedLight : BOOL;
 	timer :TON;
 
+	aLightCurtain : ARRAY[1..10] OF BOOL; 
 END_VAR
 ]]></Declaration>
     <Implementation>
@@ -50,6 +51,19 @@ END_IF
 
 fbCounter(CU:=fbStartInput.Get(),CU:=fbStartInput.Get(), RESET :=fbStopInput.Get() ,PV := UINT_TO_WORD(E_LightStates.COUNT));
 CurrentState:=fbCounter.CV;
+
+
+	aLightCurtain[1]:= (GVL_IO.flexChain.pdo[GVL_IO.lightBarPDOstartIndex] AND 2#0000_0000_0000_0001) <> 0;
+	aLightCurtain[2]:= (GVL_IO.flexChain.pdo[GVL_IO.lightBarPDOstartIndex] AND 2#0000_0000_0000_0010) <> 0;
+	aLightCurtain[3]:= (GVL_IO.flexChain.pdo[GVL_IO.lightBarPDOstartIndex] AND 2#0000_0000_0000_0100) <> 0;
+	aLightCurtain[4]:= (GVL_IO.flexChain.pdo[GVL_IO.lightBarPDOstartIndex] AND 2#0000_0000_0000_1000) <> 0;
+	aLightCurtain[5]:= (GVL_IO.flexChain.pdo[GVL_IO.lightBarPDOstartIndex] AND 2#0000_0000_0001_0000) <> 0;
+	aLightCurtain[6]:= (GVL_IO.flexChain.pdo[GVL_IO.lightBarPDOstartIndex] AND 2#0000_0000_0010_0000) <> 0;
+	aLightCurtain[7]:= (GVL_IO.flexChain.pdo[GVL_IO.lightBarPDOstartIndex] AND 2#0000_0000_0100_0000) <> 0;
+	aLightCurtain[8]:= (GVL_IO.flexChain.pdo[GVL_IO.lightBarPDOstartIndex] AND 2#0000_0000_1000_0000) <> 0;
+	aLightCurtain[9]:= (GVL_IO.flexChain.pdo[GVL_IO.lightBarPDOsecondIndex] AND 2#0000_0000_0000_0001) <> 0;
+	aLightCurtain[10]:= (GVL_IO.flexChain.pdo[GVL_IO.lightBarPDOsecondIndex] AND 2#0000_0000_0000_0010) <> 0;
+								
 
 
 CASE CurrentState OF

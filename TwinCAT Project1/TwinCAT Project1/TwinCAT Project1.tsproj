@@ -10,6 +10,15 @@
 				<Elements>8</Elements>
 			</ArrayInfo>
 		</DataType>
+		<DataType>
+			<Name GUID="{A6CC6AFE-FE37-C02D-2C0C-FB1479660FEB}" IecBaseType="true" AutoDeleteType="true">ARRAY [0..31] OF BYTE</Name>
+			<BitSize>256</BitSize>
+			<BaseType GUID="{18071995-0000-0000-0000-000000000001}">BYTE</BaseType>
+			<ArrayInfo>
+				<LBound>0</LBound>
+				<Elements>32</Elements>
+			</ArrayInfo>
+		</DataType>
 	</DataTypes>
 	<Project ProjectGUID="{0FA1E132-C18C-40A5-84D5-C6FAD0612D87}" TargetNetId="5.97.60.218.1.1" ShowHideConfigurations="#x6">
 		<System>
@@ -21,7 +30,7 @@
 		</System>
 		<Plc>
 			<Project GUID="{60FE63E8-E690-4826-960C-041235D04655}" Name="Untitled1" PrjFilePath="Untitled1\Untitled1.plcproj" TmcFilePath="Untitled1\Untitled1.tmc" ReloadTmc="true" AmsPort="851" FileArchiveSettings="#x000e" SymbolicMapping="true">
-				<Instance Id="#x08502000" TcSmClass="TComPlcObjDef" KeepUnrestoredLinks="2" TmcPath="Untitled1\Untitled1.tmc" TmcHash="{8A8BE8A8-BCB7-ED84-5550-0F934B46A035}">
+				<Instance Id="#x08502000" TcSmClass="TComPlcObjDef" KeepUnrestoredLinks="2" TmcPath="Untitled1\Untitled1.tmc" TmcHash="{E72B7B0C-04D4-5C80-9C29-CF438AA991C0}">
 					<Name>Untitled1 Instance</Name>
 					<CLSID ClassFactory="TcPlc30">{08500001-0000-0000-F000-000000000064}</CLSID>
 					<Vars VarGrpType="1">
@@ -31,8 +40,21 @@
 							<Type GUID="{71B58F72-0E49-50EB-B8E4-1CCD027538EC}">ARRAY [1..8] OF BOOL</Type>
 						</Var>
 						<Var>
+							<Name>GVL_IO.byteInt</Name>
+							<Type>BYTE</Type>
+						</Var>
+						<Var>
 							<Name>GVL_IO.Encoder_Counts</Name>
 							<Type>UINT</Type>
+						</Var>
+						<Var>
+							<Name>GVL_IO.byteArray</Name>
+							<Type GUID="{71B58F72-0E49-50EB-B8E4-1CCD027538EC}">ARRAY [1..8] OF BOOL</Type>
+						</Var>
+						<Var>
+							<Name>GVL_IO.flexChain.pdo</Name>
+							<Comment><![CDATA[max pdo inputs of the flex chain bus]]></Comment>
+							<Type GUID="{A6CC6AFE-FE37-C02D-2C0C-FB1479660FEB}">ARRAY [0..31] OF BYTE</Type>
 						</Var>
 					</Vars>
 					<Vars VarGrpType="2" AreaNo="1">
@@ -93,6 +115,19 @@
 		<OwnerA Name="TIPC^Untitled1^Untitled1 Instance">
 			<OwnerB Name="TIID^Device 1 (EtherCAT)^Box 13 (EP6228-0022)">
 				<Link VarA="PlcTask Inputs^GVL_IO.Encoder_Counts" VarB="Module 3 (IO-Link Slave)^IO-Link Port1^Counter"/>
+				<Link VarA="PlcTask Inputs^GVL_IO.flexChain.pdo[0]" VarB="Module 4 (IO-Link Slave)^IO-Link Port2_in^Process Data In"/>
+				<Link VarA="PlcTask Inputs^GVL_IO.flexChain.pdo[10]" VarB="Module 4 (IO-Link Slave)^IO-Link Port2_in^Process Data In_10"/>
+				<Link VarA="PlcTask Inputs^GVL_IO.flexChain.pdo[11]" VarB="Module 4 (IO-Link Slave)^IO-Link Port2_in^Process Data In_11"/>
+				<Link VarA="PlcTask Inputs^GVL_IO.flexChain.pdo[12]" VarB="Module 4 (IO-Link Slave)^IO-Link Port2_in^Process Data In_12"/>
+				<Link VarA="PlcTask Inputs^GVL_IO.flexChain.pdo[1]" VarB="Module 4 (IO-Link Slave)^IO-Link Port2_in^Process Data In_1"/>
+				<Link VarA="PlcTask Inputs^GVL_IO.flexChain.pdo[2]" VarB="Module 4 (IO-Link Slave)^IO-Link Port2_in^Process Data In_2"/>
+				<Link VarA="PlcTask Inputs^GVL_IO.flexChain.pdo[3]" VarB="Module 4 (IO-Link Slave)^IO-Link Port2_in^Process Data In_3"/>
+				<Link VarA="PlcTask Inputs^GVL_IO.flexChain.pdo[4]" VarB="Module 4 (IO-Link Slave)^IO-Link Port2_in^Process Data In_4"/>
+				<Link VarA="PlcTask Inputs^GVL_IO.flexChain.pdo[5]" VarB="Module 4 (IO-Link Slave)^IO-Link Port2_in^Process Data In_5"/>
+				<Link VarA="PlcTask Inputs^GVL_IO.flexChain.pdo[6]" VarB="Module 4 (IO-Link Slave)^IO-Link Port2_in^Process Data In_6"/>
+				<Link VarA="PlcTask Inputs^GVL_IO.flexChain.pdo[7]" VarB="Module 4 (IO-Link Slave)^IO-Link Port2_in^Process Data In_7"/>
+				<Link VarA="PlcTask Inputs^GVL_IO.flexChain.pdo[8]" VarB="Module 4 (IO-Link Slave)^IO-Link Port2_in^Process Data In_8"/>
+				<Link VarA="PlcTask Inputs^GVL_IO.flexChain.pdo[9]" VarB="Module 4 (IO-Link Slave)^IO-Link Port2_in^Process Data In_9"/>
 			</OwnerB>
 			<OwnerB Name="TIID^Device 1 (EtherCAT)^Term 7 (EK1200)^Term 10 (EL2008)">
 				<Link VarA="PlcTask Outputs^MAIN.aOutputs[1]" VarB="Channel 1^Output"/>
