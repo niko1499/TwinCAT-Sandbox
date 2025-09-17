@@ -1,0 +1,211 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.15">
+  <POU Name="FB_PISA_Comms" Id="{fcd1d659-8ade-4890-bc41-6e29b3b0778a}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK FB_PISA_Comms
+VAR_INPUT
+	//bStart	: BOOL;
+	//bReset	: BOOL;
+	//biDirectional	: BOOL;
+END_VAR
+VAR CONSTANT
+    cMaxChannels : INT := 16;
+	cStandardChannels : INT :=4;
+END_VAR
+
+VAR
+	PisaIO : PISA_Comms;
+	
+	bStart : BOOL := TRUE;
+	biDirectional : BOOL := FALSE;
+	//fbTcMessage     : FB_TcMessage ; // Function block instance for sending messages
+	myDevice : POINTER TO PISA_Comms;
+	
+	nNumberOfDeviceChannels : UINT :=4; //Currently all PISA-M devices have 4 channels but this might change with new product releases
+	//nTimerTx	: UINT;
+	//nTimerRx	: UINT;
+	bStartBit : BOOL;
+	tStartTimeDuration	: TIME ;
+	nChannelNumber	: USINT := 0 ;
+	//maxNumberOfChannels UINT := 16;
+	aStatus : ARRAY[1..cMaxChannels] OF CircuitBreakerStatus;
+	//aChannelTripped	: ARRAY[1..nNumberOfDeviceChannels] OF BOOL;
+	//aChannelOff		: ARRAY[1..nNumberOfDeviceChannels] OF BOOL;
+	tpStatus	: TP	:= (PT:=T#100MS);	//Channel Status Timer
+	tpGap		: TP	:= (PT:=T#100MS);	//Gap Between Channels Timer
+	tpMeasure   : TP    := (PT:=T#100MS);
+	cCycleTime : TIME := T#10MS;
+	timeDiv : TIME := T#100MS-cCycleTime;
+	rxSequenceDuration :TIME :=T#1100MS;
+	minTimeToRegister :TIME :=T#5MS;
+	offTime :TIME :=T#50MS;
+	timer :TON;
+	bReadingStatus : BOOL;
+	maxPulseDuration :TIME :=T#200MS;
+	shortStartPulseDuration : TIME := T#150MS;
+	longStartPulseDuration : TIME := T#200MS;
+	
+	mostRecientTime : TIME;
+	
+	measuredTime : TIME ;
+	
+	tempStatus : CircuitBreakerStatus;
+	
+	//minimumTimeToTrig :TIME := T#50MS;
+	
+	fallingEdge: F_TRIG;
+	risingEdge: R_TRIG;
+	rxStartTimer: TON;
+	rxSequenceTimer :TP;
+	//rtRxStart	: R_Trig;
+	//sigStatus: INT;
+	//circuitStatus: INT;
+	//E_ECB_Status: INT;
+	//OFF: INT;
+	//Tripped: INT;
+	//ON: INT;
+	
+	
+	nTimerRx: INT;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[IF bStart THEN
+
+	IF biDirectional THEN
+		tStartTimeDuration	:= shortStartPulseDuration;
+	ELSE
+		tStartTimeDuration	:= longStartPulseDuration;
+	END_IF
+	
+	
+	timer(IN := PisaIO.bRX , PT:=tStartTimeDuration);
+	fallingEdge(CLK := PisaIO.bRX);
+	
+	IF( PisaIO.bRX = TRUE AND NOT fallingEdge.Q AND NOT timer.Q) THEN // IF the input is high, update the running counter of the pulse duration
+		mostRecientTime := timer.ET;	
+	END_IF
+	
+	IF (fallingEdge.Q)THEN //A pulse just completed
+		IF mostRecientTime >= shortStartPulseDuration - cCycleTime THEN
+			bStartBit 	:= NOT bStartBit; // Will only read every other start bit but simplifies some logice and time syncing
+		END_IF
+	
+	
+	END_IF
+	
+	
+	//rxSequenceDuration := tStartTimeDuration + 2 * timeDiv * nNumberOfDeviceChannels;
+	
+	//rxStartTimer(IN := PisaIO.bRX, PT := tStartTimeDuration); //Timer to detect Start BIT
+	
+	//IF rxStartTimer.Q THEN // The START bit was found. 
+	//	bStartBit 	:= TRUE;
+		//nTimerRx 	:= 0;
+		
+	//	tpStatus(in:=TRUE);
+	//END_IF
+	//rxSequenceTimer(IN := bStartBit, PT := rxSequenceDuration-tStartTimeDuration); //Timer to detect Start BIT
+	
+	//rxSequenceTimer.ET>
+	
+	(*
+	timer(IN := NOT timer.Q AND bStartBit, PT := timeDiv);
+	IF timer.Q THEN 
+		bReadingStatus := NOT bReadingStatus; 
+	END_IF
+	*)
+	
+	///fallingEdge(CLK := bReadingStatus OR PisaIO.bRX);//Only when we transition to the next gap sig pair
+	
+	IF bStartBit THEN
+		
+	(*
+		IF bReadingStatus THEN// IN STATUS (Measure the duration of the pulse in the status section of the sequence
+			tpMeasure(IN:= TPStatus.Q AND PisaIO.bRX);
+			measuredTime:=tpMeasure.ET;
+		ELSE IF nChannelNumber > 0 THEN //IN GAP (Determine the meaning of the last pulse based on length and dave it)
+			IF measuredTime > minTimeToRegister AND measuredTime <= offTime + minTimeToRegister THEN
+				aStatus[nChannelNumber]	:= CircuitBreakerStatus.OFF;
+			ELSIF measuredTime > offTime THEN
+				aStatus[nChannelNumber]	:= CircuitBreakerStatus.Tripped;
+			ELSE
+				aStatus[nChannelNumber]	:= CircuitBreakerStatus.ON;
+			END_IF	
+		END_IF	
+		
+		IF fallingEdge.Q THEN
+			nChannelNumber := nChannelNumber + 1;
+		END_IF
+		END_IF 
+		*)
+		IF nChannelNumber > cStandardChannels THEN //End of Sequence
+			bStartBit := FALSE;
+			nChannelNumber :=0;
+			bReadingStatus := FALSE;
+		END_IF
+	END_IF
+END_IF]]></ST>
+    </Implementation>
+    <Method Name="FB_init" Id="{111f2d93-df1c-4131-8042-2161ba29b6b2}">
+      <Declaration><![CDATA[METHOD FB_init : BOOL
+VAR_INPUT
+	bInitRetains : BOOL; // if TRUE, the retain variables are initialized (warm start / cold start)
+	bInCopyCode : BOOL;  // if TRUE, the instance afterwards gets moved into the copy code (online change)
+	sProductName : STRING;
+END_VAR
+
+VAR
+	cChar: STRING;
+	iDigit: UINT;
+	iIndex: INT;
+	sMyString: INT;
+	iMyInteger: INT;
+	exc : __SYSTEM.ExceptionCode;
+
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[PisaIO.sProductName := sProductName;
+__TRY
+nNumberOfDeviceChannels := STRING_TO_UINT(MID(sProductName,1,4));
+__CATCH(exc)
+	//TODO Throw exception with indication of unexpected character in 4th digit of product name
+__ENDTRY
+
+//PISA-M-404
+//PISA-M-%i0%j
+//Pisa modules follow the following naming convention where %i is the number of channels and %j is the amperage
+
+nNumberOfDeviceChannels := iDigit;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="GetStatus" Id="{b627c613-9025-44cd-970a-bd5106ddd8b2}">
+      <Declaration><![CDATA[METHOD GetStatus : CircuitBreakerStatus
+VAR_INPUT
+	nChannel : UINT;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF nChannel > 0 AND nChannel <= nNumberOfDeviceChannels THEN
+	GetStatus := aStatus[nChannel];
+ELSE
+	//todo error
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="SetStatus" Id="{6642a64a-4e50-4f13-b203-f745ad1ed55d}">
+      <Declaration><![CDATA[METHOD SetStatus
+VAR_INPUT
+	nChannel : UINT;
+	sStatus : CircuitBreakerStatus;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF(sStatus = CircuitBreakerStatus.ON OR sStatus = CircuitBreakerStatus.RESET) THEN
+	aStatus[nChannel] := CircuitBreakerStatus.RESET;
+END_IF
+
+//TODO logic to transmit reset signals or off signal]]></ST>
+      </Implementation>
+    </Method>
+  </POU>
+</TcPlcObject>

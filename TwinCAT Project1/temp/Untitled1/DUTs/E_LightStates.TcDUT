@@ -1,0 +1,18 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.15">
+  <DUT Name="E_LightStates" Id="{ccab2970-1c46-434b-a466-3ab65b3b8920}">
+    <Declaration><![CDATA[{attribute 'qualified_only'}
+{attribute 'strict'}
+TYPE E_LightStates :
+(
+	FAST_BLINK := 0,//set fast blink as default to indicate plc running and IO mapped at a glance. 
+	ON := 1,
+	SLOW_BLINK := 2,
+	OFF := 3,
+	
+	
+	COUNT  //Max value. Insert new values before to keep this as the max. Used to get max enum size when useful as an input to other function blocks.  
+);
+END_TYPE]]></Declaration>
+  </DUT>
+</TcPlcObject>

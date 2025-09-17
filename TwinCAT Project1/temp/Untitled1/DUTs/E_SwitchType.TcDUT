@@ -1,0 +1,15 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.15">
+  <DUT Name="E_SwitchType" Id="{b14fc4fe-094a-47ef-b738-9f0283f49bec}">
+    <Declaration><![CDATA[{attribute 'qualified_only'}
+{attribute 'strict'}
+TYPE E_SwitchType :
+(
+	NO := 0,
+	NC := 1,
+	COUNT :=3 //Max value. Insert new values before and update max. 
+);
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

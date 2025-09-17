@@ -1,0 +1,29 @@
+<?xml version="1.0"?>
+<VarLinks>
+	<OwnerA Name="InputDst" Prefix="TIPC^Untitled1^Untitled1 Instance" Type="1">
+		<OwnerB Name="TIID^Device 1 (EtherCAT)^Box 13 (EP6228-0022)">
+			<Link VarA="GVL_IO.Encoder_Counts" GrpA="PlcTask Inputs" TypeA="UINT" InOutA="0" GuidA="{18071995-0000-0000-0000-000000000005}" VarB="Module 3 (IO-Link Slave)^IO-Link Port1^Counter"/>
+			<Link VarA="GVL_IO.flexChain.pdo[0]" GrpA="PlcTask Inputs" TypeA="BYTE" InOutA="0" GuidA="{18071995-0000-0000-0000-000000000001}" VarB="Module 4 (IO-Link Slave)^IO-Link Port2_in^Process Data In"/>
+			<Link VarA="GVL_IO.flexChain.pdo[10]" GrpA="PlcTask Inputs" TypeA="BYTE" InOutA="0" GuidA="{18071995-0000-0000-0000-000000000001}" VarB="Module 4 (IO-Link Slave)^IO-Link Port2_in^Process Data In_10"/>
+			<Link VarA="GVL_IO.flexChain.pdo[11]" GrpA="PlcTask Inputs" TypeA="BYTE" InOutA="0" GuidA="{18071995-0000-0000-0000-000000000001}" VarB="Module 4 (IO-Link Slave)^IO-Link Port2_in^Process Data In_11"/>
+			<Link VarA="GVL_IO.flexChain.pdo[12]" GrpA="PlcTask Inputs" TypeA="BYTE" InOutA="0" GuidA="{18071995-0000-0000-0000-000000000001}" VarB="Module 4 (IO-Link Slave)^IO-Link Port2_in^Process Data In_12"/>
+			<Link VarA="GVL_IO.flexChain.pdo[1]" GrpA="PlcTask Inputs" TypeA="BYTE" InOutA="0" GuidA="{18071995-0000-0000-0000-000000000001}" VarB="Module 4 (IO-Link Slave)^IO-Link Port2_in^Process Data In_1"/>
+			<Link VarA="GVL_IO.flexChain.pdo[2]" GrpA="PlcTask Inputs" TypeA="BYTE" InOutA="0" GuidA="{18071995-0000-0000-0000-000000000001}" VarB="Module 4 (IO-Link Slave)^IO-Link Port2_in^Process Data In_2"/>
+			<Link VarA="GVL_IO.flexChain.pdo[3]" GrpA="PlcTask Inputs" TypeA="BYTE" InOutA="0" GuidA="{18071995-0000-0000-0000-000000000001}" VarB="Module 4 (IO-Link Slave)^IO-Link Port2_in^Process Data In_3"/>
+			<Link VarA="GVL_IO.flexChain.pdo[4]" GrpA="PlcTask Inputs" TypeA="BYTE" InOutA="0" GuidA="{18071995-0000-0000-0000-000000000001}" VarB="Module 4 (IO-Link Slave)^IO-Link Port2_in^Process Data In_4"/>
+			<Link VarA="GVL_IO.flexChain.pdo[5]" GrpA="PlcTask Inputs" TypeA="BYTE" InOutA="0" GuidA="{18071995-0000-0000-0000-000000000001}" VarB="Module 4 (IO-Link Slave)^IO-Link Port2_in^Process Data In_5"/>
+			<Link VarA="GVL_IO.flexChain.pdo[6]" GrpA="PlcTask Inputs" TypeA="BYTE" InOutA="0" GuidA="{18071995-0000-0000-0000-000000000001}" VarB="Module 4 (IO-Link Slave)^IO-Link Port2_in^Process Data In_6"/>
+			<Link VarA="GVL_IO.flexChain.pdo[7]" GrpA="PlcTask Inputs" TypeA="BYTE" InOutA="0" GuidA="{18071995-0000-0000-0000-000000000001}" VarB="Module 4 (IO-Link Slave)^IO-Link Port2_in^Process Data In_7"/>
+			<Link VarA="GVL_IO.flexChain.pdo[8]" GrpA="PlcTask Inputs" TypeA="BYTE" InOutA="0" GuidA="{18071995-0000-0000-0000-000000000001}" VarB="Module 4 (IO-Link Slave)^IO-Link Port2_in^Process Data In_8"/>
+			<Link VarA="GVL_IO.flexChain.pdo[9]" GrpA="PlcTask Inputs" TypeA="BYTE" InOutA="0" GuidA="{18071995-0000-0000-0000-000000000001}" VarB="Module 4 (IO-Link Slave)^IO-Link Port2_in^Process Data In_9"/>
+		</OwnerB>
+		<OwnerB Name="TIID^Device 1 (EtherCAT)^Term 7 (EK1200)^Term 9 (EL1008)">
+			<Link VarA="MAIN.myPisa.PisaIO.bRX" GrpA="PlcTask Inputs" TypeA="BIT" InOutA="0" GuidA="{18071995-0000-0000-0000-000000000010}" VarB="Channel 3^Input"/>
+		</OwnerB>
+	</OwnerA>
+	<OwnerA Name="OutputSrc" Prefix="TIPC^Untitled1^Untitled1 Instance" Type="2">
+		<OwnerB Name="TIID^Device 1 (EtherCAT)^Term 7 (EK1200)^Term 10 (EL2008)">
+			<Link VarA="MAIN.myPisa.PisaIO.bTX" GrpA="PlcTask Outputs" TypeA="BIT" InOutA="1" GuidA="{18071995-0000-0000-0000-000000000010}" VarB="Channel 3^Output"/>
+		</OwnerB>
+	</OwnerA>
+</VarLinks>

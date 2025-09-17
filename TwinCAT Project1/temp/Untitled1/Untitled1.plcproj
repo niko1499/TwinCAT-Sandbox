@@ -3,19 +3,19 @@
   <PropertyGroup>
     <FileVersion>1.0.0.0</FileVersion>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{60fe63e8-e690-4826-960c-041235d04655}</ProjectGuid>
+    <ProjectGuid>{95ca476f-d0c7-4114-8b5a-37bd4ae36560}</ProjectGuid>
     <SubObjectsSortedByName>True</SubObjectsSortedByName>
     <DownloadApplicationInfo>true</DownloadApplicationInfo>
     <WriteProductVersion>true</WriteProductVersion>
     <GenerateTpy>false</GenerateTpy>
     <Name>Untitled1</Name>
     <ProgramVersion>3.1.4024.0</ProgramVersion>
-    <Application>{d490605e-654d-4f74-b924-10f6e6ca65eb}</Application>
-    <TypeSystem>{39760fc3-081b-4587-95d9-29f517ca5e26}</TypeSystem>
-    <Implicit_Task_Info>{9c43cf5b-5fed-416b-ba93-105842485c62}</Implicit_Task_Info>
-    <Implicit_KindOfTask>{443a3170-ec2f-435e-b7b8-d96bb98b8fd9}</Implicit_KindOfTask>
-    <Implicit_Jitter_Distribution>{823aee87-460b-4f71-b019-dcbeb7881de3}</Implicit_Jitter_Distribution>
-    <LibraryReferences>{5aa5fe4a-45f0-467d-8b55-1ed5666c50d3}</LibraryReferences>
+    <Application>{ef9d217f-877d-47e3-b928-ad9c57bcc1b8}</Application>
+    <TypeSystem>{a94122d2-1369-475f-8928-bb70ccdcee7b}</TypeSystem>
+    <Implicit_Task_Info>{461c1642-fd24-4e72-960d-67cef653c6fe}</Implicit_Task_Info>
+    <Implicit_KindOfTask>{842d3793-4a38-4a1e-898d-352d64f9180c}</Implicit_KindOfTask>
+    <Implicit_Jitter_Distribution>{f3618bcd-9334-4789-8de3-8fbdfefcf7d9}</Implicit_Jitter_Distribution>
+    <LibraryReferences>{fef1b003-bc0f-4bc4-86d3-accedd508ebf}</LibraryReferences>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="DUTs\FlexChain.TcDUT">

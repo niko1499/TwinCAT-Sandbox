@@ -23,12 +23,10 @@ VAR
 
 	aLightCurtain : ARRAY[1..10] OF BOOL; 
 	
-	//myPisa : FB_PISA_Comms(sProductName := 'PISA-M-4CL2');
-	myPisa : FB_PISA_Comms();
+	myPisa : FB_PISA_Comms(sProductName := 'PISA-M-4CL2');
+	
 	cbStates : ARRAY[1..4] OF CircuitBreakerStatus;
 	i: INT;
-	
-	BoolRunIt : BOOL :=TRUE;
 END_VAR
 ]]></Declaration>
     <Implementation>
@@ -54,7 +52,7 @@ ELSE
 		bLight^:=FALSE;
 END_IF
 *)
-myPisa(bStart:=BoolRunIt);
+myPisa();
 
 FOR i := 1 TO 4 DO
     cbStates[i] := myPisa.GetStatus(i);

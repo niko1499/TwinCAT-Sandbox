@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<TcSmItem xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://www.beckhoff.com/schemas/2012/07/TcSmProject" TcSmVersion="1.0" TcVersion="3.1.4024.67" ClassName="CFlbTermDef" SubType="9099">
+	<Box Id="12" BoxType="9099">
+		<Name>__FILENAME__</Name>
+		<ImageId>114</ImageId>
+		<EtherCAT SlaveType="2" PdiType="#x0006" StateMBoxPolling="true" CycleMBoxPollingTime="0" CoeType="55" VendorId="#x01000056" ProductCode="#x00002302" RevisionNo="#x00000001" SerialNo="#x0140e7c3" InfoDataAddr="true" PortPhys="17" IdentificationAdo="308" MaxSlotCount="256" MaxSlotGroupCount="1" SlotPdoIncrement="1" SlotIndexIncrement="16" Type="FLX0-GETC100" Desc="Flexi Gateway GETC1">
+			<SyncMan>001080003600010001000000000000008000001036010000</SyncMan>
+			<SyncMan>801080003200010002000000000000008000801032010000</SyncMan>
+			<SyncMan>00110000740000000300000000000000c800001174010000</SyncMan>
+			<SyncMan>001d0000300000000400000000000000c800001d30010000</SyncMan>
+			<Fmmu>0000000000000000000000020000000001000000000000000000000000000000</Fmmu>
+			<Fmmu>0000000000000000000000010000000002000000000000000000000000000000</Fmmu>
+			<Fmmu>00000000000000000d0800010100000003000000000000000000000000000000</Fmmu>
+			<BootStrapData>0010000000100000</BootStrapData>
+		</EtherCAT>
+	</Box>
+</TcSmItem>
