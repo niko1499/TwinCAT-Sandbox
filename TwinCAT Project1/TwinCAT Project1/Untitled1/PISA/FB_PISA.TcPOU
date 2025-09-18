@@ -1,0 +1,347 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.15">
+  <POU Name="FB_PISA" Id="{fcd1d659-8ade-4890-bc41-6e29b3b0778a}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK FB_PISA
+VAR_INPUT
+	 bStart	: BOOL;
+	 bBidirectional	: BOOL;
+END_VAR
+VAR CONSTANT
+	//Constants as defined in Pulse Pisa Manuals
+    MAX_NUMBER_OF_CHANNELS : USINT            := 8;         //Theoritical max channels offered by Pulse is 64. Setting to 8 for now as we are unlikely to go beyond 8
+	STANDARD_NUMBER_OF_CHANNELS : USINT       :=4;    //TODO make variable on init
+	
+	
+	SHORT_START_PULSE_DURATION : TIME := T#150MS;
+	LONG_START_PULSE_DURATION : TIME  := T#200MS;
+	
+	DRIFT_TOLERANCE : TIME        := T#15MS;//cCycleTime *2;cGapTime : TIME :=T#100MS;
+	STATUS_DURATION: TIME        := T#100MS;
+	NOMINAL_PERIOD_DURATION: TIME := T#200MS;
+	STATUS_PERIOD_DURATION: TIME        := T#190MS;//gapTime + statusTime; Nominally 200ms but practically 200ms - CycleTime. to ensure trigger before end of period.
+	STATUS_MIN_PERIOD_DURATION:TIME  := T#60MS;
+	
+	//Command Durations
+	CMD_START_DURATION: TIME    := T#150MS;
+	CMD_RESET_DURATION: TIME    := T#100MS;
+	CMD_OFF_DURATION: TIME      := T#50MS;
+	CMD_STOP_GAP_DURATION : TIME := T#150MS;
+	CMD_STOP_DURATION: TIME     := T#100MS;
+	CMD_END_DURATION: TIME   := T#50MS;
+	
+	
+	//Constants of our PLC
+	CYCLE_TIME : TIME := T#10MS;//TODO update this programatically on FB init.
+	
+
+
+END_VAR
+
+VAR
+	PisaIO : PISA_IO; // Struct for mapping to the actual IO Hardware
+	commMode : PisaPulseCommMode;
+	
+	tMaxTransmitSequence: TIME;
+	tMaxRecieveSequence: TIME;
+	
+	//Variables for Reading
+	aStatus : ARRAY[1..MAX_NUMBER_OF_CHANNELS] OF CircuitBreakerStatus := [MAX_NUMBER_OF_CHANNELS(CircuitBreakerStatus.UNKNOWN)];
+
+	bStartBitFound : BOOL;//Indicateds the falling edge of the start bit has been found. (we are reading channels)
+	tStartTimeDuration	: TIME ; // The expected start bit udration variable based on bi or uni directional communication. 
+	nReadingChannelIndex	: USINT := 0 ; //The current channel number as determined by time or falling edges in the data
+	nLastReadingChannelIndex :USINT :=0; //A lag behind value of the channel for correct array index because saving of channel data happends in the first time slice of the next channel 
+	nNumberOfChannels : USINT := STANDARD_NUMBER_OF_CHANNELS;
+	tLastPulseDuration : TIME; //Store the elapsed time. 
+	
+	timerPulseMeasurement :TON;
+	timerPeriodMax : TP;
+	timerPeriodMin :TON;
+		
+	inputFallingEdge: F_TRIG;
+	maxTime: F_TRIG;//Indicates the maximum time of a channel has been hit
+	bResetMaxTimeFlag: BOOL:=FALSE; //Used to indicate the max pulse timer needs to be reset NEXT cycle. Can't happen this cycle or Q will not trigger. 
+
+	//Variables for Writing
+	aCtrl : ARRAY[1..MAX_NUMBER_OF_CHANNELS] OF CircuitBreakerStatus := [MAX_NUMBER_OF_CHANNELS(CircuitBreakerStatus.UNKNOWN)];
+	
+	
+	timerWriteTotal : TON;
+	timerStartWrite : TP;
+	timerDataWrite :TP;
+	timerStopWrite : TP;
+	bTransmitting:BOOL :=FALSE;
+	
+	tDataPeriodDuration: TIME;
+	timerDataWrite1: TP;
+	bPeriodActive: BOOL;
+	
+	fbWriteStartFalling: F_TRIG;
+	nWritingChannelIndex : USINT :=0;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[IF bStart THEN
+	
+	CalculateTimes();
+	
+	ReadFromDevice();
+	
+	IF bBidirectional THEN
+		WriteToDevice();
+	ELSE
+		PisaIO.bTX:=FALSE;	
+	END_IF
+	
+ELSE// Program not running.
+	ClearStoredValues();
+END_IF]]></ST>
+    </Implementation>
+    <Method Name="CalculateTimes" Id="{81049bee-aa31-48e1-9345-df471dcf9637}">
+      <Declaration><![CDATA[METHOD PRIVATE CalculateTimes
+
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[
+
+tMaxTransmitSequence:= SHORT_START_PULSE_DURATION + (NOMINAL_PERIOD_DURATION * nNumberOfChannels)+CMD_STOP_GAP_DURATION +CMD_STOP_DURATION+T#100MS;
+//Nominally 1200MS for 4 chanels	
+tDataPeriodDuration := NOMINAL_PERIOD_DURATION * nNumberOfChannels;
+
+//Nominally 200MS per channel	
+IF commMode= PisaPulseCommMode.Unidirectional THEN
+	tStartTimeDuration	:= LONG_START_PULSE_DURATION;
+	tMaxRecieveSequence := LONG_START_PULSE_DURATION + (NOMINAL_PERIOD_DURATION * nNumberOfChannels)  + STATUS_DURATION;
+	//Nominally 1100MS for 4 chanels
+ELSE
+	tStartTimeDuration	:= SHORT_START_PULSE_DURATION;
+	tMaxRecieveSequence := SHORT_START_PULSE_DURATION + (NOMINAL_PERIOD_DURATION * nNumberOfChannels)  + STATUS_DURATION;
+	//NOMINALLY 1050MS for 4 chanels	
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="ClearStoredValues" Id="{8c872f6e-f6ce-4ed1-8772-ffa97afe5b3d}">
+      <Declaration><![CDATA[METHOD PRIVATE ClearStoredValues
+VAR_INPUT
+END_VAR
+VAR
+	i : INT;//array index
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[FOR i := 1 TO nNumberOfChannels DO
+	aStatus[i] := CircuitBreakerStatus.UNKNOWN; // Wipe out the array as we are in an unexpected state so no recorded values are guarenteed to be correct. 
+END_FOR]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="FB_init" Id="{111f2d93-df1c-4131-8042-2161ba29b6b2}">
+      <Declaration><![CDATA[METHOD FB_init : BOOL
+VAR_INPUT
+	bInitRetains : BOOL; // if TRUE, the retain variables are initialized (warm start / cold start)
+	bInCopyCode : BOOL;  // if TRUE, the instance afterwards gets moved into the copy code (online change)
+	//sProductName : STRING;
+END_VAR
+
+VAR
+	cChar: STRING;
+	iDigit: UINT;
+	iIndex: INT;
+	sMyString: INT;
+	iMyInteger: INT;
+	exc : __SYSTEM.ExceptionCode;
+
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[//PisaIO.sProductName := sProductName;
+(*
+__TRY
+nNumberOfDeviceChannels := STRING_TO_UINT(MID(sProductName,1,4));
+__CATCH(exc)
+	//TODO Throw exception with indication of unexpected character in 4th digit of product name
+__ENDTRY
+*)
+//PISA-M-404
+//PISA-M-%i0%j
+//Pisa modules follow the following naming convention where %i is the number of channels and %j is the amperage
+
+//nNumberOfDeviceChannels := iDigit;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="GetCommMode" Id="{0c35d0de-ab17-4237-a989-bcb0a8d52a88}">
+      <Declaration><![CDATA[METHOD PUBLIC GetCommMode : PisaPulseCommMode
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[GetCommMode:=commMode;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="GetStatus" Id="{b627c613-9025-44cd-970a-bd5106ddd8b2}">
+      <Declaration><![CDATA[METHOD GetStatus : CircuitBreakerStatus
+VAR_INPUT
+	nChannel : UINT;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF nChannel > 0 AND nChannel <= nNumberOfChannels THEN
+	GetStatus := aStatus[nChannel];
+ELSE
+	//todo error
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="ReadFromDevice" Id="{2202baeb-5622-4fa6-b490-6733897db411}">
+      <Declaration><![CDATA[METHOD PRIVATE ReadFromDevice : BOOL
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[timerPulseMeasurement(IN := PisaIO.bRX , PT:=tStartTimeDuration+DRIFT_TOLERANCE);
+	
+	inputFallingEdge(CLK := PisaIO.bRX);//Indicates any falling edge on the input signal 
+	maxTime(CLK:= timerPeriodMax.Q);//Indicates the max period time has elapsed
+	
+	IF bResetMaxTimeFlag THEN
+		timerPeriodMax(IN:=TRUE);
+		bResetMaxTimeFlag :=FALSE;
+	ELSE
+		timerPeriodMax(IN:=inputFallingEdge.Q AND NOT timerPeriodMax.Q, PT:= STATUS_PERIOD_DURATION);
+	END_IF
+	
+	
+	
+	IF( PisaIO.bRX = TRUE AND NOT inputFallingEdge.Q AND NOT timerPulseMeasurement.Q) THEN // IF the input is high, update the running counter of the pulse duration
+		tLastPulseDuration := timerPulseMeasurement.ET;	
+	END_IF
+	
+	IF (inputFallingEdge.Q)THEN //A pulse just completed
+		timerPeriodMax(IN:=FALSE);//End of period triggers end of time counter resets time to 0 
+		
+		IF tLastPulseDuration >= SHORT_START_PULSE_DURATION - DRIFT_TOLERANCE THEN
+			IF tLastPulseDuration >= LONG_START_PULSE_DURATION - DRIFT_TOLERANCE THEN
+				commMode := PisaPulseCommMode.Unidirectional;
+			ELSE
+				commMode := PisaPulseCommMode.Bidirectional;
+			END_IF
+			
+			bStartBitFound 	:= NOT bStartBitFound; // Main reset happens elsewhere. Failsafe here. Only happense every other cycle but acceptable as only a failsafe. 
+			tLastPulseDuration :=T#0MS ;// reset the time counter so we can measure next pulses
+			
+		END_IF
+	END_IF
+	
+	IF ((inputFallingEdge.Q = TRUE OR (maxTime.Q = TRUE AND PisaIO.bRX = FALSE )) AND bStartBitFound = TRUE) THEN 
+		IF timerPeriodMin.Q THEN
+			nReadingChannelIndex := nReadingChannelIndex + 1;
+			timerPeriodMin(IN:= FALSE, PT:=DRIFT_TOLERANCE);
+		END_IF 
+	ELSE
+		timerPeriodMin(IN:= TRUE, PT:=DRIFT_TOLERANCE);			
+	END_IF
+	
+	IF bStartBitFound THEN // Only calculate state if we have found the start bit and thus are in the channel bits
+		IF (nLastReadingChannelIndex <> nReadingChannelIndex) THEN//We have advanced to the gap period after a readin of a pulse
+			bResetMaxTimeFlag:=TRUE;
+			IF nLastReadingChannelIndex > 0 AND nLastReadingChannelIndex <= nNumberOfChannels THEN
+				IF tLastPulseDuration > CYCLE_TIME AND tLastPulseDuration <= CMD_STOP_DURATION + CYCLE_TIME THEN
+					aStatus[nLastReadingChannelIndex]	:= CircuitBreakerStatus.OFF;
+				ELSIF tLastPulseDuration > CMD_STOP_DURATION THEN
+					aStatus[nLastReadingChannelIndex]	:= CircuitBreakerStatus.Tripped;
+				ELSE
+					aStatus[nLastReadingChannelIndex]	:= CircuitBreakerStatus.ON;
+				END_IF
+			END_IF
+			tLastPulseDuration :=T#0MS ;// reset the time counter as we have recorded the measurement for this pulse
+			nLastReadingChannelIndex := nReadingChannelIndex;
+		END_IF
+	
+		IF nReadingChannelIndex > nNumberOfChannels THEN //End of Sequence
+			bStartBitFound := FALSE;
+			ResetReadIndex();//Reset counter to prepair for next cycle
+		END_IF
+	ELSE//!StartBitFound
+		IF nReadingChannelIndex > 0 THEN//We do not expect to ever be in this state. Indicates the channel number failed to increment. Likely due to a timer failing to reset or the max period timers didn't expire before the next start bit was found;
+			ClearStoredValues();//Clear out our saved cb state data as it is likely incorrect due to above condition
+		END_IF
+		ResetReadIndex();//Reset counter to prepair for next cycle
+	END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="ResetAll" Id="{137c3d21-3291-4818-9502-42e505c5b017}">
+      <Declaration><![CDATA[METHOD PUBLIC ResetAll : BOOL
+VAR_INPUT
+	PT :TIME;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="ResetReadIndex" Id="{e41b78c3-0cc0-4943-ad59-a1706fab07ce}">
+      <Declaration><![CDATA[METHOD PRIVATE ResetReadIndex
+
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[nReadingChannelIndex :=0;
+nLastReadingChannelIndex:=0;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="SetStatus" Id="{6642a64a-4e50-4f13-b203-f745ad1ed55d}">
+      <Declaration><![CDATA[METHOD SetStatus
+VAR_INPUT
+	nChannel : UINT;
+	sStatus : CircuitBreakerStatus;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF(sStatus = CircuitBreakerStatus.ON OR sStatus = CircuitBreakerStatus.RESET) THEN
+	aStatus[nChannel] := CircuitBreakerStatus.RESET;
+END_IF
+
+//TODO logic to transmit reset signals or off signal]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="WriteToDevice" Id="{1e9decf7-4bb3-4e88-b3b1-818725582bbf}">
+      <Declaration><![CDATA[METHOD PRIVATE WriteToDevice : BOOL
+VAR_INPUT
+END_VAR
+
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[
+timerWriteTotal(IN:= bTransmitting,PT:=tMaxTransmitSequence);
+timerStartWrite(IN:= NOT timerWriteTotal.Q, PT:=CMD_START_DURATION);
+fbWriteStartFalling(CLK:=timerStartWrite.Q OR timerDataWrite.Q);
+//timerDataWrite(IN := NOT timerStartWrite.Q, PT:=tDataPeriodDuration);
+
+
+timerDataWrite(IN := NOT timerDataWrite1.Q AND NOT timerStartWrite.Q AND NOT timerStopWrite.Q, PT:=NOMINAL_PERIOD_DURATION);
+
+bPeriodActive := timerDataWrite1.Q;
+
+
+
+IF(fbWriteStartFalling.Q) THEN
+	nWritingChannelIndex := nWritingChannelIndex+1;
+END_IF
+
+timerStopWrite(IN := NOT timerDataWrite.Q AND nWritingChannelIndex > nNumberOfChannels , PT:=CMD_STOP_DURATION);
+
+IF(nWritingChannelIndex>nNumberOfChannels) THEN
+	nWritingChannelIndex := 0;
+END_IF
+
+
+IF bTransmitting = FALSE THEN
+	bTransmitting:=TRUE;
+END_IF
+
+IF timerWriteTotal.Q THEN
+	bTransmitting:=FALSE;
+END_IF
+
+
+
+PisaIO.bTX:=timerStartWrite.Q OR timerStopWrite.Q;]]></ST>
+      </Implementation>
+    </Method>
+  </POU>
+</TcPlcObject>

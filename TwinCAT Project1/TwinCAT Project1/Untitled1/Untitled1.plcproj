@@ -34,10 +34,13 @@
     <Compile Include="PISA\CircuitBreakerStatus.TcTLEO">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="PISA\FB_PISA_Comms.TcPOU">
+    <Compile Include="PISA\PisaPulseCommMode.TcTLEO">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="PISA\PISA_Comms.TcDUT">
+    <Compile Include="PISA\FB_PISA.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="PISA\PISA_IO.TcDUT">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="PlcTask.TcTTO">

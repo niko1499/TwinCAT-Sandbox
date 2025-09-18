@@ -30,15 +30,11 @@
 		</System>
 		<Plc>
 			<Project GUID="{60FE63E8-E690-4826-960C-041235D04655}" Name="Untitled1" PrjFilePath="Untitled1\Untitled1.plcproj" TmcFilePath="Untitled1\Untitled1.tmc" ReloadTmc="true" AmsPort="851" FileArchiveSettings="#x000e" SymbolicMapping="true">
-				<Instance Id="#x08502000" TcSmClass="TComPlcObjDef" KeepUnrestoredLinks="2" TmcPath="Untitled1\Untitled1.tmc" TmcHash="{40CEA3CE-C6B1-FC67-66C6-C2FBC2CFF08E}">
+				<Instance Id="#x08502000" TcSmClass="TComPlcObjDef" KeepUnrestoredLinks="2" TmcPath="Untitled1\Untitled1.tmc" TmcHash="{A5D0B0DD-9A5C-19C4-401F-81C61FD36E45}">
 					<Name>Untitled1 Instance</Name>
 					<CLSID ClassFactory="TcPlc30">{08500001-0000-0000-F000-000000000064}</CLSID>
 					<Vars VarGrpType="1">
 						<Name>PlcTask Inputs</Name>
-						<Var>
-							<Name>GVL_IO.byteInt</Name>
-							<Type>BYTE</Type>
-						</Var>
 						<Var>
 							<Name>GVL_IO.Encoder_Counts</Name>
 							<Type>UINT</Type>
@@ -46,6 +42,10 @@
 						<Var>
 							<Name>GVL_IO.byteArray</Name>
 							<Type GUID="{71B58F72-0E49-50EB-B8E4-1CCD027538EC}">ARRAY [1..8] OF BOOL</Type>
+						</Var>
+						<Var>
+							<Name>GVL_IO.byteInt</Name>
+							<Type>BYTE</Type>
 						</Var>
 						<Var>
 							<Name>GVL_IO.flexChain.pdo</Name>

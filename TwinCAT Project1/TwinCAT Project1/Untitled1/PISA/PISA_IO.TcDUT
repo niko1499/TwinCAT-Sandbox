@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.15">
-  <DUT Name="PISA_Comms" Id="{9d93a83d-6231-4653-afec-ba4fd611ace2}">
-    <Declaration><![CDATA[TYPE PISA_Comms :
+  <DUT Name="PISA_IO" Id="{9d93a83d-6231-4653-afec-ba4fd611ace2}">
+    <Declaration><![CDATA[TYPE PISA_IO :
 STRUCT
 	sProductName  :STRING;
 	bRX AT %I* : BIT;//INPUTS (STATUS -3.4)

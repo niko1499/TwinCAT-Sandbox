@@ -24,15 +24,28 @@ VAR
 	aLightCurtain : ARRAY[1..10] OF BOOL; 
 	
 	//myPisa : FB_PISA_Comms(sProductName := 'PISA-M-4CL2');
-	myPisa : FB_PISA_Comms();
+	myPisa : FB_PISA();
 	cbStates : ARRAY[1..4] OF CircuitBreakerStatus;
 	i: INT;
 	
 	BoolRunIt : BOOL :=TRUE;
+	bWrite: BOOL :=TRUE;
+	status: PisaPulseCommMode;
+	
 END_VAR
 ]]></Declaration>
     <Implementation>
       <ST><![CDATA[
+
+
+
+myPisa(bStart:=BoolRunIt, bBidirectional:=bWrite);
+
+FOR i := 1 TO 4 DO
+    cbStates[i] := myPisa.GetStatus(i);
+END_FOR;
+
+status := myPisa.GetCommMode();
 
 
 GVL_IO.aOutputs[8] := GVL_IO.aInputs[8]; // Output 8 mirrors input 8
@@ -54,11 +67,9 @@ ELSE
 		bLight^:=FALSE;
 END_IF
 *)
-myPisa(bStart:=BoolRunIt);
 
-FOR i := 1 TO 4 DO
-    cbStates[i] := myPisa.GetStatus(i);
-END_FOR;
+
+
 
 fbCounter(CU:=fbStartInput.Get(),CU:=fbStartInput.Get(), RESET :=fbStopInput.Get() ,PV := UINT_TO_WORD(E_LightStates.COUNT));
 CurrentState:=fbCounter.CV;
