@@ -20,12 +20,6 @@
               <Children />
             </Node>
             <Node>
-              <Title>bPeriodActive</Title>
-              <Expanded>False</Expanded>
-              <FileName></FileName>
-              <Children />
-            </Node>
-            <Node>
               <Title>bRX</Title>
               <Expanded>False</Expanded>
               <FileName></FileName>
@@ -38,7 +32,43 @@
               <Children />
             </Node>
             <Node>
-              <Title>bTransmitting</Title>
+              <Title>bWritingValues</Title>
+              <Expanded>False</Expanded>
+              <FileName></FileName>
+              <Children />
+            </Node>
+            <Node>
+              <Title>ET</Title>
+              <Expanded>False</Expanded>
+              <FileName></FileName>
+              <Children />
+            </Node>
+            <Node>
+              <Title>ET (1)</Title>
+              <Expanded>False</Expanded>
+              <FileName></FileName>
+              <Children />
+            </Node>
+            <Node>
+              <Title>ET (2)</Title>
+              <Expanded>False</Expanded>
+              <FileName></FileName>
+              <Children />
+            </Node>
+            <Node>
+              <Title>IN</Title>
+              <Expanded>False</Expanded>
+              <FileName></FileName>
+              <Children />
+            </Node>
+            <Node>
+              <Title>nWriteIndex</Title>
+              <Expanded>False</Expanded>
+              <FileName></FileName>
+              <Children />
+            </Node>
+            <Node>
+              <Title>PT</Title>
               <Expanded>False</Expanded>
               <FileName></FileName>
               <Children />
@@ -50,7 +80,13 @@
               <Children />
             </Node>
             <Node>
-              <Title>Q (1)</Title>
+              <Title>StartTime</Title>
+              <Expanded>False</Expanded>
+              <FileName></FileName>
+              <Children />
+            </Node>
+            <Node>
+              <Title>WriteHigh_Q</Title>
               <Expanded>False</Expanded>
               <FileName></FileName>
               <Children />
@@ -98,19 +134,19 @@
                   <Children />
                 </Node>
                 <Node>
-                  <Title>bPeriodActive</Title>
+                  <Title>bWritingValues</Title>
                   <Expanded>False</Expanded>
                   <FileName></FileName>
                   <Children />
                 </Node>
                 <Node>
-                  <Title>FallingQ</Title>
+                  <Title>WriteHigh_Q</Title>
                   <Expanded>False</Expanded>
                   <FileName></FileName>
                   <Children />
                 </Node>
                 <Node>
-                  <Title>WriteQ (1)</Title>
+                  <Title>WriteLow_Q</Title>
                   <Expanded>False</Expanded>
                   <FileName></FileName>
                   <Children />
@@ -119,15 +155,41 @@
             </Node>
             <Node>
               <Title>Times</Title>
-              <Expanded>False</Expanded>
+              <Expanded>True</Expanded>
               <FileName></FileName>
-              <Children />
+              <Children>
+                <Node>
+                  <Title>ET</Title>
+                  <Expanded>False</Expanded>
+                  <FileName></FileName>
+                  <Children />
+                </Node>
+                <Node>
+                  <Title>WriteLow_ET</Title>
+                  <Expanded>False</Expanded>
+                  <FileName></FileName>
+                  <Children />
+                </Node>
+                <Node>
+                  <Title>WriteHigh_ET</Title>
+                  <Expanded>False</Expanded>
+                  <FileName></FileName>
+                  <Children />
+                </Node>
+              </Children>
             </Node>
             <Node>
               <Title>Axis Group (2)</Title>
-              <Expanded>False</Expanded>
+              <Expanded>True</Expanded>
               <FileName></FileName>
-              <Children />
+              <Children>
+                <Node>
+                  <Title>nWriteIndex</Title>
+                  <Expanded>False</Expanded>
+                  <FileName></FileName>
+                  <Children />
+                </Node>
+              </Children>
             </Node>
           </Children>
         </Node>

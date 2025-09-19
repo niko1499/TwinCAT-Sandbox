@@ -35,6 +35,9 @@ VAR CONSTANT
 	CMD_WRITE_DURATION : TIME := T#200MS;
 	
 	
+	CMD_WRITE_OFFSET : TIME := T#10MS;
+	
+	
     startBitSignal : PULSE := (tLow := T#0MS, tHigh := CMD_START_DURATION);
 	resetSignal : PULSE := (tLow := CMD_GAP_DURATION, tHigh := CMD_RESET_DURATION);
 	onSignal : PULSE := (tLow := CMD_WRITE_DURATION, tHigh := T#0MS);
@@ -44,7 +47,7 @@ VAR CONSTANT
 	//Constants of our PLC
 	CYCLE_TIME : TIME := T#10MS;//TODO update this programatically on FB init.
 	
-
+	
 	
 END_VAR
 
@@ -85,19 +88,26 @@ VAR
 	
 	fbWaitQFalling: F_TRIG;
 	fbWriteQFalling: F_TRIG;
+	fbDoneTrigLow: F_TRIG;
+	fbDoneTrigHigh: F_TRIG;
 	timerWritePeriodMax : TP;
 	
 	
-	timerWriteLow : TP;
-	timerWriteHigh : TP;
+	timerWriteLow : NTP;
+	timerWriteHigh : NTP;
 	
 	bResetMaxWriteTimeFlag: BOOL;
 	bMessageComplete : BOOL;
 	pulseToWrite: PULSE;
 	bNextFlag : BOOL:=TRUE;
 	nWriteIndex : USINT;
-	
-	
+	bWritingValues :BOOL;
+		nDoneCount:USINT:=0;
+		
+		nTimersToComplete: USINT :=0;
+		
+	tLowWriteDuration:TIME;
+	tHighWriteDuration:TIME;
 END_VAR
 ]]></Declaration>
     <Implementation>
@@ -110,7 +120,7 @@ END_VAR
 	IF bBidirectional THEN
 		WriteToDevice();
 	ELSE
-		PisaIO.bTX:=FALSE;	
+		ResetWriteIndex();
 	END_IF
 	
 ELSE// Program not running.
@@ -152,6 +162,18 @@ END_VAR
         <ST><![CDATA[FOR i := 1 TO nNumberOfChannels DO
 	aStatus[i] := CircuitBreakerStatus.UNKNOWN; // Wipe out the array as we are in an unexpected state so no recorded values are guarenteed to be correct. 
 END_FOR]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="FB_init" Id="{9b52ece2-d8dc-409f-8275-86ed0ed48b59}">
+      <Declaration><![CDATA[METHOD FB_init : BOOL
+VAR_INPUT
+	bInitRetains : BOOL; // if TRUE, the retain variables are initialized (warm start / cold start)
+	bInCopyCode : BOOL;  // if TRUE, the instance afterwards gets moved into the copy code (online change)
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[aCtrl[0]:=startBitSignal;
+aCtrl[nNumberOfChannels+1]:=stopBitSignal;]]></ST>
       </Implementation>
     </Method>
     <Method Name="GetCommMode" Id="{0c35d0de-ab17-4237-a989-bcb0a8d52a88}">
@@ -300,6 +322,18 @@ END_VAR
 nLastReadingChannelIndex:=0;]]></ST>
       </Implementation>
     </Method>
+    <Method Name="ResetWriteIndex" Id="{40736a25-8f39-4e3e-881e-ea0b9ca16940}">
+      <Declaration><![CDATA[METHOD PRIVATE ResetWriteIndex
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[PisaIO.bTX:=FALSE;
+bNextFlag:=TRUE;
+nWriteIndex:=0;	
+aCtrl[0]:=startBitSignal;
+aCtrl[nNumberOfChannels+1]:=stopBitSignal;
+bWritingValues:=FALSE;]]></ST>
+      </Implementation>
+    </Method>
     <Method Name="SetStatus" Id="{6642a64a-4e50-4f13-b203-f745ad1ed55d}">
       <Declaration><![CDATA[METHOD SetStatus
 VAR_INPUT
@@ -323,29 +357,62 @@ END_IF
       <Declaration><![CDATA[METHOD PRIVATE WriteToDevice : BOOL
 VAR_INPUT
 END_VAR
-
-
-VAR
-
+   
+VAR CONSTANT
+ TIMERS_PER_PULSE:USINT:=2;
 END_VAR]]></Declaration>
       <Implementation>
-        <ST><![CDATA[
+        <ST><![CDATA[IF bNextFlag THEN
+	nTimersToComplete:=0;
+	IF(aCtrl[nWriteIndex].tLow > T#0MS+CMD_WRITE_OFFSET)THEN
+		nTimersToComplete:=nTimersToComplete+1;
+		tLowWriteDuration:= aCtrl[nWriteIndex].tLow - CMD_WRITE_OFFSET;
+	ELSE
+		tLowWriteDuration:=T#0MS;
+	END_IF
+	
+	IF(aCtrl[nWriteIndex].tHigh > T#0MS+CMD_WRITE_OFFSET)THEN
+		nTimersToComplete:=nTimersToComplete+1;
+		tHighWriteDuration:= aCtrl[nWriteIndex].tHigh - CMD_WRITE_OFFSET;
+	ELSE
+		tHighWriteDuration:=T#0MS;
+	END_IF
+END_IF
+
+//Gap Timer
+timerWriteLow(IN:=bNextFlag, PT:=tLowWriteDuration);
+fbDoneTrigLow(CLK:= (timerWriteLow.Q));
+//fbWaitQFalling(clk:=timerWriteLow.Q);
+//Pulse Timer
+timerWriteHigh(IN:= NOT timerWriteLow.Q AND NOT bNextFlag, PT:=tHighWriteDuration);
+//fbWriteQFalling(clk:=timerWriteHigh.Q);
+fbDoneTrigHigh(CLK:= (timerWriteHigh.Q));
+
+//fbDoneTrig(CLK:= (timerWriteHigh.bDone OR timerWriteLow.bDone));
+
+IF fbDoneTrigLow.Q  THEN
+	nDoneCount := nDoneCount +1;
+END_IF
+
+IF  fbDoneTrigHigh.Q THEN
+	nDoneCount := nDoneCount +1;
+END_IF
 
 
-pulseToWrite := aCtrl[nWriteIndex];
 
-timerWriteLow(IN:=bNextFlag, PT:=PulseToWrite.tLow);
-fbWaitQFalling(clk:=timerWriteLow.Q);
-
-timerWriteHigh(IN:= fbWaitQFalling.Q, PT:=PulseToWrite.tHigh);
-fbWriteQFalling(clk:=timerWriteHigh.Q);
 
 bNextFlag:=FALSE;
-IF fbWriteQFalling.Q THEN
+IF nDoneCount >= nTimersToComplete  THEN
+	timerWriteLow.Reset();
+	timerWriteHigh.Reset();
+	nDoneCount:=0;
 	nWriteIndex := nWriteIndex + 1;
 	bNextFlag:=TRUE;
 	
+	
 	IF(nWriteIndex>0 AND nWriteIndex <nNumberOfChannels+1) THEN
+		//Update any target values. Won't execute till next cycle
+		bWritingValues:=TRUE;
 		CASE aTargetStatus[nWriteIndex] OF 
 		CircuitBreakerStatus.OFF, CircuitBreakerStatus.TRIPPED:
 			aCtrl[nWriteIndex]:=offSignal;
@@ -354,14 +421,15 @@ IF fbWriteQFalling.Q THEN
 		CircuitBreakerStatus.RESET :
 			aCtrl[nWriteIndex]:=resetSignal;
 		END_CASE;
+	ELSE
+		bWritingValues:=FALSE;
 	END_IF
-	aCtrl[0]:=startBitSignal;
-	aCtrl[nNumberOfChannels+1]:=stopBitSignal;
+	
 	
 END_IF
 
 IF(nWriteIndex >nNumberOfChannels + 2) THEN //todo fix magic number 2 because start and stop bits 
-		nWriteIndex:=0;
+		ResetWriteIndex();
 END_IF
 
 
