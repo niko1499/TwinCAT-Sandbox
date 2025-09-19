@@ -29,7 +29,7 @@ VAR
 	i: INT;
 	
 	BoolRunIt : BOOL :=TRUE;
-	bWrite: BOOL :=TRUE;
+	bWrite: BOOL :=FALSE;
 	status: PisaPulseCommMode;
 	
 END_VAR

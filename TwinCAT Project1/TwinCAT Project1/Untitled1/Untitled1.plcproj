@@ -43,6 +43,9 @@
     <Compile Include="PISA\PISA_IO.TcDUT">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="PISA\PULSE.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="PlcTask.TcTTO">
       <SubType>Code</SubType>
     </Compile>
