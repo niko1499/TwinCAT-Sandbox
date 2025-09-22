@@ -29,7 +29,7 @@
   <KeepPreviousImageExports>true</KeepPreviousImageExports>
   <Layout>&lt;?xml version="1.0" encoding="utf-16"?&gt;
 &lt;Layout&gt;
-  &lt;Window Guid="9942f0db-a075-41f5-920f-a97c460ab5da" LastFocused="134027884355853204" DockedSize="200" PopupSize="0" FloatingLocation="-1, -1" FloatingSize="550, 400" LastOpenDockSituation="Document" LastFixedDockSituation="Document" LastFixedDockLocation="Right" LastFloatingWindowGuid="00000000-0000-0000-0000-000000000000" LastDockContainerCount="0" LastDockContainerIndex="0" DockedWorkingSize="250, 400" DockedWindowGroupGuid="00000000-0000-0000-0000-000000000000" DockedIndexInWindowGroup="0" DockedSplitPath="0" DocumentWorkingSize="250, 400" DocumentWindowGroupGuid="8f86032b-96e2-46b8-82c5-55684e43ad76" DocumentIndexInWindowGroup="0" DocumentSplitPath="0" FloatingWorkingSize="250, 400" FloatingWindowGroupGuid="00000000-0000-0000-0000-000000000000" FloatingIndexInWindowGroup="0" FloatingSplitPath="0" /&gt;
+  &lt;Window Guid="9942f0db-a075-41f5-920f-a97c460ab5da" LastFocused="134030234331699209" DockedSize="200" PopupSize="0" FloatingLocation="-1, -1" FloatingSize="550, 400" LastOpenDockSituation="Document" LastFixedDockSituation="Document" LastFixedDockLocation="Right" LastFloatingWindowGuid="00000000-0000-0000-0000-000000000000" LastDockContainerCount="0" LastDockContainerIndex="0" DockedWorkingSize="250, 400" DockedWindowGroupGuid="00000000-0000-0000-0000-000000000000" DockedIndexInWindowGroup="0" DockedSplitPath="0" DocumentWorkingSize="250, 400" DocumentWindowGroupGuid="8f86032b-96e2-46b8-82c5-55684e43ad76" DocumentIndexInWindowGroup="0" DocumentSplitPath="0" FloatingWorkingSize="250, 400" FloatingWindowGroupGuid="00000000-0000-0000-0000-000000000000" FloatingIndexInWindowGroup="0" FloatingSplitPath="0" /&gt;
   &lt;DocumentContainer Dock="5"&gt;
     &lt;SplitLayoutSystem WorkingSize="250, 400" SplitMode="0"&gt;
       &lt;ControlLayoutSystem WorkingSize="250, 400" Guid="8f86032b-96e2-46b8-82c5-55684e43ad76" Collapsed="0" SelectedControl="9942f0db-a075-41f5-920f-a97c460ab5da"&gt;
@@ -84,7 +84,7 @@
           <ForceOversampling>false</ForceOversampling>
           <Guid>935894cf-1703-430a-8334-254a39ecabf2</Guid>
           <IndexGroup>61488</IndexGroup>
-          <IndexOffset>385702</IndexOffset>
+          <IndexOffset>385786</IndexOffset>
           <IsEvent>false</IsEvent>
           <IsHistorical>false</IsHistorical>
           <IsTimeline>false</IsTimeline>
@@ -182,7 +182,7 @@
           <ForceOversampling>false</ForceOversampling>
           <Guid>b3d0742b-4b11-4c2f-b398-13ca91196648</Guid>
           <IndexGroup>61473</IndexGroup>
-          <IndexOffset>3518472</IndexOffset>
+          <IndexOffset>3210984</IndexOffset>
           <IsEvent>false</IsEvent>
           <IsHistorical>false</IsHistorical>
           <IsTimeline>false</IsTimeline>
@@ -280,7 +280,7 @@
           <ForceOversampling>false</ForceOversampling>
           <Guid>8387f8de-44bd-4da9-87f0-c937555ebb44</Guid>
           <IndexGroup>61489</IndexGroup>
-          <IndexOffset>3518473</IndexOffset>
+          <IndexOffset>3210985</IndexOffset>
           <IsEvent>false</IsEvent>
           <IsHistorical>false</IsHistorical>
           <IsTimeline>false</IsTimeline>
@@ -378,7 +378,7 @@
           <ForceOversampling>false</ForceOversampling>
           <Guid>f21c3e98-02ee-44c7-b5c1-ea1ec132f309</Guid>
           <IndexGroup>16448</IndexGroup>
-          <IndexOffset>439620</IndexOffset>
+          <IndexOffset>401180</IndexOffset>
           <IsEvent>false</IsEvent>
           <IsHistorical>false</IsHistorical>
           <IsTimeline>false</IsTimeline>
@@ -476,7 +476,7 @@
           <ForceOversampling>false</ForceOversampling>
           <Guid>20531e05-6c2d-4d71-95b0-fb7a734dbda7</Guid>
           <IndexGroup>16448</IndexGroup>
-          <IndexOffset>439852</IndexOffset>
+          <IndexOffset>401416</IndexOffset>
           <IsEvent>false</IsEvent>
           <IsHistorical>false</IsHistorical>
           <IsTimeline>false</IsTimeline>
@@ -574,7 +574,7 @@
           <ForceOversampling>false</ForceOversampling>
           <Guid>7d1687a4-094b-46f6-96e2-990937d39647</Guid>
           <IndexGroup>16448</IndexGroup>
-          <IndexOffset>440128</IndexOffset>
+          <IndexOffset>401692</IndexOffset>
           <IsEvent>false</IsEvent>
           <IsHistorical>false</IsHistorical>
           <IsTimeline>false</IsTimeline>
@@ -672,7 +672,7 @@
           <ForceOversampling>false</ForceOversampling>
           <Guid>4bb6e217-c757-4602-ab59-d8b3aba60a84</Guid>
           <IndexGroup>16448</IndexGroup>
-          <IndexOffset>440262</IndexOffset>
+          <IndexOffset>401826</IndexOffset>
           <IsEvent>false</IsEvent>
           <IsHistorical>false</IsHistorical>
           <IsTimeline>false</IsTimeline>
@@ -770,7 +770,7 @@
           <ForceOversampling>false</ForceOversampling>
           <Guid>7569bb81-2ea0-480b-ac76-e157246fe729</Guid>
           <IndexGroup>16448</IndexGroup>
-          <IndexOffset>440261</IndexOffset>
+          <IndexOffset>401825</IndexOffset>
           <IsEvent>false</IsEvent>
           <IsHistorical>false</IsHistorical>
           <IsTimeline>false</IsTimeline>
@@ -868,7 +868,7 @@
           <ForceOversampling>false</ForceOversampling>
           <Guid>96dcf130-dd03-4c24-ad76-c452583b1502</Guid>
           <IndexGroup>16448</IndexGroup>
-          <IndexOffset>440196</IndexOffset>
+          <IndexOffset>401760</IndexOffset>
           <IsEvent>false</IsEvent>
           <IsHistorical>false</IsHistorical>
           <IsTimeline>false</IsTimeline>
@@ -966,7 +966,7 @@
           <ForceOversampling>false</ForceOversampling>
           <Guid>2f08532d-84e6-4ec8-878c-e703b70a6e0f</Guid>
           <IndexGroup>16448</IndexGroup>
-          <IndexOffset>440200</IndexOffset>
+          <IndexOffset>401764</IndexOffset>
           <IsEvent>false</IsEvent>
           <IsHistorical>false</IsHistorical>
           <IsTimeline>false</IsTimeline>
@@ -1064,7 +1064,7 @@
           <ForceOversampling>false</ForceOversampling>
           <Guid>cb370aa1-f930-4ad1-8a36-39b9e36e9adf</Guid>
           <IndexGroup>16448</IndexGroup>
-          <IndexOffset>440204</IndexOffset>
+          <IndexOffset>401768</IndexOffset>
           <IsEvent>false</IsEvent>
           <IsHistorical>false</IsHistorical>
           <IsTimeline>false</IsTimeline>
@@ -1162,7 +1162,7 @@
           <ForceOversampling>false</ForceOversampling>
           <Guid>78f6e223-d27d-4593-8689-0d82f7f0c9f1</Guid>
           <IndexGroup>16448</IndexGroup>
-          <IndexOffset>440208</IndexOffset>
+          <IndexOffset>401772</IndexOffset>
           <IsEvent>false</IsEvent>
           <IsHistorical>false</IsHistorical>
           <IsTimeline>false</IsTimeline>
@@ -1260,7 +1260,7 @@
           <ForceOversampling>false</ForceOversampling>
           <Guid>06a7063b-ead5-499c-926f-c33ee079d4d7</Guid>
           <IndexGroup>16448</IndexGroup>
-          <IndexOffset>440212</IndexOffset>
+          <IndexOffset>401776</IndexOffset>
           <IsEvent>false</IsEvent>
           <IsHistorical>false</IsHistorical>
           <IsTimeline>false</IsTimeline>
@@ -1358,7 +1358,7 @@
           <ForceOversampling>false</ForceOversampling>
           <Guid>8c20731e-4542-412f-aab9-5a050fbfa4c7</Guid>
           <IndexGroup>16448</IndexGroup>
-          <IndexOffset>440148</IndexOffset>
+          <IndexOffset>401712</IndexOffset>
           <IsEvent>false</IsEvent>
           <IsHistorical>false</IsHistorical>
           <IsTimeline>false</IsTimeline>
@@ -1456,7 +1456,7 @@
           <ForceOversampling>false</ForceOversampling>
           <Guid>56126254-75fc-4664-b7f0-91801f7043df</Guid>
           <IndexGroup>16448</IndexGroup>
-          <IndexOffset>440152</IndexOffset>
+          <IndexOffset>401716</IndexOffset>
           <IsEvent>false</IsEvent>
           <IsHistorical>false</IsHistorical>
           <IsTimeline>false</IsTimeline>
@@ -2167,7 +2167,7 @@
                     </TimeShiftStyle>
                   </SubMember>
                   <Title>MeasurementMemberBase</Title>
-                  <Visible>true</Visible>
+                  <Visible>false</Visible>
                 </ChannelStyle>
                 <NameRelationInfo AssemblyName="TwinCAT.Measurement.Scope.API.Model">
                   <Comment />
@@ -2827,7 +2827,7 @@
                     </TimeShiftStyle>
                   </SubMember>
                   <Title>MeasurementMemberBase</Title>
-                  <Visible>true</Visible>
+                  <Visible>false</Visible>
                 </ChannelStyle>
                 <NameRelationInfo AssemblyName="TwinCAT.Measurement.Scope.API.Model">
                   <Comment />

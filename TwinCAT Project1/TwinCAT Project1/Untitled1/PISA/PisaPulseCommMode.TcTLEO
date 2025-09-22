@@ -5,8 +5,9 @@
 {attribute 'strict'}
 TYPE PisaPulseCommMode :
 (
-	Unidirectional := 0,
-	Bidirectional :=1
+	Offline :=0,
+	Unidirectional := 1,
+	Bidirectional :=2
 	
 );
 END_TYPE
@@ -16,13 +17,18 @@ END_TYPE
         <o xml:space="preserve" t="TextListEnumerationTextListObject">
           <l n="TextList" t="ArrayList" cet="TextListRow">
             <o>
-              <v n="TextID">"Unidirectional"</v>
+              <v n="TextID">"Offline"</v>
               <v n="TextDefault">"0"</v>
               <l n="LanguageTexts" t="ArrayList" />
             </o>
             <o>
-              <v n="TextID">"Bidirectional"</v>
+              <v n="TextID">"Unidirectional"</v>
               <v n="TextDefault">"1"</v>
+              <l n="LanguageTexts" t="ArrayList" />
+            </o>
+            <o>
+              <v n="TextID">"Bidirectional"</v>
+              <v n="TextDefault">"2"</v>
               <l n="LanguageTexts" t="ArrayList" />
             </o>
             <o>

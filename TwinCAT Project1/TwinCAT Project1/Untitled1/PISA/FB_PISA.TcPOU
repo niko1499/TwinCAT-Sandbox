@@ -21,39 +21,23 @@ VAR CONSTANT
 	STATUS_PERIOD_DURATION: TIME        := T#190MS;//gapTime + statusTime; Nominally 200ms but practically 200ms - CycleTime. to ensure trigger before end of period.
 	STATUS_MIN_PERIOD_DURATION:TIME  := T#60MS;
 	
+	SEQUENCE_WATCHDOG_TIME :TIME := T#5000MS;
 	
 	
-	
-	//Command Durations
-	CMD_GAP_DURATION: TIME := T#100MS;
-	CMD_START_DURATION: TIME    := T#150MS;
-	CMD_RESET_DURATION: TIME    := T#100MS;
-	CMD_OFF_DURATION: TIME      := T#50MS;
-	CMD_STOP_GAP_DURATION : TIME := T#150MS;
-	CMD_STOP_DURATION: TIME     := T#100MS;
-	CMD_END_DURATION: TIME   := T#50MS;
-	CMD_WRITE_DURATION : TIME := T#200MS;
-	
-	
-	CMD_WRITE_OFFSET : TIME := T#10MS;
-	
-	
-    startBitSignal : PULSE := (tLow := T#0MS, tHigh := CMD_START_DURATION);
-	resetSignal : PULSE := (tLow := CMD_GAP_DURATION, tHigh := CMD_RESET_DURATION);
-	onSignal : PULSE := (tLow := CMD_WRITE_DURATION, tHigh := T#0MS);
-	offSignal : PULSE := (tLow := CMD_GAP_DURATION, tHigh := CMD_OFF_DURATION);
-	stopBitSignal : PULSE := (tLow := CMD_GAP_DURATION, tHigh := CMD_OFF_DURATION);
-	
-	//Constants of our PLC
+
 	CYCLE_TIME : TIME := T#10MS;//TODO update this programatically on FB init.
-	
 	
 	
 END_VAR
 
 VAR
+	
+
+	timerReadSequenceWatchdog : TOF;
+	
+
 	PisaIO : PISA_IO; // Struct for mapping to the actual IO Hardware
-	commMode : PisaPulseCommMode;
+	commMode : PisaPulseCommMode := PisaPulseCommMode.Offline;
 	
 	tMaxTransmitSequence: TIME;
 	tMaxRecieveSequence: TIME;
@@ -108,6 +92,32 @@ VAR
 		
 	tLowWriteDuration:TIME;
 	tHighWriteDuration:TIME;
+	
+	
+	
+	
+		//Command Durations
+	CMD_GAP_DURATION: TIME := T#100MS; //Nominal 100ms
+	CMD_START_DURATION: TIME    := T#145MS; //Nominal 150ms
+	CMD_RESET_DURATION: TIME    := T#100MS;//Nominal 100ms
+	CMD_OFF_DURATION: TIME      := T#50MS;//Nominal 50ms
+	CMD_STOP_GAP_DURATION : TIME := T#150MS;//Nominal 150ms
+	CMD_STOP_DURATION: TIME     := T#100MS;//Nominal 100ms
+	CMD_END_DURATION: TIME   := T#90MS;//Nominal 100ms
+	CMD_WRITE_DURATION : TIME := T#195MS;//Nominal 200ms
+	CMD_REST_DURATION : TIME := T#5000MS;//Nominal 50ms
+	
+	
+	CMD_WRITE_OFFSET : TIME := T#1MS;
+	
+	
+    startBitSignal : PULSE := (tLow := T#0MS, tHigh := CMD_START_DURATION);
+	resetSignal : PULSE := (tLow := CMD_GAP_DURATION, tHigh := CMD_RESET_DURATION);
+	onSignal : PULSE := (tLow := CMD_WRITE_DURATION, tHigh := T#0MS);
+	offSignal : PULSE := (tLow := CMD_GAP_DURATION, tHigh := CMD_OFF_DURATION);
+	stopBitSignal : PULSE := (tLow := CMD_START_DURATION, tHigh := CMD_END_DURATION);
+	restBitSignal : PULSE := (tLow := CMD_REST_DURATION, tHigh := T#0MS);
+	//Constants of our PLC
 END_VAR
 ]]></Declaration>
     <Implementation>
@@ -205,6 +215,9 @@ END_VAR
       <Implementation>
         <ST><![CDATA[timerPulseMeasurement(IN := PisaIO.bRX , PT:=tStartTimeDuration+DRIFT_TOLERANCE);
 	
+
+
+
 inputFallingEdge(CLK := PisaIO.bRX);//Indicates any falling edge on the input signal 
 maxTime(CLK:= timerReadPeriodMax.Q);//Indicates the max period time has elapsed
 
@@ -221,11 +234,19 @@ IF( PisaIO.bRX = TRUE AND NOT inputFallingEdge.Q AND NOT timerPulseMeasurement.Q
 	tLastPulseDuration := timerPulseMeasurement.ET;	
 END_IF
 
+timerReadSequenceWatchdog(IN := inputFallingEdge.Q, PT:= SEQUENCE_WATCHDOG_TIME);
+
+IF (timerReadSequenceWatchdog.Q = FALSE) THEN//Our watchdog has expired
+	commMode := PisaPulseCommMode.Offline;	
+	ClearStoredValues();
+END_IF
+
+
 IF (inputFallingEdge.Q)THEN //A pulse just completed
 	timerReadPeriodMax(IN:=FALSE);//End of period triggers end of time counter resets time to 0 
 	
 	IF tLastPulseDuration >= SHORT_START_PULSE_DURATION - DRIFT_TOLERANCE THEN
-		IF tLastPulseDuration >= LONG_START_PULSE_DURATION - DRIFT_TOLERANCE THEN
+		IF tLastPulseDuration >= T#155MS(*LONG_START_PULSE_DURATION - DRIFT_TOLERANCE THEN*) THEN
 			commMode := PisaPulseCommMode.Unidirectional;
 		ELSE
 			commMode := PisaPulseCommMode.Bidirectional;
@@ -331,6 +352,7 @@ bNextFlag:=TRUE;
 nWriteIndex:=0;	
 aCtrl[0]:=startBitSignal;
 aCtrl[nNumberOfChannels+1]:=stopBitSignal;
+aCtrl[nNumberOfChannels+2]:=restBitSignal;
 bWritingValues:=FALSE;]]></ST>
       </Implementation>
     </Method>
@@ -366,14 +388,14 @@ END_VAR]]></Declaration>
 	nTimersToComplete:=0;
 	IF(aCtrl[nWriteIndex].tLow > T#0MS+CMD_WRITE_OFFSET)THEN
 		nTimersToComplete:=nTimersToComplete+1;
-		tLowWriteDuration:= aCtrl[nWriteIndex].tLow - CMD_WRITE_OFFSET;
+		tLowWriteDuration:= aCtrl[nWriteIndex].tLow + CMD_WRITE_OFFSET;
 	ELSE
 		tLowWriteDuration:=T#0MS;
 	END_IF
 	
 	IF(aCtrl[nWriteIndex].tHigh > T#0MS+CMD_WRITE_OFFSET)THEN
 		nTimersToComplete:=nTimersToComplete+1;
-		tHighWriteDuration:= aCtrl[nWriteIndex].tHigh - CMD_WRITE_OFFSET;
+		tHighWriteDuration:= aCtrl[nWriteIndex].tHigh + CMD_WRITE_OFFSET;
 	ELSE
 		tHighWriteDuration:=T#0MS;
 	END_IF

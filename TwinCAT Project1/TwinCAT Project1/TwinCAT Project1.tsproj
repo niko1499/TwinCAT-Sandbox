@@ -30,11 +30,16 @@
 		</System>
 		<Plc>
 			<Project GUID="{60FE63E8-E690-4826-960C-041235D04655}" Name="Untitled1" PrjFilePath="Untitled1\Untitled1.plcproj" TmcFilePath="Untitled1\Untitled1.tmc" ReloadTmc="true" AmsPort="851" FileArchiveSettings="#x000e" SymbolicMapping="true">
-				<Instance Id="#x08502000" TcSmClass="TComPlcObjDef" KeepUnrestoredLinks="2" TmcPath="Untitled1\Untitled1.tmc" TmcHash="{7660065C-B2E5-9024-6A6E-C960DEFB8897}">
+				<Instance Id="#x08502000" TcSmClass="TComPlcObjDef" KeepUnrestoredLinks="2" TmcPath="Untitled1\Untitled1.tmc" TmcHash="{4FC73331-E614-8884-1D06-B689C6DE9FEA}">
 					<Name>Untitled1 Instance</Name>
 					<CLSID ClassFactory="TcPlc30">{08500001-0000-0000-F000-000000000064}</CLSID>
 					<Vars VarGrpType="1">
 						<Name>PlcTask Inputs</Name>
+						<Var>
+							<Name>MAIN.myPisa.PisaIO.bRX</Name>
+							<Comment><![CDATA[INPUTS (STATUS -3.4)]]></Comment>
+							<Type>BIT</Type>
+						</Var>
 						<Var>
 							<Name>GVL_IO.byteInt</Name>
 							<Type>BYTE</Type>
@@ -69,22 +74,17 @@
 																   ]]></Comment>
 							<Type GUID="{71B58F72-0E49-50EB-B8E4-1CCD027538EC}">ARRAY [1..8] OF BOOL</Type>
 						</Var>
-						<Var>
-							<Name>MAIN.myPisa.PisaIO.bRX</Name>
-							<Comment><![CDATA[INPUTS (STATUS -3.4)]]></Comment>
-							<Type>BIT</Type>
-						</Var>
 					</Vars>
 					<Vars VarGrpType="2" AreaNo="1">
 						<Name>PlcTask Outputs</Name>
 						<Var>
-							<Name>GVL_IO.aOutputs</Name>
-							<Type GUID="{71B58F72-0E49-50EB-B8E4-1CCD027538EC}">ARRAY [1..8] OF BOOL</Type>
-						</Var>
-						<Var>
 							<Name>MAIN.myPisa.PisaIO.bTX</Name>
 							<Comment><![CDATA[OUTPUTS (CTRL +3.1)]]></Comment>
 							<Type>BIT</Type>
+						</Var>
+						<Var>
+							<Name>GVL_IO.aOutputs</Name>
+							<Type GUID="{71B58F72-0E49-50EB-B8E4-1CCD027538EC}">ARRAY [1..8] OF BOOL</Type>
 						</Var>
 					</Vars>
 					<UnrestoredVarLinks ImportTime="2025-09-16T10:51:40">
