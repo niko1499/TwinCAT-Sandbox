@@ -97,13 +97,13 @@ VAR
 	
 	
 		//Command Durations
-	CMD_GAP_DURATION: TIME := T#100MS; //Nominal 100ms
-	CMD_START_DURATION: TIME    := T#145MS; //Nominal 150ms
-	CMD_RESET_DURATION: TIME    := T#100MS;//Nominal 100ms
-	CMD_OFF_DURATION: TIME      := T#50MS;//Nominal 50ms
+	CMD_GAP_DURATION: TIME := T#95MS; //Nominal 100ms
+	CMD_START_DURATION: TIME    := T#140MS; //Nominal 150ms
+	CMD_RESET_DURATION: TIME    := T#95MS;//Nominal 100ms
+	CMD_OFF_DURATION: TIME      := T#45MS;//Nominal 50ms
 	CMD_STOP_GAP_DURATION : TIME := T#150MS;//Nominal 150ms
 	CMD_STOP_DURATION: TIME     := T#100MS;//Nominal 100ms
-	CMD_END_DURATION: TIME   := T#90MS;//Nominal 100ms
+	CMD_END_DURATION: TIME   := T#95MS;//Nominal 100ms
 	CMD_WRITE_DURATION : TIME := T#195MS;//Nominal 200ms
 	CMD_REST_DURATION : TIME := T#5000MS;//Nominal 50ms
 	
@@ -115,7 +115,7 @@ VAR
 	resetSignal : PULSE := (tLow := CMD_GAP_DURATION, tHigh := CMD_RESET_DURATION);
 	onSignal : PULSE := (tLow := CMD_WRITE_DURATION, tHigh := T#0MS);
 	offSignal : PULSE := (tLow := CMD_GAP_DURATION, tHigh := CMD_OFF_DURATION);
-	stopBitSignal : PULSE := (tLow := CMD_START_DURATION, tHigh := CMD_END_DURATION);
+	stopBitSignal : PULSE := (tLow := T#45MS, tHigh := CMD_END_DURATION);
 	restBitSignal : PULSE := (tLow := CMD_REST_DURATION, tHigh := T#0MS);
 	//Constants of our PLC
 END_VAR
