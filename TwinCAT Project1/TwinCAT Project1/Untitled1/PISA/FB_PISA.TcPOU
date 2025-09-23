@@ -77,7 +77,7 @@ VAR
 	timerWritePeriodMax : TP;
 	
 	
-	timerWriteLow : NTP;
+	timerWriteLow : NTP; //TODO-NIKO See if this can be better rewritten to no use my strange extended timer. Or clean up the timer. should add unit test first as changing it breaks functionality currently
 	timerWriteHigh : NTP;
 	
 	bResetMaxWriteTimeFlag: BOOL;
@@ -253,6 +253,20 @@ END_VAR
       <Implementation>
         <ST><![CDATA[IF nChannel > 0 AND nChannel <= nNumberOfChannels THEN
 	GetStatus := aStatus[nChannel];
+ELSE
+	//todo error
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="GetTripped" Id="{8ec2a531-3dec-441a-a5aa-8cf2cebb1674}">
+      <Declaration><![CDATA[METHOD PUBLIC GetTripped : BOOL
+VAR_INPUT
+	nChannel : USINT;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF nChannel > 0 AND nChannel <= nNumberOfChannels THEN
+	GetTripped := aStatus[nChannel] = CircuitBreakerStatus.TRIPPED;
 ELSE
 	//todo error
 END_IF]]></ST>

@@ -41,10 +41,39 @@ VAR
 	bWrite: BOOL :=FALSE;
 	status: PisaPulseCommMode;
 	
+	test: BOOL :=TRUE;
+	
+	bOnce :BOOL :=TRUE;
+	//fbFaultChecker : FB_FaultChecker;
+	bChannelOneTripped:BOOL:=FALSE;
+	(*
+	event1 : FB_FaultEvent(bChannelOneTripped,
+	                   tActivationDelay:=T#2S,
+					   nActivationCount:=1,
+					   sErrorName:='Circuit Breaker Tripped',
+                       sErrorDescription:='Lane 1 conveyor motor over current. Check Tension',
+					   eSeverity:=TcEventSeverity.Error); 
+	*)
 END_VAR
 ]]></Declaration>
     <Implementation>
-      <ST><![CDATA[myPisa(bStart:=bRun, bBidirectional:=bWrite);
+      <ST><![CDATA[IF bOnce THEN
+(*
+event1:= FB_FaultEvent(bChannelOneTripped,
+	                   tActivationDelay:=T#2S,
+					   nActivationCount:=1,
+					   sErrorName:='Circuit Breaker Tripped',
+                       sErrorDescription:='Lane 1 conveyor motor over current. Check Tension',
+					   eSeverity:=TcEventSeverity.Error);
+*)
+//fbFaultChecker.AddEvent(ADR(event1));
+  
+bOnce := FALSE;
+END_IF
+
+//fbFaultChecker();//update
+
+myPisa(bStart:=bRun, bBidirectional:=bWrite);
 
 FOR i := 1 TO 4 DO
     aCurrentStates[i] := myPisa.GetStatus(i);
@@ -54,12 +83,28 @@ FOR i := 1 TO 4 DO
     myPisa.SetStatus(nChannel:=i , eStatus:=aTargetStates[i]);
 END_FOR;
 
+
+bChannelOneTripped := myPisa.GetTripped(1);
+
 status := myPisa.GetCommMode();
 
 
 GVL_IO.aOutputs[8] := GVL_IO.aInputs[8]; // Output 8 mirrors input 8
 
 
+
+
+
+(*IF fbFaultChecker.GetActiveEventCount()>0 THEN
+ADSLOGSTR(
+	msgCtrlMask := ADSLOG_MSGTYPE_HINT, 
+	msgFmtStr   := fbFaultChecker.GetFirstActiveEvent().GetLongMessage(),
+	strArg      := TO_STRING(fbFaultChecker.GetFirstActiveEvent().GetEventSeverity())
+);      
+test := FALSE;
+END_IF
+
+*)
 
 
 

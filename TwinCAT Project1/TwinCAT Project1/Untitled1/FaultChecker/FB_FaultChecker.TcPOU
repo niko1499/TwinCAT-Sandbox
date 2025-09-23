@@ -1,0 +1,73 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.15">
+  <POU Name="FB_FaultChecker" Id="{81627131-cc2a-4f8a-9243-c943820076da}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK FB_FaultChecker
+VAR_INPUT
+END_VAR
+VAR_OUTPUT
+END_VAR
+VAR_IN_OUT
+    aFaultsToCheck  : ARRAY [*] OF FB_FaultEvent;
+END_VAR
+VAR CONSTANT
+	//Constants as defined in Pulse Pisa Manuals
+    //MAX_FAULTS : USINT            := 255;     
+END_VAR
+
+VAR
+	nIdx   : DINT;
+    nSum   : DINT;
+	nLastWrittenIndex :UINT:=0;
+	
+	
+	//aFaultsToCheck : ARRAY[1..MAX_NUMBER_OF_CHANNELS] OF CircuitBreakerStatus := [MAX_NUMBER_OF_CHANNELS(CircuitBreakerStatus.UNKNOWN)]; 
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[FOR nIdx := LOWER_BOUND(aFaultsToCheck,1) TO UPPER_BOUND(aFaultsToCheck,1) DO
+    aFaultsToCheck[nIdx].Update();
+END_FOR;]]></ST>
+    </Implementation>
+    <Method Name="AddEvent" Id="{d7e83bef-d5e1-4fe8-b79a-89c8086b3844}">
+      <Declaration><![CDATA[METHOD PUBLIC AddEvent
+VAR_INPUT
+	fbEvent : Pointer TO FB_FaultEvent;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[aFaultsToCheck[nLastWrittenIndex]:=fbEvent^;
+nLastWrittenIndex := nLastWrittenIndex +1;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="GetActiveEventCount" Id="{cd32fd0b-e511-4ff1-8c9d-ef12759e2e01}">
+      <Declaration><![CDATA[METHOD GetActiveEventCount : UINT
+VAR
+	nActiveEventCount:UINT:=0;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[FOR nIdx := LOWER_BOUND(aFaultsToCheck,1) TO UPPER_BOUND(aFaultsToCheck,1) DO
+	IF(    aFaultsToCheck[nIdx].Active())THEN
+		nActiveEventCount:=nActiveEventCount+1;
+	END_IF
+END_FOR;
+GetActiveEventCount:=nActiveEventCount;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="GetFirstActiveEvent" Id="{a193127a-8663-4ec2-a895-c7ca5ea2f347}">
+      <Declaration><![CDATA[METHOD PUBLIC GetFirstActiveEvent : REFERENCE TO FB_FaultEvent
+VAR_INPUT
+END_VAR
+
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[FOR nIdx := LOWER_BOUND(aFaultsToCheck,1) TO UPPER_BOUND(aFaultsToCheck,1) DO
+	IF(aFaultsToCheck[nIdx].Active()) THEN
+		GetFirstActiveEvent:=aFaultsToCheck[nIdx];
+		EXIT;
+	END_IF
+END_FOR;]]></ST>
+      </Implementation>
+    </Method>
+  </POU>
+</TcPlcObject>

@@ -27,6 +27,12 @@
     <Compile Include="DUTs\E_SwitchType.TcDUT">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="FaultChecker\FB_FaultChecker.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="FaultChecker\FB_FaultEvent.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="GVLs\GVL_IO.TcGVL">
       <SubType>Code</SubType>
       <LinkAlways>true</LinkAlways>
@@ -68,6 +74,7 @@
   <ItemGroup>
     <Folder Include="DUTs" />
     <Folder Include="GVLs" />
+    <Folder Include="FaultChecker" />
     <Folder Include="PISA" />
     <Folder Include="VISUs" />
     <Folder Include="POUs" />
@@ -80,6 +87,9 @@
     <PlaceholderReference Include="Tc2_System">
       <DefaultResolution>Tc2_System, * (Beckhoff Automation GmbH)</DefaultResolution>
       <Namespace>Tc2_System</Namespace>
+    </PlaceholderReference>
+    <PlaceholderReference Include="Tc2_Utilities">
+      <DefaultResolution>Tc2_Utilities, * (Beckhoff Automation GmbH)</DefaultResolution>
     </PlaceholderReference>
     <PlaceholderReference Include="Tc3_Module">
       <DefaultResolution>Tc3_Module, * (Beckhoff Automation GmbH)</DefaultResolution>

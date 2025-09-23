@@ -1,0 +1,157 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.15">
+  <POU Name="FB_FaultEvent" Id="{c2ca63a9-7bc3-4cc8-b616-f70b88c447a4}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK FB_FaultEvent
+VAR_INPUT
+END_VAR
+VAR_OUTPUT
+END_VAR
+VAR
+	
+	eSeverity : TcEventSeverity;  
+	
+	
+	bCondition1  : POINTER TO BOOL; // only condition one mandatory. others default true
+	//bCondition2  : REFERENCE TO BOOL := TRUE;
+	//bCondition3  : REFERENCE TO BOOL := TRUE;
+	//TODO make bools a dynamice list too? 
+	
+	
+	sShortErrorMessage : STRING(64) := 'FAULT';
+	sLongErrorMessage : STRING(255) := 'DESCRIPTION OF FAULT';
+	
+	tDebounceTime : TIME;
+	timerDebounceTimer :TON;
+	
+	nRepeatTriggerCount : USINT :=1;
+	nOccurrenceCount :USINT:=0;
+	
+	dtWhen : DATE_AND_TIME;
+	
+	fbGetTime : NT_GetTime;
+	
+	bLatch :BOOL;
+	
+	fbTimeOnce : R_TRIG;
+	
+	bState :BOOL;
+	
+	
+	
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[Update();]]></ST>
+    </Implementation>
+    <Method Name="Active" Id="{122cb1d5-f9ea-4146-9220-7285b4e36f3b}">
+      <Declaration><![CDATA[METHOD PUBLIC Active : BOOL
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[Active:=bState;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="FB_init" Id="{85ad1e16-c8ba-41f1-be9f-4ce604c77009}">
+      <Declaration><![CDATA[METHOD FB_init : BOOL
+VAR_INPUT
+	bInitRetains : BOOL; // if TRUE, the retain variables are initialized (warm start / cold start)
+	bInCopyCode : BOOL;  // if TRUE, the instance afterwards gets moved into the copy code (online change)
+	bCondition1  : REFERENCE TO BOOL;
+	//bCondition2  : REFERENCE TO BOOL;
+	//bCondition3  : REFERENCE TO BOOL;
+	tActivationDelay : TIME;
+	nActivationCount : USINT;
+	sErrorName: STRING(64);
+	sErrorDescription: STRING (255);
+	eSeverity : TcEventSeverity; 
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[bCondition1:=	bCondition1;
+//bCondition2:=	bCondition2;
+//bCondition3:=	bCondition3;
+tDebounceTime:=	tActivationDelay;
+nRepeatTriggerCount :=	nActivationCount;
+sShortErrorMessage:=	sErrorName;
+sLongErrorMessage:=	sErrorDescription;
+eSeverity := eSeverity;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="GetEventSeverity" Id="{60b699d6-c7fa-46ba-9b1b-9adaf133e2bc}">
+      <Declaration><![CDATA[METHOD PUBLIC GetEventSeverity : TcEventSeverity
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[GetEventSeverity:=eSeverity ;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="GetLongMessage" Id="{1b0e99e6-532f-4819-935e-355eb30f6700}">
+      <Declaration><![CDATA[METHOD GetLongMessage : STRING(500)
+VAR_INPUT
+END_VAR
+VAR
+	sTemp:STRING(500);
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[sTemp:= CONCAT( STR1:= TO_STRING(eSeverity), STR2:= ' - ');
+sTemp:= CONCAT( STR1:= sTemp, STR2:= sShortErrorMessage);
+sTemp:= CONCAT( STR1:= sTemp, STR2:= ' - ');
+sTemp:= CONCAT( STR1:= sTemp, STR2:= sLongErrorMessage);
+sTemp:= CONCAT( STR1:= sTemp, STR2:= ' - ');
+sTemp:= CONCAT( STR1:= sTemp, STR2:= DT_TO_STRING(dtWhen));
+
+GetLongMessage:=sTemp;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="GetSeverity" Id="{6b393040-3a09-492f-afe8-0472b732cdbe}">
+      <Declaration><![CDATA[METHOD GetSeverity : TcEventSeverity
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[GetSeverity:=eSeverity ;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="GetShortMessage" Id="{feecc7c7-0096-4635-80d2-ecba8eaf2ca1}">
+      <Declaration><![CDATA[METHOD GetShortMessage : STRING(255)
+VAR_INPUT
+END_VAR
+VAR
+	sTemp:STRING(255);
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[sTemp:= CONCAT( STR1:= TO_STRING(eSeverity), STR2:= ' - ');
+sTemp:= CONCAT( STR1:= sTemp, STR2:= sShortErrorMessage);
+GetShortMessage:=sTemp;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="ResetFault" Id="{cef258ab-cf3a-45c1-b7dc-bbadc8e50c5f}">
+      <Declaration><![CDATA[METHOD ResetFault
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[nOccurrenceCount:=0;
+bState:=FALSE;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="Update" Id="{3dcef8bd-4dc4-4aea-a261-190621c5d430}">
+      <Declaration><![CDATA[METHOD Update
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[timerDebounceTimer(IN:= bCondition1^ (*AND bCondition2 AND bCondition3 *), PT := tDebounceTime);
+IF timerDebounceTimer.Q THEN
+	nOccurrenceCount := nOccurrenceCount +1;
+END_IF
+
+IF(nOccurrenceCount >= nRepeatTriggerCount) THEN
+	bState:=TRUE;
+	fbTimeOnce(CLK:=bState);
+	fbGetTime(START:=fbTimeOnce.Q);
+	dtWhen:=Tc2_Utilities.SYSTEMTIME_TO_DT(fbGetTime.TIMESTR);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+  </POU>
+</TcPlcObject>
