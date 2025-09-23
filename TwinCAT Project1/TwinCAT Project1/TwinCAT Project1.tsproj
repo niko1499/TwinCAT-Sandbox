@@ -30,7 +30,7 @@
 		</System>
 		<Plc>
 			<Project GUID="{60FE63E8-E690-4826-960C-041235D04655}" Name="Untitled1" PrjFilePath="Untitled1\Untitled1.plcproj" TmcFilePath="Untitled1\Untitled1.tmc" ReloadTmc="true" AmsPort="851" FileArchiveSettings="#x000e" SymbolicMapping="true">
-				<Instance Id="#x08502000" TcSmClass="TComPlcObjDef" KeepUnrestoredLinks="2" TmcPath="Untitled1\Untitled1.tmc" TmcHash="{81FC48E4-30D2-8431-69A9-8B14BF3E8AF2}">
+				<Instance Id="#x08502000" TcSmClass="TComPlcObjDef" KeepUnrestoredLinks="2" TmcPath="Untitled1\Untitled1.tmc" TmcHash="{8E485D82-E892-F904-0486-E7630F2A81C2}">
 					<Name>Untitled1 Instance</Name>
 					<CLSID ClassFactory="TcPlc30">{08500001-0000-0000-F000-000000000064}</CLSID>
 					<Vars VarGrpType="1">
@@ -189,9 +189,14 @@
 				<Link VarA="PlcTask Inputs^GVL_IO.flexChain.pdo[9]" VarB="Module 4 (IO-Link Slave)^IO-Link Port2_in^Process Data In_9"/>
 			</OwnerB>
 			<OwnerB Name="TIID^Device 1 (EtherCAT)^Term 7 (EK1200)^Term 10 (EL2008)">
+				<Link VarA="PlcTask Outputs^GVL_IO.aOutputs[1]" VarB="Channel 1^Output"/>
+				<Link VarA="PlcTask Outputs^GVL_IO.aOutputs[2]" VarB="Channel 2^Output"/>
 				<Link VarA="PlcTask Outputs^MAIN.myPisa.PisaIO.bTX" VarB="Channel 3^Output"/>
 			</OwnerB>
 			<OwnerB Name="TIID^Device 1 (EtherCAT)^Term 7 (EK1200)^Term 9 (EL1008)">
+				<Link VarA="PlcTask Inputs^GVL_IO.aInputs[1]" VarB="Channel 1^Input"/>
+				<Link VarA="PlcTask Inputs^GVL_IO.aInputs[2]" VarB="Channel 2^Input"/>
+				<Link VarA="PlcTask Inputs^GVL_IO.aInputs[8]" VarB="Channel 8^Input"/>
 				<Link VarA="PlcTask Inputs^MAIN.myPisa.PisaIO.bRX" VarB="Channel 3^Input"/>
 			</OwnerB>
 		</OwnerA>

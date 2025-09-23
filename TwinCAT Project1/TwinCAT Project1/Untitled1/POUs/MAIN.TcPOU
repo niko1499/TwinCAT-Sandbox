@@ -5,7 +5,7 @@
 
 VAR
 	
-(*
+
 	
 	bGreenBtn    : POINTER TO BOOL:= ADR(GVL_IO.aInputs[1]);
 	bRedBtn		: POINTER TO BOOL:= ADR(GVL_IO.aInputs[2]);
@@ -28,7 +28,7 @@ VAR
 
 	cbStates : ARRAY[1..4] OF CircuitBreakerStatus;
 
-	*)
+	
 	
 	
 	
@@ -130,7 +130,7 @@ END_IF
 
 
 
-(*
+
 
 IF fbStartInput.Get() THEN
 		fbLightOutput.Set(TRUE);
@@ -199,7 +199,7 @@ ELSE
 
 END_IF
 
-*)]]></ST>
+]]></ST>
     </Implementation>
   </POU>
 </TcPlcObject>

@@ -432,8 +432,8 @@ END_VAR
         <ST><![CDATA[IF nChannel >0 AND nChannel<=nNumberOfChannels THEN
 	aTargetStatus[nChannel]:=eStatus;
 	
-	IF(eStatus = CircuitBreakerStatus.RESET) THEN
-		aStatus[nChannel] := CircuitBreakerStatus.RESET;
+	IF(eStatus = CircuitBreakerStatus.RESET AND commMode =  PisaPulseCommMode.Bidirectional) THEN
+		//aStatus[nChannel] := CircuitBreakerStatus.RESET; // TODO-NIKO uncomment later. Commented to make development easier
 	END_IF
 	//TODO Error handeling? Return success fail? 
 END_IF
