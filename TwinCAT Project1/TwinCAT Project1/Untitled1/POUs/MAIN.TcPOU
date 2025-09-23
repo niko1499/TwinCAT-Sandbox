@@ -5,6 +5,7 @@
 
 VAR
 	
+(*
 	
 	bGreenBtn    : POINTER TO BOOL:= ADR(GVL_IO.aInputs[1]);
 	bRedBtn		: POINTER TO BOOL:= ADR(GVL_IO.aInputs[2]);
@@ -24,25 +25,33 @@ VAR
 	aLightCurtain : ARRAY[1..10] OF BOOL; 
 	
 	//myPisa : FB_PISA_Comms(sProductName := 'PISA-M-4CL2');
-	myPisa : FB_PISA();
+
 	cbStates : ARRAY[1..4] OF CircuitBreakerStatus;
-	i: INT;
+
+	*)
 	
-	BoolRunIt : BOOL :=TRUE;
+	
+	
+	myPisa : FB_PISA();
+	i: INT;
+	aCurrentStates : ARRAY[1..4] OF CircuitBreakerStatus;
+	aTargetStates : ARRAY[1..4] OF CircuitBreakerStatus := [4(CircuitBreakerStatus.UNKNOWN)];
+	
+	bRun : BOOL :=TRUE;
 	bWrite: BOOL :=FALSE;
 	status: PisaPulseCommMode;
 	
 END_VAR
 ]]></Declaration>
     <Implementation>
-      <ST><![CDATA[
-
-
-
-myPisa(bStart:=BoolRunIt, bBidirectional:=bWrite);
+      <ST><![CDATA[myPisa(bStart:=bRun, bBidirectional:=bWrite);
 
 FOR i := 1 TO 4 DO
-    cbStates[i] := myPisa.GetStatus(i);
+    aCurrentStates[i] := myPisa.GetStatus(i);
+END_FOR;
+
+FOR i := 1 TO 4 DO
+    myPisa.SetStatus(nChannel:=i , eStatus:=aTargetStates[i]);
 END_FOR;
 
 status := myPisa.GetCommMode();
@@ -50,6 +59,33 @@ status := myPisa.GetCommMode();
 
 GVL_IO.aOutputs[8] := GVL_IO.aInputs[8]; // Output 8 mirrors input 8
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+(*
 
 IF fbStartInput.Get() THEN
 		fbLightOutput.Set(TRUE);
@@ -118,7 +154,7 @@ ELSE
 
 END_IF
 
-]]></ST>
+*)]]></ST>
     </Implementation>
   </POU>
 </TcPlcObject>

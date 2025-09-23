@@ -21,7 +21,7 @@ VAR CONSTANT
 	STATUS_PERIOD_DURATION: TIME        := T#190MS;//gapTime + statusTime; Nominally 200ms but practically 200ms - CycleTime. to ensure trigger before end of period.
 	STATUS_MIN_PERIOD_DURATION:TIME  := T#60MS;
 	
-	SEQUENCE_WATCHDOG_TIME :TIME := T#5000MS;
+	SEQUENCE_WATCHDOG_TIME :TIME := T#3000MS;
 	
 	
 
@@ -62,7 +62,7 @@ VAR
 	bResetMaxTimeFlag: BOOL:=FALSE; //Used to indicate the max pulse timer needs to be reset NEXT cycle. Can't happen this cycle or Q will not trigger. 
 
 	//Variables for Writing
-	aCtrl : ARRAY[0..MAX_NUMBER_OF_CHANNELS+1] OF PULSE:= [(MAX_NUMBER_OF_CHANNELS+2)(onSignal)];
+	aCtrl : ARRAY[0..MAX_NUMBER_OF_CHANNELS+1] OF PULSE:= [(MAX_NUMBER_OF_CHANNELS+2)(sOnSignal)];
 	
 	
 	timerWriteTotal : TON;
@@ -99,25 +99,39 @@ VAR
 		//Command Durations
 	CMD_GAP_DURATION: TIME := T#95MS; //Nominal 100ms
 	CMD_START_DURATION: TIME    := T#140MS; //Nominal 150ms
-	CMD_RESET_DURATION: TIME    := T#95MS;//Nominal 100ms
+	CMD_RESET_LOW_DURATION: TIME    := T#100MS;//Nominal 100ms
+	CMD_RESET_HIGH_DURATION: TIME    := T#95MS;//Nominal 100ms
 	CMD_OFF_DURATION: TIME      := T#45MS;//Nominal 50ms
 	CMD_STOP_GAP_DURATION : TIME := T#150MS;//Nominal 150ms
 	CMD_STOP_DURATION: TIME     := T#100MS;//Nominal 100ms
 	CMD_END_DURATION: TIME   := T#95MS;//Nominal 100ms
 	CMD_WRITE_DURATION : TIME := T#195MS;//Nominal 200ms
-	CMD_REST_DURATION : TIME := T#5000MS;//Nominal 50ms
+	CMD_WAIT_DURATION : TIME := T#5000MS;//Nominal 50ms
 	
 	
 	CMD_WRITE_OFFSET : TIME := T#1MS;
 	
 	
-    startBitSignal : PULSE := (tLow := T#0MS, tHigh := CMD_START_DURATION);
-	resetSignal : PULSE := (tLow := CMD_GAP_DURATION, tHigh := CMD_RESET_DURATION);
-	onSignal : PULSE := (tLow := CMD_WRITE_DURATION, tHigh := T#0MS);
-	offSignal : PULSE := (tLow := CMD_GAP_DURATION, tHigh := CMD_OFF_DURATION);
-	stopBitSignal : PULSE := (tLow := T#45MS, tHigh := CMD_END_DURATION);
-	restBitSignal : PULSE := (tLow := CMD_REST_DURATION, tHigh := T#0MS);
+    sStartBitSignal : PULSE := (tLow := T#0MS, tHigh := CMD_START_DURATION);
+	sResetSignal : PULSE := (tLow := CMD_RESET_LOW_DURATION, tHigh := CMD_RESET_HIGH_DURATION);
+	sOnSignal : PULSE := (tLow := CMD_WRITE_DURATION, tHigh := T#0MS);
+	sOffSignal : PULSE := (tLow := CMD_GAP_DURATION, tHigh := CMD_OFF_DURATION);
+	sStopBitSignal : PULSE := (tLow := T#45MS, tHigh := CMD_END_DURATION);
+	sWaitBitSignal : PULSE := (tLow := CMD_WAIT_DURATION, tHigh := T#0MS);
 	//Constants of our PLC
+	tTotalWriteTime: TIME;
+	tDataWriteTime: TIME;
+	tStartWriteTime:TIME;
+	tNotStopBitWriteTime:TIME;
+	tDesiredStopGap:TIME;
+	
+	tEndGapDuration :TIME:=T#50MS;
+	tTotalExpectedWriteDuration:TIME:=T#1200MS;//todo set programatically based on channel count
+	tTotalBitExpectedWriteDuration:TIME:=tTotalExpectedWriteDuration-tEndGapDuration;//todo set programatically based on channel count
+	tAdjustedStopBitGap:TIME:=T#45MS;
+
+	tMysteryTrim:TIME:=T#100MS;
+	
 END_VAR
 ]]></Declaration>
     <Implementation>
@@ -132,6 +146,20 @@ END_VAR
 	ELSE
 		ResetWriteIndex();
 	END_IF
+	
+	
+	
+	
+	
+	tTotalWriteTime:=CalculateWiteBitDuration(nStartBit:=0,nEndBit:=5);
+	tDataWriteTime:=CalculateWiteBitDuration(nStartBit:=1,nEndBit:=4);
+	tStartWriteTime:=CalculateWiteBitDuration(nStartBit:=0,nEndBit:=0);
+	tNotStopBitWriteTime:=CalculateWiteBitDuration(nStartBit:=0,nEndBit:=4);
+	
+	tAdjustedStopBitGap:=tTotalBitExpectedWriteDuration-tNotStopBitWriteTime-sStopBitSignal.tHigh -tMysteryTrim;
+	sStopBitSignal.tLow:=tAdjustedStopBitGap;
+	
+	
 	
 ELSE// Program not running.
 	ClearStoredValues();
@@ -148,6 +176,8 @@ tMaxTransmitSequence:= SHORT_START_PULSE_DURATION + (NOMINAL_PERIOD_DURATION * n
 //Nominally 1200MS for 4 chanels	
 tDataPeriodDuration := NOMINAL_PERIOD_DURATION * nNumberOfChannels;
 
+
+
 //Nominally 200MS per channel	
 IF commMode= PisaPulseCommMode.Unidirectional THEN
 	tStartTimeDuration	:= LONG_START_PULSE_DURATION;
@@ -158,6 +188,27 @@ ELSE
 	tMaxRecieveSequence := SHORT_START_PULSE_DURATION + (NOMINAL_PERIOD_DURATION * nNumberOfChannels)  + STATUS_DURATION;
 	//NOMINALLY 1050MS for 4 chanels	
 END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="CalculateWiteBitDuration" Id="{521a4c92-6139-4c79-bb7e-22d786562bc0}">
+      <Declaration><![CDATA[METHOD PRIVATE CalculateWiteBitDuration : TIME
+VAR_INPUT
+	nStartBit:USINT;
+	nEndBit :USINT;
+END_VAR
+
+VAR
+	i: INT;
+	tRunningTotal:TIME:=T#0MS;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[FOR i := nStartBit TO nEndBit DO
+    tRunningTotal:=tRunningTotal + aCtrl[i].tLow + aCtrl[i].tHigh;
+END_FOR;
+
+CalculateWiteBitDuration:=tRunningTotal;
+
+]]></ST>
       </Implementation>
     </Method>
     <Method Name="ClearStoredValues" Id="{8c872f6e-f6ce-4ed1-8772-ffa97afe5b3d}">
@@ -182,8 +233,8 @@ VAR_INPUT
 END_VAR
 ]]></Declaration>
       <Implementation>
-        <ST><![CDATA[aCtrl[0]:=startBitSignal;
-aCtrl[nNumberOfChannels+1]:=stopBitSignal;]]></ST>
+        <ST><![CDATA[aCtrl[0]:=sStartBitSignal;
+aCtrl[nNumberOfChannels+1]:=sStopBitSignal;]]></ST>
       </Implementation>
     </Method>
     <Method Name="GetCommMode" Id="{0c35d0de-ab17-4237-a989-bcb0a8d52a88}">
@@ -350,9 +401,9 @@ nLastReadingChannelIndex:=0;]]></ST>
         <ST><![CDATA[PisaIO.bTX:=FALSE;
 bNextFlag:=TRUE;
 nWriteIndex:=0;	
-aCtrl[0]:=startBitSignal;
-aCtrl[nNumberOfChannels+1]:=stopBitSignal;
-aCtrl[nNumberOfChannels+2]:=restBitSignal;
+aCtrl[0]:=sStartBitSignal;
+aCtrl[nNumberOfChannels+1]:=sStopBitSignal;
+aCtrl[nNumberOfChannels+2]:=sWaitBitSignal;
 bWritingValues:=FALSE;]]></ST>
       </Implementation>
     </Method>
@@ -437,11 +488,11 @@ IF nDoneCount >= nTimersToComplete  THEN
 		bWritingValues:=TRUE;
 		CASE aTargetStatus[nWriteIndex] OF 
 		CircuitBreakerStatus.OFF, CircuitBreakerStatus.TRIPPED:
-			aCtrl[nWriteIndex]:=offSignal;
+			aCtrl[nWriteIndex]:=sOffSignal;
 		CircuitBreakerStatus.ON, CircuitBreakerStatus.UNKNOWN :
-			aCtrl[nWriteIndex]:=onSignal;
+			aCtrl[nWriteIndex]:=sOnSignal;
 		CircuitBreakerStatus.RESET :
-			aCtrl[nWriteIndex]:=resetSignal;
+			aCtrl[nWriteIndex]:=sResetSignal;
 		END_CASE;
 	ELSE
 		bWritingValues:=FALSE;
