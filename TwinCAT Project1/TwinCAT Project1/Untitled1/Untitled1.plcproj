@@ -27,10 +27,19 @@
     <Compile Include="DUTs\E_SwitchType.TcDUT">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="FaultChecker\CdEventSeverity.TcTLEO">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="FaultChecker\E_MachineStatus.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="FaultChecker\FB_FaultChecker.TcPOU">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="FaultChecker\FB_FaultEvent.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="FaultChecker\TC_EventSeverityToString.TcPOU">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="GVLs\GVL_IO.TcGVL">
@@ -38,9 +47,6 @@
       <LinkAlways>true</LinkAlways>
     </Compile>
     <Compile Include="PISA\CircuitBreakerStatus.TcTLEO">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="PISA\NTP.TcPOU">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="PISA\PisaPulseCommMode.TcTLEO">
@@ -70,6 +76,9 @@
     <Compile Include="POUs\MAIN.TcPOU">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="POUs\NTP.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <Folder Include="DUTs" />
@@ -90,6 +99,10 @@
     </PlaceholderReference>
     <PlaceholderReference Include="Tc2_Utilities">
       <DefaultResolution>Tc2_Utilities, * (Beckhoff Automation GmbH)</DefaultResolution>
+      <Namespace>Tc2_Utilities</Namespace>
+    </PlaceholderReference>
+    <PlaceholderReference Include="Tc3_EventLogger">
+      <DefaultResolution>Tc3_EventLogger, * (Beckhoff Automation GmbH)</DefaultResolution>
     </PlaceholderReference>
     <PlaceholderReference Include="Tc3_Module">
       <DefaultResolution>Tc3_Module, * (Beckhoff Automation GmbH)</DefaultResolution>

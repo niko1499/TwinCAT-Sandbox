@@ -41,19 +41,40 @@ VAR
 	bWrite: BOOL :=FALSE;
 	status: PisaPulseCommMode;
 	
-	test: BOOL :=TRUE;
+	test: BOOL :=FALSE;
 	
-	bOnce :BOOL :=TRUE;
-	//fbFaultChecker : FB_FaultChecker;
+	bOnce :BOOL :=FALSE;
+	fbFaultChecker : FB_FaultChecker;
+	
 	bChannelOneTripped:BOOL:=FALSE;
-	(*
-	event1 : FB_FaultEvent(bChannelOneTripped,
-	                   tActivationDelay:=T#2S,
-					   nActivationCount:=1,
-					   sErrorName:='Circuit Breaker Tripped',
-                       sErrorDescription:='Lane 1 conveyor motor over current. Check Tension',
-					   eSeverity:=TcEventSeverity.Error); 
-	*)
+	bDeviceOffline:BOOL:=FALSE;
+	event1 : FB_FaultEvent(ADR(bChannelOneTripped),
+	                       tActivationDelay:=T#2S,
+					       nActivationCount:=1,
+					   	   sErrorName:='Circuit Breaker Tripped',
+                           sErrorDescription:='Lane 1 conveyor motor over current. Check Tension',
+    					   eEventCode:=E_MachineStatus.Error); 
+						   
+						  
+	event2 : FB_FaultEvent(ADR(bChannelOneTripped),
+	                       tActivationDelay:=T#0S,
+					       nActivationCount:=3,
+					   	   sErrorName:='Repeat Breaker Trip',
+                           sErrorDescription:='Lane 1 conveyor breaker tripped 3 times.',
+    					   eEventCode:=E_MachineStatus.Critical); 
+						   
+   event3 : FB_FaultEvent(ADR(bDeviceOffline),
+	                       tActivationDelay:=T#2S,
+					       nActivationCount:=1,
+					   	   sErrorName:='Lost Comms with PULSE PISA-M',
+                           sErrorDescription:='Watchdog timer with device expired. Possible wiring issue or loss of power.',
+    					   eEventCode:=E_MachineStatus.Warning); 
+	
+	nLastEventCount: UINT;
+	nIndex: INT;
+	in:UINT;
+	//event: FB_FaultEvent;
+	fbMessage : FB_TCMessage;
 END_VAR
 ]]></Declaration>
     <Implementation>
@@ -66,12 +87,26 @@ event1:= FB_FaultEvent(bChannelOneTripped,
                        sErrorDescription:='Lane 1 conveyor motor over current. Check Tension',
 					   eSeverity:=TcEventSeverity.Error);
 *)
-//fbFaultChecker.AddEvent(ADR(event1));
-  
+
+fbFaultChecker.AddEvent(ADR(event1));
+  fbFaultChecker.AddEvent(ADR(event2));
+  fbFaultChecker.AddEvent(ADR(event3));
 bOnce := FALSE;
 END_IF
 
-//fbFaultChecker();//update
+
+(*
+IF bChannelOneTripped THEN
+	//fbMessage.CreateEx(TC_EVENTS.EventClass.Event,0);
+	fbMessage.Create(eventClass:= 
+END_IF
+*)
+
+
+
+
+
+fbFaultChecker();//update
 
 myPisa(bStart:=bRun, bBidirectional:=bWrite);
 
@@ -89,22 +124,41 @@ bChannelOneTripped := myPisa.GetTripped(1);
 status := myPisa.GetCommMode();
 
 
+bDeviceOffline:=status = PisaPulseCommMode.Offline;
+
 GVL_IO.aOutputs[8] := GVL_IO.aInputs[8]; // Output 8 mirrors input 8
 
 
 
 
 
-(*IF fbFaultChecker.GetActiveEventCount()>0 THEN
+IF fbFaultChecker.GetActiveEventCount()<> nLastEventCount and test THEN
+
+FOR in := 0 TO fbFaultChecker.GetTotalEventCount()-1DO
+	//fbFaultChecker.GetEvent(nIndex:=in)^.Active;
+	
+	
+	IF (fbFaultChecker.GetEvent(nIndex:=in)^.Active())THEN 
+		ADSLOGSTR(
+			msgCtrlMask := ADSLOG_MSGTYPE_HINT, 
+			msgFmtStr   := fbFaultChecker.GetEvent(nIndex:=in)^.GetLongMessage(),
+			strArg      := '');
+	END_IF
+END_FOR
+
+(*
 ADSLOGSTR(
 	msgCtrlMask := ADSLOG_MSGTYPE_HINT, 
-	msgFmtStr   := fbFaultChecker.GetFirstActiveEvent().GetLongMessage(),
-	strArg      := TO_STRING(fbFaultChecker.GetFirstActiveEvent().GetEventSeverity())
-);      
-test := FALSE;
+	msgFmtStr   := fbFaultChecker.GetFirstActiveEvent()^.GetLongMessage(),
+	strArg      := TO_STRING(fbFaultChecker.GetFirstActiveEvent()^.GetEventSeverity())
+);
+
+
+*)      
+	nLastEventCount:=fbFaultChecker.GetActiveEventCount();
 END_IF
 
-*)
+
 
 
 

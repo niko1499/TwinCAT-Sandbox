@@ -8,10 +8,10 @@ VAR_OUTPUT
 END_VAR
 VAR
 	
-	eSeverity : TcEventSeverity;  
+	myEventCode : E_MachineStatus;  
 	
 	
-	bCondition1  : POINTER TO BOOL; // only condition one mandatory. others default true
+	bPrimaryCondition  : POINTER TO BOOL; // only condition one mandatory. others default true
 	//bCondition2  : REFERENCE TO BOOL := TRUE;
 	//bCondition3  : REFERENCE TO BOOL := TRUE;
 	//TODO make bools a dynamice list too? 
@@ -55,34 +55,34 @@ END_VAR
 VAR_INPUT
 	bInitRetains : BOOL; // if TRUE, the retain variables are initialized (warm start / cold start)
 	bInCopyCode : BOOL;  // if TRUE, the instance afterwards gets moved into the copy code (online change)
-	bCondition1  : REFERENCE TO BOOL;
+	bCondition1  : POINTER TO BOOL;
 	//bCondition2  : REFERENCE TO BOOL;
 	//bCondition3  : REFERENCE TO BOOL;
 	tActivationDelay : TIME;
 	nActivationCount : USINT;
 	sErrorName: STRING(64);
 	sErrorDescription: STRING (255);
-	eSeverity : TcEventSeverity; 
+	eEventCode: E_MachineStatus;
 END_VAR
 ]]></Declaration>
       <Implementation>
-        <ST><![CDATA[bCondition1:=	bCondition1;
+        <ST><![CDATA[bPrimaryCondition:=	bCondition1;
 //bCondition2:=	bCondition2;
 //bCondition3:=	bCondition3;
 tDebounceTime:=	tActivationDelay;
 nRepeatTriggerCount :=	nActivationCount;
 sShortErrorMessage:=	sErrorName;
 sLongErrorMessage:=	sErrorDescription;
-eSeverity := eSeverity;]]></ST>
+myEventCode := eEventCode;]]></ST>
       </Implementation>
     </Method>
     <Method Name="GetEventSeverity" Id="{60b699d6-c7fa-46ba-9b1b-9adaf133e2bc}">
-      <Declaration><![CDATA[METHOD PUBLIC GetEventSeverity : TcEventSeverity
+      <Declaration><![CDATA[METHOD PUBLIC GetEventSeverity : CdEventSeverity
 VAR_INPUT
 END_VAR
 ]]></Declaration>
       <Implementation>
-        <ST><![CDATA[GetEventSeverity:=eSeverity ;]]></ST>
+        <ST><![CDATA[//GetEventSeverity:= TO_E_MyEnum((myEventCode / 100) MOD 10) ;]]></ST>
       </Implementation>
     </Method>
     <Method Name="GetLongMessage" Id="{1b0e99e6-532f-4819-935e-355eb30f6700}">
@@ -94,7 +94,9 @@ VAR
 END_VAR
 ]]></Declaration>
       <Implementation>
-        <ST><![CDATA[sTemp:= CONCAT( STR1:= TO_STRING(eSeverity), STR2:= ' - ');
+        <ST><![CDATA[sTemp:= CONCAT( STR1:= sTemp, STR2:= TO_STRING(GetEventSeverity()));
+//sTemp:= CONCAT( STR1:= sTemp, STR2:= (GetEventSeverity()));
+sTemp:= CONCAT( STR1:= sTemp, STR2:= ' - ');
 sTemp:= CONCAT( STR1:= sTemp, STR2:= sShortErrorMessage);
 sTemp:= CONCAT( STR1:= sTemp, STR2:= ' - ');
 sTemp:= CONCAT( STR1:= sTemp, STR2:= sLongErrorMessage);
@@ -102,13 +104,6 @@ sTemp:= CONCAT( STR1:= sTemp, STR2:= ' - ');
 sTemp:= CONCAT( STR1:= sTemp, STR2:= DT_TO_STRING(dtWhen));
 
 GetLongMessage:=sTemp;]]></ST>
-      </Implementation>
-    </Method>
-    <Method Name="GetSeverity" Id="{6b393040-3a09-492f-afe8-0472b732cdbe}">
-      <Declaration><![CDATA[METHOD GetSeverity : TcEventSeverity
-]]></Declaration>
-      <Implementation>
-        <ST><![CDATA[GetSeverity:=eSeverity ;]]></ST>
       </Implementation>
     </Method>
     <Method Name="GetShortMessage" Id="{feecc7c7-0096-4635-80d2-ecba8eaf2ca1}">
@@ -119,7 +114,7 @@ VAR
 	sTemp:STRING(255);
 END_VAR]]></Declaration>
       <Implementation>
-        <ST><![CDATA[sTemp:= CONCAT( STR1:= TO_STRING(eSeverity), STR2:= ' - ');
+        <ST><![CDATA[sTemp:= CONCAT( STR1:= TO_STRING(GetEventSeverity()), STR2:= ' - ');
 sTemp:= CONCAT( STR1:= sTemp, STR2:= sShortErrorMessage);
 GetShortMessage:=sTemp;]]></ST>
       </Implementation>
@@ -131,7 +126,8 @@ END_VAR
 ]]></Declaration>
       <Implementation>
         <ST><![CDATA[nOccurrenceCount:=0;
-bState:=FALSE;]]></ST>
+bState:=FALSE;
+bLatch:=FALSE;]]></ST>
       </Implementation>
     </Method>
     <Method Name="Update" Id="{3dcef8bd-4dc4-4aea-a261-190621c5d430}">
@@ -140,9 +136,14 @@ VAR_INPUT
 END_VAR
 ]]></Declaration>
       <Implementation>
-        <ST><![CDATA[timerDebounceTimer(IN:= bCondition1^ (*AND bCondition2 AND bCondition3 *), PT := tDebounceTime);
-IF timerDebounceTimer.Q THEN
+        <ST><![CDATA[timerDebounceTimer(IN:= bPrimaryCondition^ (*AND bCondition2 AND bCondition3 *), PT := tDebounceTime);
+IF timerDebounceTimer.Q AND bLatch = FALSE THEN
 	nOccurrenceCount := nOccurrenceCount +1;
+	bLatch:=TRUE;
+END_IF
+
+IF(bPrimaryCondition^ =FALSE)THEN//if we have a falling edge on our fault allow re triggering
+	bLatch:=FALSE;
 END_IF
 
 IF(nOccurrenceCount >= nRepeatTriggerCount) THEN

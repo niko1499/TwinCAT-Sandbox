@@ -3,8 +3,9 @@
   <DUT Name="PULSE" Id="{2f52b313-e062-4f00-b14d-0e2773929dff}">
     <Declaration><![CDATA[TYPE PULSE :
 STRUCT
-	tLow: TIME   := T#0MS;
-	tHigh: TIME := T#0MS;
+	tLeadingGap: TIME   := T#0MS;
+	tHighSignal: TIME := T#0MS;
+	tTrailingGap: TIME:= T#0MS;
 END_STRUCT
 END_TYPE
 ]]></Declaration>

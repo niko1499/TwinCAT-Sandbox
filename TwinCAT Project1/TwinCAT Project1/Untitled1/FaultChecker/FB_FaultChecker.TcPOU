@@ -7,36 +7,47 @@ END_VAR
 VAR_OUTPUT
 END_VAR
 VAR_IN_OUT
-    aFaultsToCheck  : ARRAY [*] OF FB_FaultEvent;
+    //aFaultsToCheck  : ARRAY [*] OF POINTER TO FB_FaultEvent;
+	
 END_VAR
 VAR CONSTANT
 	//Constants as defined in Pulse Pisa Manuals
-    //MAX_FAULTS : USINT            := 255;     
+    MAX_FAULTS : USINT            := 255;     
 END_VAR
 
 VAR
+	
+aFaultsToCheck : ARRAY[0..MAX_FAULTS] OF POINTER TO FB_FaultEvent;
+	//aFaultsToCheck  : ARRAY [255] OF POINTER TO FB_FaultEvent;
 	nIdx   : DINT;
     nSum   : DINT;
-	nLastWrittenIndex :UINT:=0;
+	nWriteIndex :UINT:=0;
+	nLastWriteIndex:UINT:=0;
 	
 	
 	//aFaultsToCheck : ARRAY[1..MAX_NUMBER_OF_CHANNELS] OF CircuitBreakerStatus := [MAX_NUMBER_OF_CHANNELS(CircuitBreakerStatus.UNKNOWN)]; 
+	fbFaultChecker: INT;
+	bTest: BOOL :=FALSE;
+	bFlag : BOOL;
+	timerDelay : TOF;
+	
+
 END_VAR
 ]]></Declaration>
     <Implementation>
-      <ST><![CDATA[FOR nIdx := LOWER_BOUND(aFaultsToCheck,1) TO UPPER_BOUND(aFaultsToCheck,1) DO
-    aFaultsToCheck[nIdx].Update();
-END_FOR;]]></ST>
+      <ST><![CDATA[Update();
+]]></ST>
     </Implementation>
     <Method Name="AddEvent" Id="{d7e83bef-d5e1-4fe8-b79a-89c8086b3844}">
       <Declaration><![CDATA[METHOD PUBLIC AddEvent
 VAR_INPUT
-	fbEvent : Pointer TO FB_FaultEvent;
+	fbEvent : POINTER TO FB_FaultEvent;
 END_VAR
 ]]></Declaration>
       <Implementation>
-        <ST><![CDATA[aFaultsToCheck[nLastWrittenIndex]:=fbEvent^;
-nLastWrittenIndex := nLastWrittenIndex +1;]]></ST>
+        <ST><![CDATA[
+aFaultsToCheck[nWriteIndex]:=fbEvent;
+nWriteIndex := nWriteIndex +1;]]></ST>
       </Implementation>
     </Method>
     <Method Name="GetActiveEventCount" Id="{cd32fd0b-e511-4ff1-8c9d-ef12759e2e01}">
@@ -46,27 +57,78 @@ VAR
 END_VAR
 ]]></Declaration>
       <Implementation>
-        <ST><![CDATA[FOR nIdx := LOWER_BOUND(aFaultsToCheck,1) TO UPPER_BOUND(aFaultsToCheck,1) DO
-	IF(    aFaultsToCheck[nIdx].Active())THEN
+        <ST><![CDATA[//FOR nIdx := LOWER_BOUND(aFaultsToCheck,1) TO UPPER_BOUND(aFaultsToCheck,1) DO
+
+FOR nIdx := 0 TO nWriteIndex-1 DO
+	IF(aFaultsToCheck[nIdx]^.Active())THEN
 		nActiveEventCount:=nActiveEventCount+1;
 	END_IF
 END_FOR;
-GetActiveEventCount:=nActiveEventCount;]]></ST>
+GetActiveEventCount:=nActiveEventCount;
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="GetEvent" Id="{7d4429fc-a8de-4380-96e4-6836fca535d8}">
+      <Declaration><![CDATA[METHOD PUBLIC GetEvent : Pointer to FB_FaultEvent
+VAR_INPUT
+	nIndex:UINT;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF nIndex >=0 AND nIndex <nWriteIndex THEN
+	GetEvent:= aFaultsToCheck[nIndex];
+ELSE
+	//TODO-NIKO error gracefully
+END_IF]]></ST>
       </Implementation>
     </Method>
     <Method Name="GetFirstActiveEvent" Id="{a193127a-8663-4ec2-a895-c7ca5ea2f347}">
-      <Declaration><![CDATA[METHOD PUBLIC GetFirstActiveEvent : REFERENCE TO FB_FaultEvent
+      <Declaration><![CDATA[METHOD PUBLIC GetFirstActiveEvent : Pointer TO FB_FaultEvent
 VAR_INPUT
 END_VAR
 
 ]]></Declaration>
       <Implementation>
-        <ST><![CDATA[FOR nIdx := LOWER_BOUND(aFaultsToCheck,1) TO UPPER_BOUND(aFaultsToCheck,1) DO
-	IF(aFaultsToCheck[nIdx].Active()) THEN
+        <ST><![CDATA[//FOR nIdx := LOWER_BOUND(aFaultsToCheck,1) TO UPPER_BOUND(aFaultsToCheck,1) DO
+
+FOR nIdx := 0 TO nWriteIndex-1 DO
+	IF(aFaultsToCheck[nIdx]^.Active()) THEN
 		GetFirstActiveEvent:=aFaultsToCheck[nIdx];
 		EXIT;
 	END_IF
-END_FOR;]]></ST>
+END_FOR;
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="GetTotalEventCount" Id="{c86f9100-53dd-44f6-9da2-c006f769a868}">
+      <Declaration><![CDATA[METHOD GetTotalEventCount : UINT
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[GetTotalEventCount:=nWriteIndex;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="Update" Id="{77153843-7fab-471e-a582-94d53dbc830e}">
+      <Declaration><![CDATA[METHOD Update
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[//FOR nIdx := LOWER_BOUND(aFaultsToCheck,1) TO UPPER_BOUND(aFaultsToCheck,1) DO
+
+
+FOR nIdx := 0 TO nWriteIndex-1 DO
+(*	ADSLOGSTR(
+	msgCtrlMask := ADSLOG_MSGTYPE_HINT, 
+	msgFmtStr   := 'IndexWas %s', 
+	strArg      := TO_STRING(nIDX)
+	//TODO-NIKO DELETE DEBUG CODE COMMENT
+	
+);  *)
+aFaultsToCheck[nIdx]^.Update();
+END_FOR;
+]]></ST>
       </Implementation>
     </Method>
   </POU>

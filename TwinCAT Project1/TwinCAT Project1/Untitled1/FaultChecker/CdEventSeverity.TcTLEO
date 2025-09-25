@@ -1,16 +1,20 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.15">
-  <EnumerationTextList Name="CircuitBreakerStatus" Id="{dcbef35d-17b3-4961-88ee-70174408f427}">
+  <EnumerationTextList Name="CdEventSeverity" Id="{35d3193d-3c8b-4104-8260-5814f9cf34bf}">
     <Declaration><![CDATA[{attribute 'qualified_only'}
 {attribute 'strict'}
-TYPE CircuitBreakerStatus :
+{attribute 'to_string'}
+TYPE CdEventSeverity :
 (
-	OFF        := 0, // Channel has been set OFF either manually or programatically (only available in bidirectional mode)
-	ON         := 1, // Channel is ON and funcioning normally (only available in bidirectional mode)
-	TRIPPED    := 2, // An overcurrent event has tripped the device
-	RESET      := 3, // A reset signal has been sent to the device but it hasn't responded yet
-	UNKNOWN    := 4, // Comms isssue, data not yet recived, 
-	NOTTRIPPED := 5  // Channel is OFF or ON (only available in unidirectional mode)  
+    Verbose:=0,     // Useful Information for debugging 
+    Info:=1,        // Useful Information for operators
+    Warning:=2,     // Machine operation not inhibited but at risk of becoming so
+    Error:=3,       // Component operation blocked till resolved
+    Critical:=4,    // Machine operation bloced till resolved
+	                // 5-7 Reserved for future implementaion
+	Lockout:=8      // Mackine locked out from use until ADMIN clears Fault 
+					// 9 Reserved for future implementaion 
+	
 );
 END_TYPE
 ]]></Declaration>
@@ -19,33 +23,33 @@ END_TYPE
         <o xml:space="preserve" t="TextListEnumerationTextListObject">
           <l n="TextList" t="ArrayList" cet="TextListRow">
             <o>
-              <v n="TextID">"OFF"</v>
+              <v n="TextID">"Verbose"</v>
               <v n="TextDefault">"0"</v>
               <l n="LanguageTexts" t="ArrayList" />
             </o>
             <o>
-              <v n="TextID">"ON"</v>
+              <v n="TextID">"Info"</v>
               <v n="TextDefault">"1"</v>
               <l n="LanguageTexts" t="ArrayList" />
             </o>
             <o>
-              <v n="TextID">"TRIPPED"</v>
+              <v n="TextID">"Warning"</v>
               <v n="TextDefault">"2"</v>
               <l n="LanguageTexts" t="ArrayList" />
             </o>
             <o>
-              <v n="TextID">"RESET"</v>
+              <v n="TextID">"Error"</v>
               <v n="TextDefault">"3"</v>
               <l n="LanguageTexts" t="ArrayList" />
             </o>
             <o>
-              <v n="TextID">"UNKNOWN"</v>
+              <v n="TextID">"Critical"</v>
               <v n="TextDefault">"4"</v>
               <l n="LanguageTexts" t="ArrayList" />
             </o>
             <o>
-              <v n="TextID">"NOTTRIPPED"</v>
-              <v n="TextDefault">"5"</v>
+              <v n="TextID">"Lockout"</v>
+              <v n="TextDefault">"8"</v>
               <l n="LanguageTexts" t="ArrayList" />
             </o>
             <o>
@@ -55,9 +59,9 @@ END_TYPE
             </o>
           </l>
           <l n="Languages" t="ArrayList" />
-          <v n="GuidInit">{3e0b9643-d18a-403f-8491-a390e3833331}</v>
-          <v n="GuidReInit">{0c92374e-ce1f-4f2b-ae67-b6f7e3c40132}</v>
-          <v n="GuidExitX">{a0842038-9ca6-4e8b-a2b0-4dd63ed4090a}</v>
+          <v n="GuidInit">{cb185c55-fb57-4dac-858f-ebe3cf6403a9}</v>
+          <v n="GuidReInit">{26d40afc-abff-4d6e-b731-994697388454}</v>
+          <v n="GuidExitX">{58cfa811-98f8-456e-959b-7dfed8392359}</v>
         </o>
       </Data>
       <TypeList>

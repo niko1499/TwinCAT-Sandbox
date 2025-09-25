@@ -19,31 +19,57 @@
 				<Elements>32</Elements>
 			</ArrayInfo>
 		</DataType>
+		<DataType>
+			<Name GUID="{4DB8D479-080C-40E7-B197-CE6A3847034C}" PersistentType="true">ChicagoDryerEventClass</Name>
+			<DisplayName TxtId=""><![CDATA[NewEventClass_DisplayText]]></DisplayName>
+			<EventId>
+				<Name Id="1">Event</Name>
+				<DisplayName TxtId=""><![CDATA[Event_DisplayText]]></DisplayName>
+				<Severity>Verbose</Severity>
+			</EventId>
+			<EventId>
+				<Name Id="0100">System_Standby</Name>
+				<DisplayName TxtId=""><![CDATA[ChicagoDryerEventClassEvent2_DisplayText]]></DisplayName>
+				<Severity>Verbose</Severity>
+				<Properties>
+					<Property>
+						<Name>Index</Name>
+						<Value>1</Value>
+					</Property>
+				</Properties>
+			</EventId>
+			<EventId>
+				<Name Id="9411">Circuit_Breaker_Tripped</Name>
+				<DisplayName TxtId=""><![CDATA[Circuit Breaker Tripped]]></DisplayName>
+				<Severity>Error</Severity>
+				<Properties>
+					<Property>
+						<Name>Index</Name>
+						<Value>0</Value>
+					</Property>
+				</Properties>
+			</EventId>
+			<Hides>
+				<Hide GUID="{BC70E85A-D28B-4178-9F93-6A7085E397B4}"/>
+				<Hide GUID="{2C554616-5AB5-4E9F-B4F9-E6FC44836F9D}"/>
+			</Hides>
+		</DataType>
 	</DataTypes>
 	<Project ProjectGUID="{0FA1E132-C18C-40A5-84D5-C6FAD0612D87}" TargetNetId="5.97.60.218.1.1" ShowHideConfigurations="#x6">
 		<System>
 			<Tasks>
-				<Task Id="3" Priority="20" CycleTime="100000" AmsPort="350" AdtTasks="true">
+				<Task Id="3" Priority="20" CycleTime="20000" AmsPort="350" AdtTasks="true">
 					<Name>PlcTask</Name>
 				</Task>
 			</Tasks>
 		</System>
 		<Plc>
 			<Project GUID="{60FE63E8-E690-4826-960C-041235D04655}" Name="Untitled1" PrjFilePath="Untitled1\Untitled1.plcproj" TmcFilePath="Untitled1\Untitled1.tmc" ReloadTmc="true" AmsPort="851" FileArchiveSettings="#x000e" SymbolicMapping="true">
-				<Instance Id="#x08502000" TcSmClass="TComPlcObjDef" KeepUnrestoredLinks="2" TmcPath="Untitled1\Untitled1.tmc" TmcHash="{8E485D82-E892-F904-0486-E7630F2A81C2}">
+				<Instance Id="#x08502000" TcSmClass="TComPlcObjDef" KeepUnrestoredLinks="2" TmcPath="Untitled1\Untitled1.tmc" TmcHash="{6DFEFF03-93C2-8751-84AF-0EFC9E393A00}">
 					<Name>Untitled1 Instance</Name>
 					<CLSID ClassFactory="TcPlc30">{08500001-0000-0000-F000-000000000064}</CLSID>
 					<Vars VarGrpType="1">
 						<Name>PlcTask Inputs</Name>
-						<Var>
-							<Name>MAIN.myPisa.PisaIO.bRX</Name>
-							<Comment><![CDATA[INPUTS (STATUS -3.4)]]></Comment>
-							<Type>BIT</Type>
-						</Var>
-						<Var>
-							<Name>GVL_IO.byteInt</Name>
-							<Type>BYTE</Type>
-						</Var>
 						<Var>
 							<Name>GVL_IO.Encoder_Counts</Name>
 							<Type>UINT</Type>
@@ -51,6 +77,10 @@
 						<Var>
 							<Name>GVL_IO.byteArray</Name>
 							<Type GUID="{71B58F72-0E49-50EB-B8E4-1CCD027538EC}">ARRAY [1..8] OF BOOL</Type>
+						</Var>
+						<Var>
+							<Name>GVL_IO.byteInt</Name>
+							<Type>BYTE</Type>
 						</Var>
 						<Var>
 							<Name>GVL_IO.flexChain.pdo</Name>
@@ -74,17 +104,22 @@
 																   ]]></Comment>
 							<Type GUID="{71B58F72-0E49-50EB-B8E4-1CCD027538EC}">ARRAY [1..8] OF BOOL</Type>
 						</Var>
+						<Var>
+							<Name>MAIN.myPisa.PisaIO.bRX</Name>
+							<Comment><![CDATA[INPUTS (STATUS -3.4)]]></Comment>
+							<Type>BIT</Type>
+						</Var>
 					</Vars>
 					<Vars VarGrpType="2" AreaNo="1">
 						<Name>PlcTask Outputs</Name>
 						<Var>
+							<Name>GVL_IO.aOutputs</Name>
+							<Type GUID="{71B58F72-0E49-50EB-B8E4-1CCD027538EC}">ARRAY [1..8] OF BOOL</Type>
+						</Var>
+						<Var>
 							<Name>MAIN.myPisa.PisaIO.bTX</Name>
 							<Comment><![CDATA[OUTPUTS (CTRL +3.1)]]></Comment>
 							<Type>BIT</Type>
-						</Var>
-						<Var>
-							<Name>GVL_IO.aOutputs</Name>
-							<Type GUID="{71B58F72-0E49-50EB-B8E4-1CCD027538EC}">ARRAY [1..8] OF BOOL</Type>
 						</Var>
 					</Vars>
 					<UnrestoredVarLinks ImportTime="2025-09-16T10:51:40">
@@ -131,7 +166,7 @@
 								<OTCID>#x02010030</OTCID>
 							</ManualConfig>
 							<Priority>20</Priority>
-							<CycleTime>10000000</CycleTime>
+							<CycleTime>2000000</CycleTime>
 						</Context>
 					</Contexts>
 					<TaskPouOids>

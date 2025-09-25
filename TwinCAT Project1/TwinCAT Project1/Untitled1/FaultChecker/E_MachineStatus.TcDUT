@@ -1,0 +1,177 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.15">
+  <DUT Name="E_MachineStatus" Id="{6e85c68d-b5f1-437b-b964-4f9d4dc11368}">
+    <Declaration><![CDATA[//{attribute 'qualified_only'}
+//{attribute 'strict'}
+{attribute 'to_string'}
+
+
+(*
+  |  1---    |  -2---   |  --3-    |   ---4   |  
+ -+----------+----------+----------+----------+
+0 | System   | Verbose  |    #     |     #    |
+1 | Saftey   | Info     |    #     |     #    |
+2 | Motor    | Warning  |    #     |     #    |
+3 | Air      | Error    |    #     |     #    |
+4 | Jam      | Critical |    #     |     #    |
+5 | Heat     |          |    #     |     #    |
+6 | Reject   |          |    #     |     #    |
+7 | Fold     |          |    #     |     #    |
+8 | Conveyor | Lockout  |    #     |     #    |
+9 | General  |          |    #     |     #    |
+  +----------+----------+----------+----------+
+*)
+
+
+
+TYPE E_MachineStatus:
+(
+	None                                := 0000,
+	//System 0000-0999
+	System_Standby		                := 0100,
+	System_Running		                := 0101,
+    System_Paused 		                := 0102,
+	System_VFD_FirmwareUpdate           := 0199,
+	Test_Mode           			    := 0104,
+	Maintenance_Mode 	                := 0105,
+	JogReverse 			                := 0106,
+	System_FileError	                := 0400,
+	
+	//Safety 1000-1999	
+	Reset_Safety	                    := 1101,	
+	Safety_Fault	                    := 1401,
+	Safety_System_Error	                := 1402,
+	
+	//Saftey - E-STOP XX10-XX19
+	EStop_Triggered                     := 1410,
+	Front_Left_ES                       := 1411,
+	Front_Right_ES                      := 1412,
+	Rear_Left_ES                        := 1413,
+	Rear_Right_ES                       := 1414,
+	External_ES                         := 1415,
+	EStop_FB_Fault                     	:= 1419,
+	
+	//Saftey - Door XX20-XX29
+	DoorOpen	                        := 1420,
+	Top_Left_Door                       := 1421,
+	Top_Right_Door                      := 1422,
+	Left_Door                           := 1423,
+	Right_Door                          := 1424,
+	Rear_Door                           := 1425,
+	Front_Panel                         := 1426,
+	Door_FB_Fault                       := 1429,
+	
+	//Motor Fault 2000-2999	
+	Skis_Calibrating                    := 2111,
+	Motor_Fault	                        := 2450,
+	VFD_Primary_Fault                   := 2451,
+	VFD_XF1_Fault                       := 2452,
+	VFD_XF2_Fault                       := 2453,
+	VFD_Stacker_Fault                   := 2454,
+	Inlet_Fault                         := 2455,
+	Ski_Fault                           := 2456,
+	Exit_1_Fault                        := 2461,
+	Exit_2_Fault                        := 2462,
+	Exit_3_Fault		                := 2463,
+	Exit_4_Fault                        := 2464,
+	Side_Conveyor_Fault                 := 2470,
+	Side_Incline_Fault                  := 2471,
+	Side_Conveyor_Unplugged             := 2472,
+	
+	VFD_Primary_Voltage_Loss            := 2180,
+	VFD_XF1_Voltage_Loss                := 2181,
+	VFD_XF2_Voltage_Loss                := 2182,
+	VFD_Stacker_Voltage_Loss            := 2183,
+	VFD_MultipleVoltage_Loss            := 2184,
+	
+	//Air Status 3000-3999	
+	LowAirPressure	                    := 3120,
+	HighAirWarning                      := 3221,
+	LowAirWarning                       := 3220,
+	Filter_Cleaning_Required            := 3333,
+	
+	//Jam Status 4000-4999	
+	Jam_Detected		                := 4400,
+	Jam_Inlet                           := 4401,
+	Jam_Primary                         := 4402,
+	Jam_XF1                             := 4403,
+	Jam_XF2                             := 4404,
+	Jam_XF2_SensorTimeout               := 4405,
+	Jam_Stacker                         := 4406,
+	Jam_Stacker_SensorTimeout           := 4407,
+	Jam_Stacker_Lane1                   := 4408,
+	Jam_Stacker_Lane2                   := 4409,
+	Jam_Stacker_Lane3                   := 4410,	
+	Jam_Stacker_Lane4                   := 4411,
+	Jam_Reject_Rear                     := 4412, 	
+	Jam_Reject_Front                    := 4413,
+	Jam_Measure_Sensor                  := 4414,
+	
+	Jam_OverTorquePrimary               := 4415,
+	Jam_OverTorqueXF1                   := 4416,
+	Jam_OverTorqueXF2                   := 4417,
+	Jam_OverTorqueStacker               := 4418,
+
+	//Reject 6000-6999
+	//Reject - USER XX00-XX09
+	User_Reject                         := 6100,
+	User_Reject_Damage                  := 6101,
+	User_Reject_Tear  			        := 6102,
+	User_Reject_Feed					:= 6103,
+	User_Reject_Stain                   := 6104,
+	//Reject - Auto XX10-xx40
+	Auto_Reject_Unknown                 := 6111,
+	OverWideL_Reject                    := 6112,
+	OverWideR_Reject                    := 6113,
+	Auto_Reject_TooNarrow               := 6114,
+	Auto_Reject_TooWide                 := 6115,
+	Auto_Reject_TooShort                := 6116,
+	Auto_Reject_TooLong                 := 6117,
+	Auto_Reject_WrongWidth              := 6118,
+	Auto_Reject_WrongLength             := 6119,
+	Auto_Reject_XF2_Timeout             := 6121,
+	Auto_Reject_ConvLockout             := 6122,
+	Auto_Reject_WrongSort               := 6123,
+	Auto_Reject_Primary                 := 6124,
+	Auto_Reject_Primary_NoSortNum       := 6125,
+	Auto_Reject_Crossfold_1             := 6126,
+	Auto_Reject_Crossfold_2             := 6127,
+	Auto_Reject_Stacker                 := 6128,
+	Reject_Unknown	                    := 6129,
+		
+	//Conveyor	
+	Side_Conv_Full                      := 8102,
+	Side_Conv_Top_Full 	                := 8103,
+	
+	//General
+	Verbose                             := 9100,
+	Info                                := 9200,
+	Warning                             := 9300,
+	Error                               := 9400,
+	Critical                            := 9500,
+	Lockout                             := 9800,
+	//General - Circuit Breaker XX11-XX19
+	Circuit_Breaker_Tripped             := 9411,
+	Circuit_Breaker_Tripped_Repeat		:= 9421,
+	Circuit_Breaker_Comms_Loss          := 9311,
+
+	//General - SensorAllignment XX20-xx40
+	MeasureSensorAlign	                := 9220,
+	OverwideLSensorAlign                := 9221,				
+	OverwideRSensorAlign                := 9222,
+	XF1SensorAlign                      := 9223,
+	XF2SensorAlign                      := 9224,
+	Stack1SensorAlign                   := 9225, 
+	Stack2SensorAlign                   := 9226,
+	Stack3SensorAlign                   := 9227,
+	Stack4SensorAlign                   := 9228,
+	Sort1SensorAlign                    := 9229,
+	Sort2SensorAlign                    := 9230,
+	Sort3SensorAlign                    := 9231,
+	Sort4SensorAlign                    := 9232,	
+	Reserved                            := 9999//Leave as last so there aren't compile errors when copy pasting comma seperated values.
+)INT;
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

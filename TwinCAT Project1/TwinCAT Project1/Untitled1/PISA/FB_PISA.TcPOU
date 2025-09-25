@@ -1,14 +1,17 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.15">
   <POU Name="FB_PISA" Id="{fcd1d659-8ade-4890-bc41-6e29b3b0778a}" SpecialFunc="None">
-    <Declaration><![CDATA[FUNCTION_BLOCK FB_PISA
+    <Declaration><![CDATA[//IMPLEMENTED AND TESTED at 2MS Cycle Time. Different Cycle times could cause issues. 
+
+
+FUNCTION_BLOCK FB_PISA
 VAR_INPUT
 	 bStart	: BOOL;
 	 bBidirectional	: BOOL;
 END_VAR
 VAR CONSTANT
 	//Constants as defined in Pulse Pisa Manuals
-    MAX_NUMBER_OF_CHANNELS : USINT            := 8;         //Theoritical max channels offered by Pulse is 64. Setting to 8 for now as we are unlikely to go beyond 8
+    MAX_NUMBER_OF_CHANNELS : USINT            := 8;   //Theoritical max channels offered by Pulse is 64. Setting to 8 for now as we are unlikely to go beyond 8
 	STANDARD_NUMBER_OF_CHANNELS : USINT       :=4;    //TODO make variable on init
 	
 	
@@ -18,14 +21,15 @@ VAR CONSTANT
 	DRIFT_TOLERANCE : TIME        := T#15MS;//cCycleTime *2;cGapTime : TIME :=T#100MS;
 	STATUS_DURATION: TIME        := T#100MS;
 	NOMINAL_PERIOD_DURATION: TIME := T#200MS;
-	STATUS_PERIOD_DURATION: TIME        := T#190MS;//gapTime + statusTime; Nominally 200ms but practically 200ms - CycleTime. to ensure trigger before end of period.
+	STATUS_PERIOD_DURATION: TIME        := T#200MS;//gapTime + statusTime; Nominally 200ms but practically 200ms - CycleTime. to ensure trigger before end of period.
 	STATUS_MIN_PERIOD_DURATION:TIME  := T#60MS;
 	
-	SEQUENCE_WATCHDOG_TIME :TIME := T#3000MS;
+	SEQUENCE_WATCHDOG_TIME :TIME := T#1100MS;//TODO Double if 8 Channel
+
 	
 	
 
-	CYCLE_TIME : TIME := T#10MS;//TODO update this programatically on FB init.
+	CYCLE_TIME : TIME := T#2MS;//TODO update this programatically on FB init.
 	
 	
 END_VAR
@@ -77,47 +81,57 @@ VAR
 	timerWritePeriodMax : TP;
 	
 	
-	timerWriteLow : NTP; //TODO-NIKO See if this can be better rewritten to no use my strange extended timer. Or clean up the timer. should add unit test first as changing it breaks functionality currently
+	timerLeadingGap : NTP; //TODO-NIKO See if this can be better rewritten to no use my strange extended timer. Or clean up the timer. should add unit test first as changing it breaks functionality currently
 	timerWriteHigh : NTP;
+	timerTrailingGap: NTP;
+	
+	fTimer1Done : F_TRIG;
+	fTimer2Done : F_TRIG;
+	fTimer3Done : F_TRIG;
 	
 	bResetMaxWriteTimeFlag: BOOL;
 	bMessageComplete : BOOL;
 	pulseToWrite: PULSE;
 	bNextFlag : BOOL:=TRUE;
 	nWriteIndex : USINT;
-	bWritingValues :BOOL;
+
 		nDoneCount:USINT:=0;
 		
 		nTimersToComplete: USINT :=0;
 		
-	tLowWriteDuration:TIME;
-	tHighWriteDuration:TIME;
+
 	
 	
-	
-	
+	MIN_PULSE_DURATION: TIME     := T#50MS;
 		//Command Durations
-	CMD_GAP_DURATION: TIME := T#95MS; //Nominal 100ms
+(*	
+CMD_GAP_DURATION: TIME := T#95MS; //Nominal 100ms
 	CMD_START_DURATION: TIME    := T#140MS; //Nominal 150ms
 	CMD_RESET_LOW_DURATION: TIME    := T#100MS;//Nominal 100ms
 	CMD_RESET_HIGH_DURATION: TIME    := T#95MS;//Nominal 100ms
 	CMD_OFF_DURATION: TIME      := T#45MS;//Nominal 50ms
 	CMD_STOP_GAP_DURATION : TIME := T#150MS;//Nominal 150ms
-	CMD_STOP_DURATION: TIME     := T#100MS;//Nominal 100ms
+	
 	CMD_END_DURATION: TIME   := T#95MS;//Nominal 100ms
 	CMD_WRITE_DURATION : TIME := T#195MS;//Nominal 200ms
 	CMD_WAIT_DURATION : TIME := T#5000MS;//Nominal 50ms
-	
+	*)
 	
 	CMD_WRITE_OFFSET : TIME := T#1MS;
 	
-	
-    sStartBitSignal : PULSE := (tLow := T#0MS, tHigh := CMD_START_DURATION);
-	sResetSignal : PULSE := (tLow := CMD_RESET_LOW_DURATION, tHigh := CMD_RESET_HIGH_DURATION);
-	sOnSignal : PULSE := (tLow := CMD_WRITE_DURATION, tHigh := T#0MS);
-	sOffSignal : PULSE := (tLow := CMD_GAP_DURATION, tHigh := CMD_OFF_DURATION);
-	sStopBitSignal : PULSE := (tLow := T#45MS, tHigh := CMD_END_DURATION);
-	sWaitBitSignal : PULSE := (tLow := CMD_WAIT_DURATION, tHigh := T#0MS);
+	NOMINAL_GAP_TIME : TIME := T#100MS;
+	LONG_PULSE : TIME :=T#100MS;
+	SHORT_PULSE : TIME := T#50MS;
+	START_PULSE : TIME :=T#150MS;
+
+	//tAdjustedGaptime:= (NOMINAL_GAP_TIME-UDINT_TO_TIME(nNumberOfChannels*TIME_TO_UDINT(CYCLE_TIME)));
+	tGapTimeAdjustment :TIME:=T#5MS; //Needed to account for drift due to syscle time
+    sStartBitSignal : PULSE := (tLeadingGap := T#000MS, tHighSignal := T#150MS, tTrailingGap := T#000MS);
+	sResetSignal    : PULSE := (tLeadingGap := T#100MS - tGapTimeAdjustment, tHighSignal := T#100MS, tTrailingGap := T#000MS);
+	sOnSignal       : PULSE := (tLeadingGap := T#200MS - tGapTimeAdjustment, tHighSignal := T#000MS, tTrailingGap := T#000MS);
+	sOffSignal      : PULSE := (tLeadingGap := T#100MS - tGapTimeAdjustment, tHighSignal := T#050MS, tTrailingGap := T#050MS);
+	sStopBitSignal  : PULSE := (tLeadingGap := T#100MS, tHighSignal :=T#100MS, tTrailingGap := T#050MS);
+	sWaitBitSignal  : PULSE := (tLeadingGap := T#500MS, tHighSignal := T#000MS, tTrailingGap := T#000MS);
 	//Constants of our PLC
 	tTotalWriteTime: TIME;
 	tDataWriteTime: TIME;
@@ -151,13 +165,13 @@ END_VAR
 	
 	
 	
-	tTotalWriteTime:=CalculateWiteBitDuration(nStartBit:=0,nEndBit:=5);
-	tDataWriteTime:=CalculateWiteBitDuration(nStartBit:=1,nEndBit:=4);
-	tStartWriteTime:=CalculateWiteBitDuration(nStartBit:=0,nEndBit:=0);
-	tNotStopBitWriteTime:=CalculateWiteBitDuration(nStartBit:=0,nEndBit:=4);
+	//tTotalWriteTime:=CalculateWiteBitDuration(nStartBit:=0,nEndBit:=5);
+	//tDataWriteTime:=CalculateWiteBitDuration(nStartBit:=1,nEndBit:=4);
+	//tStartWriteTime:=CalculateWiteBitDuration(nStartBit:=0,nEndBit:=0);
+	//tNotStopBitWriteTime:=CalculateWiteBitDuration(nStartBit:=0,nEndBit:=4);
 	
-	tAdjustedStopBitGap:=tTotalBitExpectedWriteDuration-tNotStopBitWriteTime-sStopBitSignal.tHigh -tMysteryTrim;
-	sStopBitSignal.tLow:=tAdjustedStopBitGap;
+	//tAdjustedStopBitGap:=tTotalBitExpectedWriteDuration-tNotStopBitWriteTime-sStopBitSignal.tHighSignal -tMysteryTrim;
+	//sStopBitSignal.tLeadingGap:=tAdjustedStopBitGap;
 	
 	
 	
@@ -172,7 +186,7 @@ END_IF]]></ST>
       <Implementation>
         <ST><![CDATA[
 
-tMaxTransmitSequence:= SHORT_START_PULSE_DURATION + (NOMINAL_PERIOD_DURATION * nNumberOfChannels)+CMD_STOP_GAP_DURATION +CMD_STOP_DURATION+T#100MS;
+//tMaxTransmitSequence:= SHORT_START_PULSE_DURATION + (NOMINAL_PERIOD_DURATION * nNumberOfChannels)+CMD_STOP_GAP_DURATION +CMD_STOP_DURATION+T#100MS;
 //Nominally 1200MS for 4 chanels	
 tDataPeriodDuration := NOMINAL_PERIOD_DURATION * nNumberOfChannels;
 
@@ -203,7 +217,7 @@ VAR
 END_VAR]]></Declaration>
       <Implementation>
         <ST><![CDATA[FOR i := nStartBit TO nEndBit DO
-    tRunningTotal:=tRunningTotal + aCtrl[i].tLow + aCtrl[i].tHigh;
+    tRunningTotal:=tRunningTotal + aCtrl[i].tLeadingGap + aCtrl[i].tHighSignal;
 END_FOR;
 
 CalculateWiteBitDuration:=tRunningTotal;
@@ -281,8 +295,6 @@ END_VAR
         <ST><![CDATA[timerPulseMeasurement(IN := PisaIO.bRX , PT:=tStartTimeDuration+DRIFT_TOLERANCE);
 	
 
-
-
 inputFallingEdge(CLK := PisaIO.bRX);//Indicates any falling edge on the input signal 
 maxTime(CLK:= timerReadPeriodMax.Q);//Indicates the max period time has elapsed
 
@@ -292,8 +304,6 @@ IF bResetMaxTimeFlag THEN
 ELSE
 	timerReadPeriodMax(IN:=inputFallingEdge.Q AND NOT timerReadPeriodMax.Q, PT:= STATUS_PERIOD_DURATION);
 END_IF
-
-
 
 IF( PisaIO.bRX = TRUE AND NOT inputFallingEdge.Q AND NOT timerPulseMeasurement.Q) THEN // IF the input is high, update the running counter of the pulse duration
 	tLastPulseDuration := timerPulseMeasurement.ET;	
@@ -306,9 +316,8 @@ IF (timerReadSequenceWatchdog.Q = FALSE) THEN//Our watchdog has expired
 	ClearStoredValues();
 END_IF
 
-
 IF (inputFallingEdge.Q)THEN //A pulse just completed
-	timerReadPeriodMax(IN:=FALSE);//End of period triggers end of time counter resets time to 0 
+
 	
 	IF tLastPulseDuration >= SHORT_START_PULSE_DURATION - DRIFT_TOLERANCE THEN
 		IF tLastPulseDuration >= T#155MS(*LONG_START_PULSE_DURATION - DRIFT_TOLERANCE THEN*) THEN
@@ -317,13 +326,14 @@ IF (inputFallingEdge.Q)THEN //A pulse just completed
 			commMode := PisaPulseCommMode.Bidirectional;
 		END_IF
 		
-		bStartBitFound 	:= NOT bStartBitFound; // Main reset happens elsewhere. Failsafe here. Only happense every other cycle but acceptable as only a failsafe. 
+		bStartBitFound 	:= NOT bStartBitFound; // Main reset happens elsewhere. Failsafe here. Only happense every other cycle but acceptable as only a failsafe.
+		ResetReadIndex();//Reset counter to prepair for next cycle 
 		tLastPulseDuration :=T#0MS ;// reset the time counter so we can measure next pulses
 		
 	END_IF
 END_IF
 
-IF ((inputFallingEdge.Q = TRUE OR (maxTime.Q = TRUE AND PisaIO.bRX = FALSE )) AND bStartBitFound = TRUE) THEN 
+IF (((maxTime.Q = TRUE AND PisaIO.bRX = FALSE )) AND bStartBitFound = TRUE) THEN 
 	IF timerPeriodMin.Q THEN
 		nReadingChannelIndex := nReadingChannelIndex + 1;
 		timerPeriodMin(IN:= FALSE, PT:=DRIFT_TOLERANCE);
@@ -336,15 +346,12 @@ IF bStartBitFound THEN // Only calculate state if we have found the start bit an
 	IF (nLastReadingChannelIndex <> nReadingChannelIndex) THEN//We have advanced to the gap period after a readin of a pulse
 		
 		bResetMaxTimeFlag:=TRUE;
-		
-		
-		
-		
+
 		IF tLastPulseDuration >= DRIFT_TOLERANCE THEN //have a positive signal
-			IF tLastPulseDuration >= CMD_STOP_DURATION - DRIFT_TOLERANCE THEN //Signal large enough than smallest expected
+			IF tLastPulseDuration >= MIN_PULSE_DURATION - DRIFT_TOLERANCE THEN //Signal large enough than smallest expected
 				IF tLastPulseDuration > STATUS_DURATION - DRIFT_TOLERANCE THEN
 					aStatus[nLastReadingChannelIndex]	:= CircuitBreakerStatus.TRIPPED;
-				ELSIF tLastPulseDuration > CMD_STOP_DURATION - DRIFT_TOLERANCE THEN
+				ELSIF tLastPulseDuration > MIN_PULSE_DURATION - DRIFT_TOLERANCE THEN
 					aStatus[nLastReadingChannelIndex]	:= CircuitBreakerStatus.OFF;
 				ELSE //should never happen
 					ClearStoredValues();
@@ -352,40 +359,21 @@ IF bStartBitFound THEN // Only calculate state if we have found the start bit an
 			ELSE//Likely indicates out of sync
 				ClearStoredValues();
 			END_IF
-		ELSE	
-			aStatus[nLastReadingChannelIndex]	:= CircuitBreakerStatus.ON;
-		END_IF
-		
-		
-		
-		
-		(*
-		
-		IF nLastReadingChannelIndex > 0 AND nLastReadingChannelIndex <= nNumberOfChannels THEN
-			IF tLastPulseDuration > CYCLE_TIME AND tLastPulseDuration <= CMD_STOP_DURATION + CYCLE_TIME THEN
-				aStatus[nLastReadingChannelIndex]	:= CircuitBreakerStatus.OFF;
-			ELSIF tLastPulseDuration > CMD_STOP_DURATION THEN
-				aStatus[nLastReadingChannelIndex]	:= CircuitBreakerStatus.Tripped;
-			ELSE
+		ELSE
+			IF commMode = PisaPulseCommMode.Bidirectional THEN	
 				aStatus[nLastReadingChannelIndex]	:= CircuitBreakerStatus.ON;
+			ELSE
+				aStatus[nLastReadingChannelIndex]	:= CircuitBreakerStatus.NOTTRIPPED;
 			END_IF
 		END_IF
-		
-		*)
-		
+				
 		tLastPulseDuration :=T#0MS ;// reset the time counter as we have recorded the measurement for this pulse
 		nLastReadingChannelIndex := nReadingChannelIndex;
 	END_IF
 
 	IF nReadingChannelIndex > nNumberOfChannels THEN //End of Sequence
 		bStartBitFound := FALSE;
-		ResetReadIndex();//Reset counter to prepair for next cycle
 	END_IF
-ELSE//!StartBitFound
-	IF nReadingChannelIndex > 0 THEN//We do not expect to ever be in this state. Indicates the channel number failed to increment. Likely due to a timer failing to reset or the max period timers didn't expire before the next start bit was found;
-		ClearStoredValues();//Clear out our saved cb state data as it is likely incorrect due to above condition
-	END_IF
-	ResetReadIndex();//Reset counter to prepair for next cycle
 END_IF]]></ST>
       </Implementation>
     </Method>
@@ -404,8 +392,8 @@ END_VAR
 
 ]]></Declaration>
       <Implementation>
-        <ST><![CDATA[nReadingChannelIndex :=0;
-nLastReadingChannelIndex:=0;]]></ST>
+        <ST><![CDATA[nReadingChannelIndex :=1;
+nLastReadingChannelIndex:=1;]]></ST>
       </Implementation>
     </Method>
     <Method Name="ResetWriteIndex" Id="{40736a25-8f39-4e3e-881e-ea0b9ca16940}">
@@ -418,7 +406,7 @@ nWriteIndex:=0;
 aCtrl[0]:=sStartBitSignal;
 aCtrl[nNumberOfChannels+1]:=sStopBitSignal;
 aCtrl[nNumberOfChannels+2]:=sWaitBitSignal;
-bWritingValues:=FALSE;]]></ST>
+]]></ST>
       </Implementation>
     </Method>
     <Method Name="SetStatus" Id="{6642a64a-4e50-4f13-b203-f745ad1ed55d}">
@@ -451,47 +439,38 @@ END_VAR]]></Declaration>
       <Implementation>
         <ST><![CDATA[IF bNextFlag THEN
 	nTimersToComplete:=0;
-	IF(aCtrl[nWriteIndex].tLow > T#0MS+CMD_WRITE_OFFSET)THEN
+	IF(aCtrl[nWriteIndex].tLeadingGap > T#0MS)THEN
 		nTimersToComplete:=nTimersToComplete+1;
-		tLowWriteDuration:= aCtrl[nWriteIndex].tLow + CMD_WRITE_OFFSET;
-	ELSE
-		tLowWriteDuration:=T#0MS;
 	END_IF
-	
-	IF(aCtrl[nWriteIndex].tHigh > T#0MS+CMD_WRITE_OFFSET)THEN
+	IF(aCtrl[nWriteIndex].tHighSignal > T#0MS)THEN
 		nTimersToComplete:=nTimersToComplete+1;
-		tHighWriteDuration:= aCtrl[nWriteIndex].tHigh + CMD_WRITE_OFFSET;
-	ELSE
-		tHighWriteDuration:=T#0MS;
+	END_IF
+	IF(aCtrl[nWriteIndex].tTrailingGap > T#0MS)THEN
+		nTimersToComplete:=nTimersToComplete+1;
 	END_IF
 END_IF
 
 //Gap Timer
-timerWriteLow(IN:=bNextFlag, PT:=tLowWriteDuration);
-fbDoneTrigLow(CLK:= (timerWriteLow.Q));
-//fbWaitQFalling(clk:=timerWriteLow.Q);
-//Pulse Timer
-timerWriteHigh(IN:= NOT timerWriteLow.Q AND NOT bNextFlag, PT:=tHighWriteDuration);
-//fbWriteQFalling(clk:=timerWriteHigh.Q);
-fbDoneTrigHigh(CLK:= (timerWriteHigh.Q));
+timerLeadingGap(IN:=bNextFlag, PT:=aCtrl[nWriteIndex].tLeadingGap);
+timerWriteHigh(IN:= NOT timerLeadingGap.Q AND NOT bNextFlag, PT:=aCtrl[nWriteIndex].tHighSignal);
+timerTrailingGap(IN:= NOT timerWriteHigh.Q AND NOT timerWriteHigh.Q AND NOT bNextFlag AND nDoneCount>0, PT:=aCtrl[nWriteIndex].tTrailingGap);
 
-//fbDoneTrig(CLK:= (timerWriteHigh.bDone OR timerWriteLow.bDone));
+//NOT timerTrailingGap.Q AND
 
-IF fbDoneTrigLow.Q  THEN
+fTimer1Done(CLK:= timerLeadingGap.Q);
+fTimer2Done(CLK:= timerWriteHigh.Q);
+fTimer3Done(CLK:= timerTrailingGap.Q);
+
+
+IF (fTimer1Done.Q OR  fTimer2Done.Q OR fTimer3Done.Q)AND NOT bNextFlag THEN
 	nDoneCount := nDoneCount +1;
 END_IF
-
-IF  fbDoneTrigHigh.Q THEN
-	nDoneCount := nDoneCount +1;
-END_IF
-
-
 
 
 bNextFlag:=FALSE;
 IF nDoneCount >= nTimersToComplete  THEN
-	timerWriteLow.Reset();
-	timerWriteHigh.Reset();
+	//timerLeadingGap.Reset();
+	//timerWriteHigh.Reset();
 	nDoneCount:=0;
 	nWriteIndex := nWriteIndex + 1;
 	bNextFlag:=TRUE;
@@ -499,7 +478,6 @@ IF nDoneCount >= nTimersToComplete  THEN
 	
 	IF(nWriteIndex>0 AND nWriteIndex <nNumberOfChannels+1) THEN
 		//Update any target values. Won't execute till next cycle
-		bWritingValues:=TRUE;
 		CASE aTargetStatus[nWriteIndex] OF 
 		CircuitBreakerStatus.OFF, CircuitBreakerStatus.TRIPPED:
 			aCtrl[nWriteIndex]:=sOffSignal;
@@ -508,8 +486,6 @@ IF nDoneCount >= nTimersToComplete  THEN
 		CircuitBreakerStatus.RESET :
 			aCtrl[nWriteIndex]:=sResetSignal;
 		END_CASE;
-	ELSE
-		bWritingValues:=FALSE;
 	END_IF
 	
 	
@@ -519,8 +495,7 @@ IF(nWriteIndex >nNumberOfChannels + 2) THEN //todo fix magic number 2 because st
 		ResetWriteIndex();
 END_IF
 
-
-PisaIO.bTX:=timerWriteHigh.Q;]]></ST>
+PisaIO.bTX:=timerWriteHigh.Q;//Write to digital output]]></ST>
       </Implementation>
     </Method>
   </POU>

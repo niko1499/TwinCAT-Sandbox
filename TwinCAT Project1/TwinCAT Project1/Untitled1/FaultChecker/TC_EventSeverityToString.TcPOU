@@ -1,0 +1,33 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.15">
+  <POU Name="TC_EventSeverityToString" Id="{08010551-e101-45c9-b921-e63e5661e3db}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION TC_EventSeverityToString : STRING
+VAR_INPUT
+	eSeverity: TcEventSeverity;
+END_VAR
+VAR
+	sSeverity:STRING;
+END_VAR
+
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[CASE eSeverity OF
+    TcEventSeverity.Verbose:
+        sSeverity := 'Verbose';
+    TcEventSeverity.Info:
+        sSeverity := 'Info';
+    TcEventSeverity.Warning:
+        sSeverity := 'Warning';
+    TcEventSeverity.Error:
+        sSeverity := 'Error';
+    TcEventSeverity.Critical:
+        sSeverity := 'Critical';
+ELSE
+    sSeverity := 'Unknown';
+END_CASE
+
+TC_EventSeverityToString := sSeverity;
+]]></ST>
+    </Implementation>
+  </POU>
+</TcPlcObject>
