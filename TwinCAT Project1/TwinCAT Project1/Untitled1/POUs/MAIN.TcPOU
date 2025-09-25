@@ -32,7 +32,7 @@ VAR
 	
 	
 	
-	myPisa : FB_PISA();
+	myPisa : FB_PISA(PulsPisaChannelCount.Four);
 	i: INT;
 	aCurrentStates : ARRAY[1..4] OF CircuitBreakerStatus;
 	aTargetStates : ARRAY[1..4] OF CircuitBreakerStatus := [4(CircuitBreakerStatus.UNKNOWN)];
@@ -75,6 +75,7 @@ VAR
 	in:UINT;
 	//event: FB_FaultEvent;
 	fbMessage : FB_TCMessage;
+	bTest2: BOOL;
 END_VAR
 ]]></Declaration>
     <Implementation>
@@ -110,16 +111,22 @@ fbFaultChecker();//update
 
 myPisa(bStart:=bRun, bBidirectional:=bWrite);
 
+IF bTest2 THEN
+	myPisa.ResetAll();
+ELSE	
+	FOR i := 1 TO 4 DO
+    	myPisa.SetStatus(nChannel:=i , eStatus:=aTargetStates[i]);
+	END_FOR;
+END_IF
+
 FOR i := 1 TO 4 DO
     aCurrentStates[i] := myPisa.GetStatus(i);
 END_FOR;
 
-FOR i := 1 TO 4 DO
-    myPisa.SetStatus(nChannel:=i , eStatus:=aTargetStates[i]);
-END_FOR;
 
 
-bChannelOneTripped := myPisa.GetTripped(1);
+
+
 
 status := myPisa.GetCommMode();
 

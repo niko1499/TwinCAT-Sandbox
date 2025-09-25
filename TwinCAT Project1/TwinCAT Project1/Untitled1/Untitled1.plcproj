@@ -49,6 +49,9 @@
     <Compile Include="PISA\CircuitBreakerStatus.TcTLEO">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="PISA\PulsPisaChannelCount.TcTLEO">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="PISA\PisaPulseCommMode.TcTLEO">
       <SubType>Code</SubType>
     </Compile>
