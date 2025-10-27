@@ -5,12 +5,12 @@
   <Children>
     <Node>
       <Title>YT Scope Project</Title>
-      <Expanded>True</Expanded>
+      <Expanded>False</Expanded>
       <FileName>C:\Repos\TwinCAT-Sandbox\TwinCAT Project1\TwinCAT Measurement Project1\YT Scope Project.tcscopex</FileName>
       <Children>
         <Node>
           <Title>DataPool</Title>
-          <Expanded>True</Expanded>
+          <Expanded>False</Expanded>
           <FileName></FileName>
           <Children>
             <Node>
@@ -131,12 +131,12 @@
         </Node>
         <Node>
           <Title>Transmit</Title>
-          <Expanded>True</Expanded>
+          <Expanded>False</Expanded>
           <FileName></FileName>
           <Children>
             <Node>
               <Title>Bools</Title>
-              <Expanded>True</Expanded>
+              <Expanded>False</Expanded>
               <FileName></FileName>
               <Children>
                 <Node>
@@ -185,7 +185,7 @@
             </Node>
             <Node>
               <Title>Times</Title>
-              <Expanded>True</Expanded>
+              <Expanded>False</Expanded>
               <FileName></FileName>
               <Children>
                 <Node>
@@ -210,7 +210,7 @@
             </Node>
             <Node>
               <Title>Index</Title>
-              <Expanded>True</Expanded>
+              <Expanded>False</Expanded>
               <FileName></FileName>
               <Children>
                 <Node>
@@ -225,28 +225,28 @@
         </Node>
         <Node>
           <Title>Recieve</Title>
-          <Expanded>True</Expanded>
+          <Expanded>False</Expanded>
           <FileName></FileName>
           <Children>
             <Node>
               <Title>Bools (1)</Title>
-              <Expanded>True</Expanded>
+              <Expanded>False</Expanded>
               <FileName></FileName>
               <Children>
                 <Node>
-                  <Title>bRX (1)</Title>
+                  <Title>bRX</Title>
                   <Expanded>False</Expanded>
                   <FileName></FileName>
                   <Children />
                 </Node>
                 <Node>
-                  <Title>bTX (1)</Title>
+                  <Title>bTX</Title>
                   <Expanded>False</Expanded>
                   <FileName></FileName>
                   <Children />
                 </Node>
                 <Node>
-                  <Title>bStartBitFound (1)</Title>
+                  <Title>bStartBitFound</Title>
                   <Expanded>False</Expanded>
                   <FileName></FileName>
                   <Children />
@@ -267,7 +267,7 @@
             </Node>
             <Node>
               <Title>Times (1)</Title>
-              <Expanded>True</Expanded>
+              <Expanded>False</Expanded>
               <FileName></FileName>
               <Children>
                 <Node>
@@ -280,7 +280,7 @@
             </Node>
             <Node>
               <Title>Index (1)</Title>
-              <Expanded>True</Expanded>
+              <Expanded>False</Expanded>
               <FileName></FileName>
               <Children>
                 <Node>

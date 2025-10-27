@@ -1,0 +1,14 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.15">
+  <DUT Name="PISA_HMI" Id="{a2e49696-718f-4f07-abdb-962bfb2b1b48}">
+    <Declaration><![CDATA[TYPE PISA_HMI :
+STRUCT
+	sCommMode : PisaPulseCommMode := PisaPulseCommMode.Offline;	
+	//Variables for Reading
+	aStatus : ARRAY[1..8] OF CircuitBreakerStatus := [8(CircuitBreakerStatus.UNKNOWN)];
+	aTargetStatus : ARRAY[1..8] OF CircuitBreakerStatus := [8(CircuitBreakerStatus.UNKNOWN)];
+END_STRUCT
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

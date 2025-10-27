@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.15">
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.13">
   <POU Name="MAIN" Id="{2619c018-a97e-4e98-bfde-76b022b13f51}" SpecialFunc="None">
     <Declaration><![CDATA[PROGRAM MAIN
 
@@ -32,7 +32,7 @@ VAR
 	
 	
 	
-	myPisa : FB_PISA(PulsPisaChannelCount.Four);
+	myPisa : FB_PISA(eChannelCount := PulsPisaChannelCount.Four, sDeviceName:= 'PULS PISA-M-4CL2');
 	i: INT;
 	aCurrentStates : ARRAY[1..4] OF CircuitBreakerStatus;
 	aTargetStates : ARRAY[1..4] OF CircuitBreakerStatus := [4(CircuitBreakerStatus.UNKNOWN)];
@@ -48,26 +48,26 @@ VAR
 	
 	bChannelOneTripped:BOOL:=FALSE;
 	bDeviceOffline:BOOL:=FALSE;
-	event1 : FB_FaultEvent(ADR(bChannelOneTripped),
+	fb_eventTrigger1 : FB_EventTrigger(ADR(bChannelOneTripped),
 	                       tActivationDelay:=T#2S,
 					       nActivationCount:=1,
-					   	   sErrorName:='Circuit Breaker Tripped',
-                           sErrorDescription:='Lane 1 conveyor motor over current. Check Tension',
+					   	 //  sErrorName:='Circuit Breaker Tripped',
+                          // sErrorDescription:='Lane 1 conveyor motor over current. Check Tension',
     					   eEventCode:=E_MachineStatus.Error); 
 						   
 						  
-	event2 : FB_FaultEvent(ADR(bChannelOneTripped),
+	fb_eventTrigger2 : FB_EventTrigger(ADR(bChannelOneTripped),
 	                       tActivationDelay:=T#0S,
 					       nActivationCount:=3,
-					   	   sErrorName:='Repeat Breaker Trip',
-                           sErrorDescription:='Lane 1 conveyor breaker tripped 3 times.',
+					   	   //sErrorName:='Repeat Breaker Trip',
+                           //sErrorDescription:='Lane 1 conveyor breaker tripped 3 times.',
     					   eEventCode:=E_MachineStatus.Critical); 
 						   
-   event3 : FB_FaultEvent(ADR(bDeviceOffline),
+   fb_EventTrigger3 : FB_EventTrigger(ADR(bDeviceOffline),
 	                       tActivationDelay:=T#2S,
 					       nActivationCount:=1,
-					   	   sErrorName:='Lost Comms with PULSE PISA-M',
-                           sErrorDescription:='Watchdog timer with device expired. Possible wiring issue or loss of power.',
+					   	   //sErrorName:='Lost Comms with PULSE PISA-M',
+                          // sErrorDescription:='Watchdog timer with device expired. Possible wiring issue or loss of power.',
     					   eEventCode:=E_MachineStatus.Warning); 
 	
 	nLastEventCount: UINT;
@@ -89,9 +89,9 @@ event1:= FB_FaultEvent(bChannelOneTripped,
 					   eSeverity:=TcEventSeverity.Error);
 *)
 
-fbFaultChecker.AddEvent(ADR(event1));
-  fbFaultChecker.AddEvent(ADR(event2));
-  fbFaultChecker.AddEvent(ADR(event3));
+fbFaultChecker.AddTrigger(ADR(fb_eventTrigger1));
+  fbFaultChecker.AddTrigger(ADR(fb_eventTrigger2));
+  fbFaultChecker.AddTrigger(ADR(fb_EventTrigger3));
 bOnce := FALSE;
 END_IF
 
@@ -109,14 +109,16 @@ END_IF
 
 fbFaultChecker();//update
 
-myPisa(bStart:=bRun, bBidirectional:=bWrite);
+myPisa(bEnable:=bRun, bBidirectional:=bWrite);
+
+
 
 IF bTest2 THEN
-	myPisa.ResetAll();
+	//myPisa.ResetAll();
 ELSE	
-	FOR i := 1 TO 4 DO
-    	myPisa.SetStatus(nChannel:=i , eStatus:=aTargetStates[i]);
-	END_FOR;
+//	FOR i := 1 TO 4 DO
+//    	myPisa.SetStatus(nChannel:=i , eStatus:=aTargetStates[i]);
+//	END_FOR;
 END_IF
 
 FOR i := 1 TO 4 DO

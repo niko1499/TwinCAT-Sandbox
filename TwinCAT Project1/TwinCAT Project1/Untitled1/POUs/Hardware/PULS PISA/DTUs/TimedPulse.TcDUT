@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.15">
-  <DUT Name="PULSE" Id="{2f52b313-e062-4f00-b14d-0e2773929dff}">
-    <Declaration><![CDATA[TYPE PULSE :
+  <DUT Name="TimedPulse" Id="{1cf71819-5efd-4778-9318-886e6b804f24}">
+    <Declaration><![CDATA[TYPE TimedPulse :
 STRUCT
 	tLeadingGap: TIME   := T#0MS;
 	tHighSignal: TIME := T#0MS;

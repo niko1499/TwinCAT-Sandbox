@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.15">
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.13">
   <POU Name="FB_FaultChecker" Id="{81627131-cc2a-4f8a-9243-c943820076da}" SpecialFunc="None">
     <Declaration><![CDATA[FUNCTION_BLOCK FB_FaultChecker
 VAR_INPUT
@@ -17,7 +17,7 @@ END_VAR
 
 VAR
 	
-aFaultsToCheck : ARRAY[0..MAX_FAULTS] OF POINTER TO FB_FaultEvent;
+aFaultsToCheck : ARRAY[0..MAX_FAULTS] OF POINTER TO FB_EventTrigger;
 	//aFaultsToCheck  : ARRAY [255] OF POINTER TO FB_FaultEvent;
 	nIdx   : DINT;
     nSum   : DINT;
@@ -38,10 +38,10 @@ END_VAR
       <ST><![CDATA[Update();
 ]]></ST>
     </Implementation>
-    <Method Name="AddEvent" Id="{d7e83bef-d5e1-4fe8-b79a-89c8086b3844}">
-      <Declaration><![CDATA[METHOD PUBLIC AddEvent
+    <Method Name="AddTrigger" Id="{d7e83bef-d5e1-4fe8-b79a-89c8086b3844}">
+      <Declaration><![CDATA[METHOD PUBLIC AddTrigger
 VAR_INPUT
-	fbEvent : POINTER TO FB_FaultEvent;
+	fbEvent : POINTER TO FB_EventTrigger;
 END_VAR
 ]]></Declaration>
       <Implementation>
@@ -69,7 +69,7 @@ GetActiveEventCount:=nActiveEventCount;
       </Implementation>
     </Method>
     <Method Name="GetEvent" Id="{7d4429fc-a8de-4380-96e4-6836fca535d8}">
-      <Declaration><![CDATA[METHOD PUBLIC GetEvent : Pointer to FB_FaultEvent
+      <Declaration><![CDATA[METHOD PUBLIC GetEvent : Pointer to FB_EventTrigger
 VAR_INPUT
 	nIndex:UINT;
 END_VAR
@@ -83,7 +83,7 @@ END_IF]]></ST>
       </Implementation>
     </Method>
     <Method Name="GetFirstActiveEvent" Id="{a193127a-8663-4ec2-a895-c7ca5ea2f347}">
-      <Declaration><![CDATA[METHOD PUBLIC GetFirstActiveEvent : Pointer TO FB_FaultEvent
+      <Declaration><![CDATA[METHOD PUBLIC GetFirstActiveEvent : Pointer TO FB_EventTrigger
 VAR_INPUT
 END_VAR
 

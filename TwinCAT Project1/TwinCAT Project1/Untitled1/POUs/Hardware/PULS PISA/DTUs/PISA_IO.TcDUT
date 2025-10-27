@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.15">
-  <DUT Name="PISA_IO" Id="{9d93a83d-6231-4653-afec-ba4fd611ace2}">
+  <DUT Name="PISA_IO" Id="{f80e809e-64cb-4c7a-b1f6-2a749975ca96}">
     <Declaration><![CDATA[TYPE PISA_IO :
 STRUCT
 	sProductName  :STRING;

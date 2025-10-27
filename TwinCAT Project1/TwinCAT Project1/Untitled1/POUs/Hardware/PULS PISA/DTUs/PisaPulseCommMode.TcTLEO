@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.15">
-  <EnumerationTextList Name="PisaPulseCommMode" Id="{7b5bee69-3728-4b92-afd8-8e73f6a3032c}">
+  <EnumerationTextList Name="PisaPulseCommMode" Id="{0b59b537-bbea-4462-9656-d775a11b7295}">
     <Declaration><![CDATA[{attribute 'qualified_only'}
 {attribute 'strict'}
 TYPE PisaPulseCommMode :

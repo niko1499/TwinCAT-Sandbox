@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.15">
-  <POU Name="ExperimentalTPExtension" Id="{7c2356ba-eca3-41c6-91db-5af103ed5591}" SpecialFunc="None">
-    <Declaration><![CDATA[FUNCTION_BLOCK ExperimentalTPExtension EXTENDS TP
+  <POU Name="NTP" Id="{fca3aa9d-0b92-4904-94a4-c55571d16152}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK NTP EXTENDS TP
 VAR_INPUT
 END_VAR
 VAR_OUTPUT
@@ -40,7 +40,7 @@ ELSE
 
 END_IF]]></ST>
     </Implementation>
-    <Method Name="Reset" Id="{7f54cd77-6f01-4448-a241-af7e5d664e31}">
+    <Method Name="Reset" Id="{3f536b60-3cd9-41cd-9b29-892efba3b765}">
       <Declaration><![CDATA[METHOD PUBLIC Reset : BOOL
 VAR_INPUT
 END_VAR

@@ -1,12 +1,12 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.15">
-  <EnumerationTextList Name="PulsPisaChannelCount" Id="{48051dff-f5dc-4403-b486-271884baa014}">
+  <EnumerationTextList Name="PulsPisaChannelCount" Id="{0d17e9f4-3e22-418f-91ce-0f43fae7e71e}">
     <Declaration><![CDATA[{attribute 'qualified_only'}
 {attribute 'strict'}
 TYPE PulsPisaChannelCount :
 (
-	Four := 4,
-	Eight :=8
+	FOUR := 4,
+	EIGHT :=8
 );
 END_TYPE
 ]]></Declaration>
@@ -15,12 +15,12 @@ END_TYPE
         <o xml:space="preserve" t="TextListEnumerationTextListObject">
           <l n="TextList" t="ArrayList" cet="TextListRow">
             <o>
-              <v n="TextID">"Four"</v>
+              <v n="TextID">"FOUR"</v>
               <v n="TextDefault">"4"</v>
               <l n="LanguageTexts" t="ArrayList" />
             </o>
             <o>
-              <v n="TextID">"Eight"</v>
+              <v n="TextID">"EIGHT"</v>
               <v n="TextDefault">"8"</v>
               <l n="LanguageTexts" t="ArrayList" />
             </o>

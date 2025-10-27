@@ -1,12 +1,10 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.15">
-  <POU Name="FB_PISA" Id="{fcd1d659-8ade-4890-bc41-6e29b3b0778a}" SpecialFunc="None">
-    <Declaration><![CDATA[//---NOTE---
-//IMPLEMENTED AND TESTED at 2MS Cycle Time. Different Cycle times could cause communication issues with device. 
-FUNCTION_BLOCK FB_PISA
+  <POU Name="FB_PISA" Id="{4f444559-2ec0-4ae1-95ff-f2b379ef25de}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK FB_PISA
 VAR_INPUT
-	 bStart	: BOOL;
-	 bBidirectional	: BOOL;
+	 bEnable	: BOOL; //When TRUE devices channel states will be read from device and stored for retreval by GetSatus()
+	 bBidirectional	: BOOL; //When TRUE and bEnable target channel states as configured by SetStatus() will be sent to the device 
 END_VAR
 VAR CONSTANT
 	//Constants as defined in Pulse Pisa Manuals
@@ -30,14 +28,16 @@ VAR CONSTANT
 END_VAR
 
 VAR
-	PisaIO : PISA_IO; // Struct for mapping to the actual IO Hardware
+	PisaIO : PISA_IO; // Struct for mapping PLC to physical IO Hardware
+	PisaHMI : PISA_HMI; //Struct for mapping PLC to HMI
+	
+	lastPisaHMI : PISA_HMI; //Struct for latching states
+	
 	tWatchdogTime: TIME;
 	timerReadSequenceWatchdog : TOF;
 	
-	commMode : PisaPulseCommMode := PisaPulseCommMode.Offline;	
-	//Variables for Reading
-	aStatus : ARRAY[1..MAX_NUMBER_OF_CHANNELS] OF CircuitBreakerStatus := [MAX_NUMBER_OF_CHANNELS(CircuitBreakerStatus.UNKNOWN)];
-	aTargetStatus : ARRAY[1..MAX_NUMBER_OF_CHANNELS] OF CircuitBreakerStatus := [MAX_NUMBER_OF_CHANNELS(CircuitBreakerStatus.UNKNOWN)];
+	bWriteRequestedHMI : BOOL;
+
 	
 	bStartBitFound : BOOL;//Indicateds the falling edge of the start bit has been found. (we are reading channels)
 	nReadingChannelIndex	: USINT := 0 ; //The current channel number as determined by time or falling edges in the data
@@ -54,7 +54,7 @@ VAR
 	bResetMaxTimeFlag: BOOL:=FALSE; //Used to indicate the max pulse timer needs to be reset NEXT cycle. Can't happen this cycle or Q will not trigger. 
 
 	//Variables for Writing
-	aCtrl : ARRAY[0..MAX_NUMBER_OF_CHANNELS+WRITE_PERIODS_AFTER_DATA] OF PULSE:= [(MAX_NUMBER_OF_CHANNELS+WRITE_PERIODS_AFTER_DATA)(sOnSignal)];
+	aCtrl : ARRAY[0..MAX_NUMBER_OF_CHANNELS+WRITE_PERIODS_AFTER_DATA] OF TimedPulse:= [(MAX_NUMBER_OF_CHANNELS+WRITE_PERIODS_AFTER_DATA)(sOnSignal)];
 		
 	timerLeadingGap : NTP; //TODO-NIKO See if this can be better rewritten to no use my strange extended timer. Or clean up the timer. should add unit test first as changing it breaks functionality currently
 	timerWriteHigh : NTP;
@@ -72,59 +72,86 @@ VAR
 
 	//Command Durations	
 	tGapTimeAdjustment :TIME:=T#5MS; //Needed to account for drift due to syscle time
-    sStartBitSignal : PULSE := (tLeadingGap := T#000MS, tHighSignal := T#150MS, tTrailingGap := T#000MS);
-	sResetSignal    : PULSE := (tLeadingGap := T#100MS - tGapTimeAdjustment, tHighSignal := T#100MS, tTrailingGap := T#000MS);
-	sOnSignal       : PULSE := (tLeadingGap := T#200MS - tGapTimeAdjustment, tHighSignal := T#000MS, tTrailingGap := T#000MS);
-	sOffSignal      : PULSE := (tLeadingGap := T#100MS - tGapTimeAdjustment, tHighSignal := T#050MS, tTrailingGap := T#050MS);
-	sStopBitSignal  : PULSE := (tLeadingGap := T#100MS, tHighSignal :=T#100MS, tTrailingGap := T#050MS);
-	sWaitBitSignal  : PULSE := (tLeadingGap := T#500MS, tHighSignal := T#000MS, tTrailingGap := T#000MS);
+    sStartBitSignal : TimedPulse := (tLeadingGap := T#000MS, tHighSignal := T#150MS, tTrailingGap := T#000MS);
+	sResetSignal    : TimedPulse := (tLeadingGap := T#100MS - tGapTimeAdjustment, tHighSignal := T#100MS, tTrailingGap := T#000MS);
+	sOnSignal       : TimedPulse := (tLeadingGap := T#200MS - tGapTimeAdjustment, tHighSignal := T#000MS, tTrailingGap := T#000MS);
+	sOffSignal      : TimedPulse := (tLeadingGap := T#100MS - tGapTimeAdjustment, tHighSignal := T#050MS, tTrailingGap := T#050MS);
+	sStopBitSignal  : TimedPulse := (tLeadingGap := T#100MS, tHighSignal :=T#100MS, tTrailingGap := T#050MS);
+	sWaitBitSignal  : TimedPulse := (tLeadingGap := T#500MS, tHighSignal := T#000MS, tTrailingGap := T#000MS);
 	
 	nResetChannel :USINT:=1;
 	
 	timerResetDelay : TON;
 
 	
-	bBidirectionalRequested: BOOL;
+
+	i: INT;
 END_VAR
 ]]></Declaration>
     <Implementation>
-      <ST><![CDATA[IF bStart THEN
+      <ST><![CDATA[(*
+//*****************************************************************Notes**********************************************************\\
+Function Block for reading and writing channel states to PULS PISA line of smart circuit breaker products.
+https://products.pulspower.com/us/product-families/pisa.html
+
+Implemented and tested at 2MS Cycle Time. Different Cycle times could cause communication issues with device. 
+10MS cycle time may be suficient for reading but the software on the PISA-M will not interpret written signals correctly at +/-10MS
+Code was written with to accomidate for different numbers of device channels but has only been tested with the the 4 channel PISA-M-4CL2
+ 
+//*****************************************************************Revs**********************************************************\\
+   (          who            )(    Date    ) (   Rev     ) (								Disc						)
+     Nikolas Gamarra		 	2025.09.26		1.0.0		Initial Code
 	
-	bBidirectionalRequested:=bBidirectional;
+//*****************************************************************Code**********************************************************\\
+*)
+IF bEnable THEN
+	
 	ReadFromDevice();
 	
-	IF bBidirectionalRequested THEN
+	bWriteRequestedHMI:=FALSE;
+	
+	
+	
+	
+	
+
+	
+	
+	IF bBidirectional THEN
+		
+	
+		FOR i := 1 TO nNumberOfChannels DO
+		IF PisaHMI.aStatus[i] = CircuitBreakerStatus.OFF AND lastPisaHMI.aStatus[i] = CircuitBreakerStatus.ON AND PisaHMI.aTargetStatus[i] = CircuitBreakerStatus.ON THEN
+			PisaHMI.aTargetStatus[i] := CircuitBreakerStatus.OFF; 
+		END_IF
+		IF PisaHMI.aStatus[i] = CircuitBreakerStatus.ON AND lastPisaHMI.aStatus[i] = CircuitBreakerStatus.OFF AND PisaHMI.aTargetStatus[i] = CircuitBreakerStatus.OFF THEN
+			PisaHMI.aTargetStatus[i] := CircuitBreakerStatus.ON; 
+		END_IF
+		
+		IF PisaHMI.aStatus[i] = lastPisaHMI.aStatus[i] AND PisaHMI.aTargetStatus[i] <> lastPisaHMI.aTargetStatus[i] THEN
+			bWriteRequestedHMI:=TRUE;
+		END_IF
+		
+		
+	END_FOR
+	
+		
 		WriteToDevice();
 	ELSE
 		ResetWriteIndex();
+		CopyReadValuesToTargetValues();
 	END_IF	
+	
+	lastPisaHMI:= PisaHMI;
 ELSE// Program not running.
-	ClearStoredValues();
-END_IF]]></ST>
-    </Implementation>
-    <Method Name="CalculateWiteBitDuration" Id="{521a4c92-6139-4c79-bb7e-22d786562bc0}">
-      <Declaration><![CDATA[METHOD PRIVATE CalculateWiteBitDuration : TIME
-VAR_INPUT
-	nStartBit:USINT;
-	nEndBit :USINT;
-END_VAR
-
-VAR
-	i: INT;
-	tRunningTotal:TIME:=T#0MS;
-END_VAR]]></Declaration>
-      <Implementation>
-        <ST><![CDATA[FOR i := nStartBit TO nEndBit DO
-    tRunningTotal:=tRunningTotal + aCtrl[i].tLeadingGap + aCtrl[i].tHighSignal;
-END_FOR;
-
-CalculateWiteBitDuration:=tRunningTotal;
+	ClearStatus();
+	ClearTarget();
+END_IF
 
 ]]></ST>
-      </Implementation>
-    </Method>
-    <Method Name="ClearStoredValues" Id="{8c872f6e-f6ce-4ed1-8772-ffa97afe5b3d}">
-      <Declaration><![CDATA[METHOD PRIVATE ClearStoredValues
+    </Implementation>
+    <Method Name="ClearStatus" Id="{c2593c16-d99c-4daa-8d6d-31e081e3bd02}">
+      <Declaration><![CDATA[METHOD PRIVATE ClearStatus
 VAR_INPUT
 END_VAR
 VAR
@@ -133,22 +160,57 @@ END_VAR
 ]]></Declaration>
       <Implementation>
         <ST><![CDATA[FOR i := 1 TO nNumberOfChannels DO
-	aStatus[i] := CircuitBreakerStatus.UNKNOWN; // Wipe out the array as we are in an unexpected state so no recorded values are guarenteed to be correct. 
+	// Wipe out the array. 	
+	PisaHMI.aStatus[i] := CircuitBreakerStatus.UNKNOWN; 
 END_FOR]]></ST>
       </Implementation>
     </Method>
-    <Method Name="FB_init" Id="{9b52ece2-d8dc-409f-8275-86ed0ed48b59}">
+    <Method Name="ClearTarget" Id="{056b04ad-0cba-4a42-9842-3c6fc7d5d2d9}">
+      <Declaration><![CDATA[METHOD PRIVATE ClearTarget
+VAR_INPUT
+END_VAR
+
+VAR
+	i: INT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[FOR i := 1 TO nNumberOfChannels DO
+	// Wipe out the array 	
+	PisaHMI.aTargetStatus[i] := CircuitBreakerStatus.UNKNOWN;
+END_FOR]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="CopyReadValuesToTargetValues" Id="{746303db-488c-4952-bef7-643ffbbe8489}">
+      <Declaration><![CDATA[METHOD PRIVATE CopyReadValuesToTargetValues
+VAR_INPUT
+END_VAR
+
+VAR
+	i: INT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[FOR i := 1 TO nNumberOfChannels DO
+    PisaHMI.aTargetStatus[i] := PisaHMI.aStatus[i];
+END_FOR;
+
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="FB_init" Id="{2d3d76f7-d971-465d-887e-139ba32ec4e4}">
       <Declaration><![CDATA[METHOD FB_init : BOOL
 VAR_INPUT
 	bInitRetains : BOOL; // if TRUE, the retain variables are initialized (warm start / cold start)
 	bInCopyCode : BOOL;  // if TRUE, the instance afterwards gets moved into the copy code (online change)
-	eChannelCount : PulsPisaChannelCount;
+	eChannelCount : PulsPisaChannelCount;// Number of independent circuit breaker channels on the device
+	sDeviceName: STRING;// Name of the device for reference later when building error messages
 END_VAR
 ]]></Declaration>
       <Implementation>
         <ST><![CDATA[aCtrl[0]:=sStartBitSignal;
 aCtrl[nNumberOfChannels+1]:=sStopBitSignal;
 nNumberOfChannels := TO_USINT(eChannelCount);
+
+PisaIO.sProductName:=sDeviceName;
 
 IF eChannelCount = PulsPisaChannelCount.Eight THEN
 	tWatchdogTime:=EIGHT_CHANNEL_SEQUENCE_TIME ;
@@ -158,28 +220,44 @@ END_IF
 ]]></ST>
       </Implementation>
     </Method>
-    <Method Name="GetCommMode" Id="{0c35d0de-ab17-4237-a989-bcb0a8d52a88}">
-      <Declaration><![CDATA[METHOD PUBLIC GetCommMode : PisaPulseCommMode
+    <Method Name="GetChannelCount" Id="{666ac572-b6c3-45bd-8f99-318cdf412080}">
+      <Declaration><![CDATA[METHOD PUBLIC GetChannelCount : USINT
+VAR_INPUT
+END_VAR
 ]]></Declaration>
       <Implementation>
-        <ST><![CDATA[GetCommMode:=commMode;]]></ST>
+        <ST><![CDATA[GetChannelCount := nNumberOfChannels;]]></ST>
       </Implementation>
     </Method>
-    <Method Name="GetStatus" Id="{b627c613-9025-44cd-970a-bd5106ddd8b2}">
-      <Declaration><![CDATA[METHOD GetStatus : CircuitBreakerStatus
+    <Method Name="GetCommMode" Id="{37f9f250-a55e-4c66-b009-79b3c19a10ff}">
+      <Declaration><![CDATA[METHOD PUBLIC GetCommMode : PisaPulseCommMode //The current operational mode of the device
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[GetCommMode:=PisaHMI.sCommMode;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="GetDeviceName" Id="{fe63e2b7-aa16-4b13-9efd-81248147d12f}">
+      <Declaration><![CDATA[METHOD PUBLIC GetDeviceName : STRING
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[GetDeviceName:=PisaIO.sProductName;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="GetStatus" Id="{59102917-1316-4021-9562-94498880e7f9}">
+      <Declaration><![CDATA[METHOD GetStatus : CircuitBreakerStatus // The state of provided channel
 VAR_INPUT
-	nChannel : UINT;
+	nChannel : UINT; // The device channel to check the state of
 END_VAR
 ]]></Declaration>
       <Implementation>
         <ST><![CDATA[IF nChannel > 0 AND nChannel <= nNumberOfChannels THEN
-	GetStatus := aStatus[nChannel];
+	GetStatus := PisaHMI.aStatus[nChannel];
 ELSE
 	GetStatus := CircuitBreakerStatus.UNKNOWN;
 END_IF]]></ST>
       </Implementation>
     </Method>
-    <Method Name="ReadFromDevice" Id="{2202baeb-5622-4fa6-b490-6733897db411}">
+    <Method Name="ReadFromDevice" Id="{e97ff11f-cce5-446a-8eba-233730ac13f1}">
       <Declaration><![CDATA[METHOD PRIVATE ReadFromDevice : BOOL
 VAR_INPUT
 END_VAR
@@ -206,8 +284,8 @@ END_IF
 timerReadSequenceWatchdog(IN := inputFallingEdge.Q, PT:= tWatchdogTime);
 
 IF (timerReadSequenceWatchdog.Q = FALSE) THEN//Our watchdog has expired
-	commMode := PisaPulseCommMode.Offline;	
-	ClearStoredValues();
+	PisaHMI.sCommMode := PisaPulseCommMode.Offline;	
+	ClearStatus();
 END_IF
 
 IF (inputFallingEdge.Q)THEN //A pulse just completed
@@ -215,9 +293,9 @@ IF (inputFallingEdge.Q)THEN //A pulse just completed
 	
 	IF tLastPulseDuration >= SHORT_START_PULSE_DURATION - DRIFT_TOLERANCE THEN
 		IF tLastPulseDuration >= T#155MS(*LONG_START_PULSE_DURATION - DRIFT_TOLERANCE THEN*) THEN
-			commMode := PisaPulseCommMode.Unidirectional;
+			PisaHMI.sCommMode := PisaPulseCommMode.Unidirectional;
 		ELSE
-			commMode := PisaPulseCommMode.Bidirectional;
+			PisaHMI.sCommMode := PisaPulseCommMode.Bidirectional;
 		END_IF
 		
 		bStartBitFound 	:= NOT bStartBitFound; // Main reset happens elsewhere. Failsafe here. Only happense every other cycle but acceptable as only a failsafe.
@@ -244,20 +322,20 @@ IF bStartBitFound THEN // Only calculate state if we have found the start bit an
 		IF tLastPulseDuration >= DRIFT_TOLERANCE THEN //have a positive signal
 			IF tLastPulseDuration >= MIN_PULSE_DURATION - DRIFT_TOLERANCE THEN //Signal large enough than smallest expected
 				IF tLastPulseDuration > STATUS_DURATION - DRIFT_TOLERANCE THEN
-					aStatus[nLastReadingChannelIndex]	:= CircuitBreakerStatus.TRIPPED;
+					PisaHMI.aStatus[nLastReadingChannelIndex]	:= CircuitBreakerStatus.TRIPPED;
 				ELSIF tLastPulseDuration > MIN_PULSE_DURATION - DRIFT_TOLERANCE THEN
-					aStatus[nLastReadingChannelIndex]	:= CircuitBreakerStatus.OFF;
+					PisaHMI.aStatus[nLastReadingChannelIndex]	:= CircuitBreakerStatus.OFF;
 				ELSE //should never happen
-					ClearStoredValues();
+					ClearStatus();
 				END_IF	
 			ELSE//Likely indicates out of sync
-				ClearStoredValues();
+				ClearStatus();
 			END_IF
 		ELSE
-			IF commMode = PisaPulseCommMode.Bidirectional THEN	
-				aStatus[nLastReadingChannelIndex]	:= CircuitBreakerStatus.ON;
+			IF PisaHMI.sCommMode = PisaPulseCommMode.Bidirectional THEN	
+				PisaHMI.aStatus[nLastReadingChannelIndex]	:= CircuitBreakerStatus.ON;
 			ELSE
-				aStatus[nLastReadingChannelIndex]	:= CircuitBreakerStatus.NOTTRIPPED;
+				PisaHMI.aStatus[nLastReadingChannelIndex]	:= CircuitBreakerStatus.NOTTRIPPED;
 			END_IF
 		END_IF
 				
@@ -271,17 +349,17 @@ IF bStartBitFound THEN // Only calculate state if we have found the start bit an
 END_IF]]></ST>
       </Implementation>
     </Method>
-    <Method Name="ResetAll" Id="{137c3d21-3291-4818-9502-42e505c5b017}">
-      <Declaration><![CDATA[METHOD PUBLIC ResetAll : BOOL
+    <Method Name="ResetAll" Id="{057b81b1-2031-4845-a666-ab49e9cb1dd9}">
+      <Declaration><![CDATA[METHOD PRIVATE ResetAll // Sequencial rolling reseet of all channels
 ]]></Declaration>
       <Implementation>
-        <ST><![CDATA[bBidirectionalRequested:=TRUE;
-timerResetDelay(IN:= NOT timerResetDelay.Q,PT:=tWatchdogTime );
+        <ST><![CDATA[timerResetDelay(IN:= NOT timerResetDelay.Q,PT:=tWatchdogTime );
 
 IF timerResetDelay.Q THEN
 	nResetChannel :=nResetChannel+1;
 END_IF
 
+//Perform a rolling reseet of all channels. (off by 1 index is ok a setter rejects out of bounds args)
 SetStatus(nChannel:=nResetChannel, eStatus:=CircuitBreakerStatus.RESET);
 SetStatus(nChannel:=nResetChannel-1, eStatus:=CircuitBreakerStatus.ON);
 
@@ -292,7 +370,7 @@ END_IF
 ]]></ST>
       </Implementation>
     </Method>
-    <Method Name="ResetReadIndex" Id="{e41b78c3-0cc0-4943-ad59-a1706fab07ce}">
+    <Method Name="ResetReadIndex" Id="{ad198e60-facd-476c-ae58-d4ab1425a705}">
       <Declaration><![CDATA[METHOD PRIVATE ResetReadIndex
 
 ]]></Declaration>
@@ -301,7 +379,7 @@ END_IF
 nLastReadingChannelIndex:=1;]]></ST>
       </Implementation>
     </Method>
-    <Method Name="ResetWriteIndex" Id="{40736a25-8f39-4e3e-881e-ea0b9ca16940}">
+    <Method Name="ResetWriteIndex" Id="{571a19b9-e199-4130-b85a-8069619966bb}">
       <Declaration><![CDATA[METHOD PRIVATE ResetWriteIndex
 ]]></Declaration>
       <Implementation>
@@ -311,29 +389,30 @@ nWriteIndex:=0;
 aCtrl[0]:=sStartBitSignal;
 aCtrl[nNumberOfChannels+1]:=sStopBitSignal;
 aCtrl[nNumberOfChannels+2]:=sWaitBitSignal;
+
 ]]></ST>
       </Implementation>
     </Method>
-    <Method Name="SetStatus" Id="{6642a64a-4e50-4f13-b203-f745ad1ed55d}">
+    <Method Name="SetStatus" Id="{2125d974-d757-45e0-8c5c-dfe0fcf3a766}">
       <Declaration><![CDATA[METHOD SetStatus
 VAR_INPUT
-	nChannel : UINT;
-	eStatus : CircuitBreakerStatus;
+	nChannel : UINT; // The device channel to change
+	eStatus : CircuitBreakerStatus; // The desired stat to change to
 END_VAR
 ]]></Declaration>
       <Implementation>
         <ST><![CDATA[IF nChannel >0 AND nChannel<=nNumberOfChannels THEN
-	aTargetStatus[nChannel]:=eStatus;
-	IF (aStatus[nChannel] <> CircuitBreakerStatus.ON)THEN
-		IF(eStatus = CircuitBreakerStatus.RESET AND commMode =  PisaPulseCommMode.Bidirectional)  THEN
-			aStatus[nChannel] := CircuitBreakerStatus.RESET;
+	PisaHMI.aTargetStatus[nChannel]:=eStatus;//Actual settingof the desired status to device
+	IF (PisaHMI.aStatus[nChannel] <> CircuitBreakerStatus.ON)THEN//Fake a status of reset but only if the device hasn't yet successfully reset
+		IF(eStatus = CircuitBreakerStatus.RESET AND PisaHMI.sCommMode =  PisaPulseCommMode.Bidirectional)  THEN
+			PisaHMI.aStatus[nChannel] := CircuitBreakerStatus.RESET;
 		END_IF
 	END_IF
 END_IF
 ]]></ST>
       </Implementation>
     </Method>
-    <Method Name="WriteToDevice" Id="{1e9decf7-4bb3-4e88-b3b1-818725582bbf}">
+    <Method Name="WriteToDevice" Id="{92b20edd-1a08-454e-8ce5-bd3db832b2ec}">
       <Declaration><![CDATA[METHOD PRIVATE WriteToDevice : BOOL
 VAR_INPUT
 END_VAR]]></Declaration>
@@ -375,15 +454,22 @@ IF nDoneCount >= nTimersToComplete  THEN
 	
 	IF(nWriteIndex>0 AND nWriteIndex <nNumberOfChannels+1) THEN
 		//Update any target values. Won't execute till next cycle
-		CASE aTargetStatus[nWriteIndex] OF 
+		CASE PisaHMI.aTargetStatus[nWriteIndex] OF 
 		CircuitBreakerStatus.OFF, CircuitBreakerStatus.TRIPPED:
 			aCtrl[nWriteIndex]:=sOffSignal;
-		CircuitBreakerStatus.ON:
+		CircuitBreakerStatus.On, CircuitBreakerStatus.NOTTRIPPED:
 			aCtrl[nWriteIndex]:=sOnSignal;
 		CircuitBreakerStatus.RESET :
 			aCtrl[nWriteIndex]:=sResetSignal;
-		ELSE // Default to ON for UNKNOWN or NOTTRIPPED
-			aCtrl[nWriteIndex]:=sOnSignal;
+		ELSE // Default (UNKNOWN)
+			//replace the unknown with the read value
+			PisaHMI.aTargetStatus[nWriteIndex] := PisaHMI.aStatus[nWriteIndex];
+			//repeat this step
+			nDoneCount:=99;
+			nWriteIndex:=nWriteIndex-1;
+			
+			
+			//aCtrl[nWriteIndex]:=sOnSignal;
 		END_CASE;
 	END_IF	
 END_IF

@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.15">
-  <POU Name="FB_FaultEvent" Id="{c2ca63a9-7bc3-4cc8-b616-f70b88c447a4}" SpecialFunc="None">
-    <Declaration><![CDATA[FUNCTION_BLOCK FB_FaultEvent
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.13">
+  <POU Name="FB_EventTrigger" Id="{c2ca63a9-7bc3-4cc8-b616-f70b88c447a4}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK FB_EventTrigger
 VAR_INPUT
 END_VAR
 VAR_OUTPUT
@@ -60,8 +60,8 @@ VAR_INPUT
 	//bCondition3  : REFERENCE TO BOOL;
 	tActivationDelay : TIME;
 	nActivationCount : USINT;
-	sErrorName: STRING(64);
-	sErrorDescription: STRING (255);
+	//sErrorName: STRING(64);
+	//sErrorDescription: STRING (255);
 	eEventCode: E_MachineStatus;
 END_VAR
 ]]></Declaration>
@@ -71,8 +71,8 @@ END_VAR
 //bCondition3:=	bCondition3;
 tDebounceTime:=	tActivationDelay;
 nRepeatTriggerCount :=	nActivationCount;
-sShortErrorMessage:=	sErrorName;
-sLongErrorMessage:=	sErrorDescription;
+//sShortErrorMessage:=	sErrorName;
+//sLongErrorMessage:=	sErrorDescription;
 myEventCode := eEventCode;]]></ST>
       </Implementation>
     </Method>
