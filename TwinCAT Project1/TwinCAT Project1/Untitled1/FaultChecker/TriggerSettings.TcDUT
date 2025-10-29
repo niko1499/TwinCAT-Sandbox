@@ -1,0 +1,15 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.13">
+  <DUT Name="TriggerSettings" Id="{1108ca11-1dc9-4e8d-8511-465e240e52cd}">
+    <Declaration><![CDATA[TYPE TriggerSettings :
+STRUCT
+	//Settings
+	tDebounceTime: TIME :=T#0S;
+	nActivationThreshold: UDINT:=1;
+	bAutoResetCount: BOOL :=TRUE;
+	eEventType :E_EventType:=E_EventType.Message;
+END_STRUCT
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.15">
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.13">
   <EnumerationTextList Name="CdEventSeverity" Id="{35d3193d-3c8b-4104-8260-5814f9cf34bf}">
     <Declaration><![CDATA[{attribute 'qualified_only'}
 {attribute 'strict'}
@@ -49,7 +49,7 @@ END_TYPE
             </o>
             <o>
               <v n="TextID">"Lockout"</v>
-              <v n="TextDefault">"8"</v>
+              <v n="TextDefault">"8      "</v>
               <l n="LanguageTexts" t="ArrayList" />
             </o>
             <o>

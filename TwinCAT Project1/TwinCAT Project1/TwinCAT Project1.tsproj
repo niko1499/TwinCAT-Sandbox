@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<TcSmProject xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://www.beckhoff.com/schemas/2012/07/TcSmProject" TcSmVersion="1.0" TcVersion="3.1.4026.19">
+<TcSmProject xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://www.beckhoff.com/schemas/2012/07/TcSmProject" TcSmVersion="1.0" TcVersion="3.1.4026.19" TcProjectVariant="Sim">
 	<DataTypes>
 		<DataType>
 			<Name GUID="{71B58F72-0E49-50EB-B8E4-1CCD027538EC}" IecBaseType="true" AutoDeleteType="true">ARRAY [1..8] OF BOOL</Name>
@@ -20,64 +20,685 @@
 			</ArrayInfo>
 		</DataType>
 		<DataType>
-			<Name GUID="{4DB8D479-080C-40E7-B197-CE6A3847034C}" PersistentType="true">ChicagoDryerEventClass</Name>
+			<Name GUID="{99AAF1F1-6DD1-4001-A7CA-1726C1BC4874}" PersistentType="true">CdMachineEvent</Name>
+			<DisplayName TxtId=""><![CDATA[MachineEvents]]></DisplayName>
+			<EventId>
+				<Name Id="2000">System_FileError</Name>
+				<DisplayName TxtId=""><![CDATA[{0} - Side Conveyor Full]]></DisplayName>
+				<Severity>Info</Severity>
+			</EventId>
+			<EventId>
+				<Name Id="2">Info_SideConvFull</Name>
+				<DisplayName TxtId=""><![CDATA[{0} - Side Conveyor Full]]></DisplayName>
+				<Severity>Info</Severity>
+			</EventId>
+			<EventId>
+				<Name Id="3">Info_TopConvFull</Name>
+				<DisplayName TxtId=""><![CDATA[{0} - Top Conveyor Full]]></DisplayName>
+				<Severity>Info</Severity>
+			</EventId>
+			<EventId>
+				<Name Id="4">Info_TestMode</Name>
+				<DisplayName TxtId=""><![CDATA[{0} - Test Mode Active]]></DisplayName>
+				<Severity>Info</Severity>
+			</EventId>
+			<EventId>
+				<Name Id="5">Info_MaintenanceMode</Name>
+				<DisplayName TxtId=""><![CDATA[{0} - Maintenance Mode Active]]></DisplayName>
+				<Severity>Info</Severity>
+			</EventId>
+			<EventId>
+				<Name Id="6">Info_JogRevActive</Name>
+				<DisplayName TxtId=""><![CDATA[{0} - Jog Reverse Mode Active]]></DisplayName>
+				<Severity>Info</Severity>
+			</EventId>
+			<EventId>
+				<Name Id="10">Reject_Unknown</Name>
+				<DisplayName TxtId=""><![CDATA[{0} - Reject - Unknown Reason - {1} - Loc: {2}]]></DisplayName>
+				<Severity>Info</Severity>
+			</EventId>
+			<EventId>
+				<Name Id="11">Reject_User</Name>
+				<DisplayName TxtId=""><![CDATA[{0} - Reject - User - {1} - Loc: {2}]]></DisplayName>
+				<Severity>Info</Severity>
+			</EventId>
+			<EventId>
+				<Name Id="12">Reject_Unknown_Auto</Name>
+				<DisplayName TxtId=""><![CDATA[{0} - Reject - Unknown Auto - {1} - Loc: {2}]]></DisplayName>
+				<Severity>Info</Severity>
+			</EventId>
+			<EventId>
+				<Name Id="13">Reject_OverWideL</Name>
+				<DisplayName TxtId=""><![CDATA[{0} - Reject - Left OverWidth Sensor - {1} - Loc: {2}]]></DisplayName>
+				<Severity>Info</Severity>
+			</EventId>
+			<EventId>
+				<Name Id="14">Reject_OverWideR</Name>
+				<DisplayName TxtId=""><![CDATA[{0} - Reject - Right OverWidth Sensor - {1} - Loc: {2}]]></DisplayName>
+				<Severity>Info</Severity>
+			</EventId>
+			<EventId>
+				<Name Id="15">Reject_Auto_TooNarrow</Name>
+				<DisplayName TxtId=""><![CDATA[{0} - Reject - Item Too Narrow for Machine (Item Width: {1}", Min. Allowed Width: {2}") - {1}]]></DisplayName>
+				<Severity>Info</Severity>
+			</EventId>
+			<EventId>
+				<Name Id="16">Reject_Auto_TooWide</Name>
+				<DisplayName TxtId=""><![CDATA[{0} - Reject - Item Too Wide for Machine (Item Width: {1}", Max. Allowed Width: {2}") - {1}]]></DisplayName>
+				<Severity>Info</Severity>
+			</EventId>
+			<EventId>
+				<Name Id="17">Reject_Auto_TooShort</Name>
+				<DisplayName TxtId=""><![CDATA[{0} - Reject - Item Too Short for Machine (Item Length: {1}", Max. Allowed Length: {2}") - {1}]]></DisplayName>
+				<Severity>Info</Severity>
+			</EventId>
+			<EventId>
+				<Name Id="18">Reject_Auto_TooLong</Name>
+				<DisplayName TxtId=""><![CDATA[{0} - Reject - Item Too Long for Machine (Item Length: {1}", Max. Allowed Lenth: {2}") - {1}]]></DisplayName>
+				<Severity>Info</Severity>
+			</EventId>
+			<EventId>
+				<Name Id="19">Reject_Auto_WrongWidth</Name>
+				<DisplayName TxtId=""><![CDATA[{0} - Reject - Item not in Current Program (Item Width: {1}", {2})]]></DisplayName>
+				<Severity>Info</Severity>
+			</EventId>
+			<EventId>
+				<Name Id="20">Reject_Auto_WrongLength</Name>
+				<DisplayName TxtId=""><![CDATA[{0} - Reject - Item not in Current Program (Item Length: {1}", {2})]]></DisplayName>
+				<Severity>Info</Severity>
+			</EventId>
+			<EventId>
+				<Name Id="21">Reject_Auto_X2_Timeout</Name>
+				<DisplayName TxtId=""><![CDATA[{0} - Reject - Crossfold 2 Timeout - {1}]]></DisplayName>
+				<Severity>Info</Severity>
+			</EventId>
+			<EventId>
+				<Name Id="22">Reject_Auto_ConvLockout</Name>
+				<DisplayName TxtId=""><![CDATA[{0} - Reject - Exit Conveyor Locked Out (Conveyor #{1}) - {2}]]></DisplayName>
+				<Severity>Info</Severity>
+			</EventId>
+			<EventId>
+				<Name Id="23">Reject_Auto_WrongSort</Name>
+				<DisplayName TxtId=""><![CDATA[{0} - Reject - Wrong Sort Item - {1}]]></DisplayName>
+				<Severity>Info</Severity>
+			</EventId>
+			<EventId>
+				<Name Id="24">Reject_Auto_Primary</Name>
+				<DisplayName TxtId=""><![CDATA[{0} - Reject - Primary - {1} - Loc: {2}]]></DisplayName>
+				<Severity>Info</Severity>
+			</EventId>
+			<EventId>
+				<Name Id="25">Reject_Auto_Primary_NoSortNum</Name>
+				<DisplayName TxtId=""><![CDATA[{0} - Reject - Primary No Sort Number - {1} - Loc: {2}]]></DisplayName>
+				<Severity>Info</Severity>
+			</EventId>
+			<EventId>
+				<Name Id="26">Reject_Auto_Crossfold1</Name>
+				<DisplayName TxtId=""><![CDATA[{0} - Reject - Crossfold 1 - {1} - Loc: {2}]]></DisplayName>
+				<Severity>Info</Severity>
+			</EventId>
+			<EventId>
+				<Name Id="27">Reject_Auto_Crossfold2</Name>
+				<DisplayName TxtId=""><![CDATA[{0} - Reject - Crossfold 2 - {1} - Loc: {2}]]></DisplayName>
+				<Severity>Info</Severity>
+			</EventId>
+			<EventId>
+				<Name Id="28">Reject_Auto_Stacker</Name>
+				<DisplayName TxtId=""><![CDATA[{0} - Reject - Stacker - {1} - Loc: {2}]]></DisplayName>
+				<Severity>Info</Severity>
+			</EventId>
+			<EventId>
+				<Name Id="99">Filter_Cleaning_Required</Name>
+				<DisplayName TxtId=""><![CDATA[{0} - Air Filter Needs Cleaning (High Voltage Cabinet)]]></DisplayName>
+				<Severity>Warning</Severity>
+			</EventId>
+			<EventId>
+				<Name Id="100">Safety_Fault</Name>
+				<DisplayName TxtId=""><![CDATA[{0} - Safety Fault (Generic)]]></DisplayName>
+				<Severity>Warning</Severity>
+			</EventId>
+			<EventId>
+				<Name Id="101">Safety_Reset</Name>
+				<DisplayName TxtId=""><![CDATA[{0} - Safety System Tripped]]></DisplayName>
+				<Severity>Warning</Severity>
+			</EventId>
+			<EventId>
+				<Name Id="102">Safety_SystemError</Name>
+				<DisplayName TxtId=""><![CDATA[{0} - Safety System Error]]></DisplayName>
+				<Severity>Error</Severity>
+			</EventId>
+			<EventId>
+				<Name Id="110">EStop_Triggered</Name>
+				<DisplayName TxtId=""><![CDATA[{0} - E-Stop Triggered - General]]></DisplayName>
+				<Severity>Warning</Severity>
+			</EventId>
+			<EventId>
+				<Name Id="111">EStop_FrontLeft</Name>
+				<DisplayName TxtId=""><![CDATA[{0} - E-Stop Triggered - Front Left: {1}]]></DisplayName>
+				<Severity>Warning</Severity>
+			</EventId>
+			<EventId>
+				<Name Id="112">EStop_FrontRight</Name>
+				<DisplayName TxtId=""><![CDATA[{0} - E-Stop Triggered - Front Right: {1}]]></DisplayName>
+				<Severity>Warning</Severity>
+			</EventId>
+			<EventId>
+				<Name Id="113">EStop_RearLeft</Name>
+				<DisplayName TxtId=""><![CDATA[{0} - E-Stop Triggered - Rear Left: {1}]]></DisplayName>
+				<Severity>Warning</Severity>
+			</EventId>
+			<EventId>
+				<Name Id="114">EStop_RearRight</Name>
+				<DisplayName TxtId=""><![CDATA[{0} - E-Stop Triggered - Rear Right: {1}]]></DisplayName>
+				<Severity>Warning</Severity>
+			</EventId>
+			<EventId>
+				<Name Id="115">EStop_External</Name>
+				<DisplayName TxtId=""><![CDATA[{0} - E-Stop Triggered - External: {1}]]></DisplayName>
+				<Severity>Warning</Severity>
+			</EventId>
+			<EventId>
+				<Name Id="119">EStop_FB_Fault</Name>
+				<DisplayName TxtId=""><![CDATA[{0} - E-Stop Function Block Error]]></DisplayName>
+				<Severity>Error</Severity>
+			</EventId>
+			<EventId>
+				<Name Id="120">DoorOpen</Name>
+				<DisplayName TxtId=""><![CDATA[{0} - Door Open - General: {1}]]></DisplayName>
+				<Severity>Warning</Severity>
+			</EventId>
+			<EventId>
+				<Name Id="121">Door_TopLeft</Name>
+				<DisplayName TxtId=""><![CDATA[{0} - Door Opened - Top Left Rear: {1}]]></DisplayName>
+				<Severity>Warning</Severity>
+			</EventId>
+			<EventId>
+				<Name Id="122">Door_TopRight</Name>
+				<DisplayName TxtId=""><![CDATA[{0} - Door Opened - Top Right Rear: {1}]]></DisplayName>
+				<Severity>Warning</Severity>
+			</EventId>
+			<EventId>
+				<Name Id="123">Door_RearLeft</Name>
+				<DisplayName TxtId=""><![CDATA[{0} - Door Opened - Rear Left: {1}]]></DisplayName>
+				<Severity>Warning</Severity>
+			</EventId>
+			<EventId>
+				<Name Id="124">Door_RearRight</Name>
+				<DisplayName TxtId=""><![CDATA[{0} - Door Opened - Rear Right: {1}]]></DisplayName>
+				<Severity>Warning</Severity>
+			</EventId>
+			<EventId>
+				<Name Id="125">Door_Rear</Name>
+				<DisplayName TxtId=""><![CDATA[{0} - Door Opened - Rear: {1}]]></DisplayName>
+				<Severity>Warning</Severity>
+			</EventId>
+			<EventId>
+				<Name Id="126">Door_FrontPanel</Name>
+				<DisplayName TxtId=""><![CDATA[{0} - Door Opened - Front Panel: {1}]]></DisplayName>
+				<Severity>Warning</Severity>
+			</EventId>
+			<EventId>
+				<Name Id="127">Door_TopLeft_Front</Name>
+				<DisplayName TxtId=""><![CDATA[{0} - Door Opened - Top Left Front: {1}]]></DisplayName>
+				<Severity>Warning</Severity>
+			</EventId>
+			<EventId>
+				<Name Id="128">Door_TopRight_Front</Name>
+				<DisplayName TxtId=""><![CDATA[{0} - Door Opened - Top Right Front: {1}]]></DisplayName>
+				<Severity>Warning</Severity>
+			</EventId>
+			<EventId>
+				<Name Id="129">Door_FB_Fault</Name>
+				<DisplayName TxtId=""><![CDATA[{0} - Door Function Block Error]]></DisplayName>
+				<Severity>Error</Severity>
+			</EventId>
+			<EventId>
+				<Name Id="150">Motor_Fault_Generic</Name>
+				<DisplayName TxtId=""><![CDATA[{0} - Motor Fault (Unknown) - {2}]]></DisplayName>
+				<Severity>Error</Severity>
+			</EventId>
+			<EventId>
+				<Name Id="151">Motor_VFD_Primary_Fault</Name>
+				<DisplayName TxtId=""><![CDATA[{0} - VFD Fault - Primary Motor (Fault:{1}) - {2}]]></DisplayName>
+				<Severity>Error</Severity>
+			</EventId>
+			<EventId>
+				<Name Id="152">Motor_VFD_XF1_Fault</Name>
+				<DisplayName TxtId=""><![CDATA[{0} - VFD Fault - Crossfold 1 Motor (Fault:{1}) - {2}]]></DisplayName>
+				<Severity>Error</Severity>
+			</EventId>
+			<EventId>
+				<Name Id="153">Motor_VFD_XF2_Fault</Name>
+				<DisplayName TxtId=""><![CDATA[{0} - VFD Fault - Crossfold 2 Motor (Fault:{1}) - {2}]]></DisplayName>
+				<Severity>Error</Severity>
+			</EventId>
+			<EventId>
+				<Name Id="154">Motor_VFD_Stacker_Fault</Name>
+				<DisplayName TxtId=""><![CDATA[{0} - VFD Fault - Stacker Motor (Fault:{1}) - {2}]]></DisplayName>
+				<Severity>Error</Severity>
+			</EventId>
+			<EventId>
+				<Name Id="155">Motor_Inlet_Fault</Name>
+				<DisplayName TxtId=""><![CDATA[{0} - Motor Fault - Inlet Motor: {1}]]></DisplayName>
+				<Severity>Error</Severity>
+			</EventId>
+			<EventId>
+				<Name Id="156">Motor_Ski_Fault</Name>
+				<DisplayName TxtId=""><![CDATA[{0} - Motor Fault - Ski Motor: {1}]]></DisplayName>
+				<Severity>Error</Severity>
+			</EventId>
+			<EventId>
+				<Name Id="157">Motor_ExitConv12_Fault</Name>
+				<DisplayName TxtId=""><![CDATA[{0} - Motor Fault - Exit Conveyor 1 or 2: {1}]]></DisplayName>
+				<Severity>Error</Severity>
+			</EventId>
+			<EventId>
+				<Name Id="158">Motor_ExitConv34_Fault</Name>
+				<DisplayName TxtId=""><![CDATA[{0} - Motor Fault - Exit Conveyor 3 or 4: {1}]]></DisplayName>
+				<Severity>Error</Severity>
+			</EventId>
+			<EventId>
+				<Name Id="159">Motor_ExitConv56_Fault</Name>
+				<DisplayName TxtId=""><![CDATA[{0} - Motor Fault - Exit Conveyor 5 or 6: {1}]]></DisplayName>
+				<Severity>Error</Severity>
+			</EventId>
+			<EventId>
+				<Name Id="160">Motor_ExitConv4_Fault</Name>
+				<DisplayName TxtId=""><![CDATA[{0} - Motor Fault - Exit Conveyor 4 Motor: {1}]]></DisplayName>
+				<Severity>Error</Severity>
+			</EventId>
+			<EventId>
+				<Name Id="161">Motor_SideConvFlat_Fault</Name>
+				<DisplayName TxtId=""><![CDATA[{0} - Motor Fault - Side Conveyor Flat Motor: {1}]]></DisplayName>
+				<Severity>Error</Severity>
+			</EventId>
+			<EventId>
+				<Name Id="162">Motor_SideConvIncline_Fault</Name>
+				<DisplayName TxtId=""><![CDATA[{0} - Motor Fault - Side Conveyor Incline Motor: {1}]]></DisplayName>
+				<Severity>Error</Severity>
+			</EventId>
+			<EventId>
+				<Name Id="163">Fault_SideConveyor_Unplugged</Name>
+				<DisplayName TxtId=""><![CDATA[{0} - Connection Fault - Side Conveyor Disconnected: {1}]]></DisplayName>
+				<Severity>Error</Severity>
+			</EventId>
+			<EventId>
+				<Name Id="164">Fault_ExitConveyor_Unplugged</Name>
+				<DisplayName TxtId=""><![CDATA[{0} - Connection Fault - Exit Conveyor Disconnected: {1}]]></DisplayName>
+				<Severity>Error</Severity>
+			</EventId>
+			<EventId>
+				<Name Id="170">Motor_VFD_Primary_VoltageLoss</Name>
+				<DisplayName TxtId=""><![CDATA[{0} - VFD Voltage Loss - Primary Motor]]></DisplayName>
+				<Severity>Error</Severity>
+			</EventId>
+			<EventId>
+				<Name Id="171">Motor_VFD_XF1_VoltageLoss</Name>
+				<DisplayName TxtId=""><![CDATA[{0} - VFD Voltage Loss - Crossfold 1 Motor]]></DisplayName>
+				<Severity>Error</Severity>
+			</EventId>
+			<EventId>
+				<Name Id="172">Motor_VFD_XF2_VoltageLoss</Name>
+				<DisplayName TxtId=""><![CDATA[{0} - VFD Voltage Loss - Crossfold 2 Motor]]></DisplayName>
+				<Severity>Error</Severity>
+			</EventId>
+			<EventId>
+				<Name Id="173">Motor_VFD_Stacker_VoltageLoss</Name>
+				<DisplayName TxtId=""><![CDATA[{0} - VFD Voltage Loss - Stacker Motor]]></DisplayName>
+				<Severity>Error</Severity>
+			</EventId>
+			<EventId>
+				<Name Id="174">Motor_VFD_Multiple_VoltageLoss</Name>
+				<DisplayName TxtId=""><![CDATA[{0} - VFD Voltage Loss - Multiple Motors]]></DisplayName>
+				<Severity>Error</Severity>
+			</EventId>
+			<EventId>
+				<Name Id="200">Air_LowAirPressure</Name>
+				<DisplayName TxtId=""><![CDATA[{0} - Low Air Pressure]]></DisplayName>
+				<Severity>Error</Severity>
+			</EventId>
+			<EventId>
+				<Name Id="201">Air_HighAirWarning</Name>
+				<DisplayName TxtId=""><![CDATA[{0} - High Air Pressure Warning]]></DisplayName>
+				<Severity>Warning</Severity>
+			</EventId>
+			<EventId>
+				<Name Id="202">Air_LowAirWarning</Name>
+				<DisplayName TxtId=""><![CDATA[{0} - Low Air Pressure Warning]]></DisplayName>
+				<Severity>Warning</Severity>
+			</EventId>
+			<EventId>
+				<Name Id="250">ECB_1_Tripped</Name>
+				<DisplayName TxtId=""><![CDATA[{0} - 24v Circuit Breaker 1 Tripped]]></DisplayName>
+				<Severity>Warning</Severity>
+			</EventId>
+			<EventId>
+				<Name Id="251">ECB_2_Tripped</Name>
+				<DisplayName TxtId=""><![CDATA[{0} - 24v Circuit Breaker 2 Tripped]]></DisplayName>
+				<Severity>Warning</Severity>
+			</EventId>
+			<EventId>
+				<Name Id="300">Jam_Detected</Name>
+				<DisplayName TxtId=""><![CDATA[{0} - Jam Detected - General - {1}]]></DisplayName>
+				<Severity>Warning</Severity>
+			</EventId>
+			<EventId>
+				<Name Id="301">Jam_Inlet</Name>
+				<DisplayName TxtId=""><![CDATA[{0} - Jam - Inlet - {1}]]></DisplayName>
+				<Severity>Warning</Severity>
+			</EventId>
+			<EventId>
+				<Name Id="302">Jam_Primary</Name>
+				<DisplayName TxtId=""><![CDATA[{0} - Jam - Primary: {1} - Item: {2}]]></DisplayName>
+				<Severity>Warning</Severity>
+			</EventId>
+			<EventId>
+				<Name Id="303">Jam_XF1</Name>
+				<DisplayName TxtId=""><![CDATA[{0} - Jam - First Crossfold: {1} - Item: {2}]]></DisplayName>
+				<Severity>Warning</Severity>
+			</EventId>
+			<EventId>
+				<Name Id="304">Jam_XF2</Name>
+				<DisplayName TxtId=""><![CDATA[{0} - Jam - Second Crossfold: {1} - Item: {2}]]></DisplayName>
+				<Severity>Warning</Severity>
+			</EventId>
+			<EventId>
+				<Name Id="305">Jam_XF2_SensorTimeout</Name>
+				<DisplayName TxtId=""><![CDATA[{0} - Jam - Second Crossfold Sensor Timeout: {1} - Item: {2}]]></DisplayName>
+				<Severity>Warning</Severity>
+			</EventId>
+			<EventId>
+				<Name Id="306">Jam_Stacker</Name>
+				<DisplayName TxtId=""><![CDATA[{0} - Jam - Stacker (General): {1} - Item: {2}]]></DisplayName>
+				<Severity>Warning</Severity>
+			</EventId>
+			<EventId>
+				<Name Id="307">Jam_Stacker_SensorTimeout</Name>
+				<DisplayName TxtId=""><![CDATA[{0} - Jam - Stacker Sensor Timeout: {1} - Item: {2}]]></DisplayName>
+				<Severity>Warning</Severity>
+			</EventId>
+			<EventId>
+				<Name Id="308">Jam_Stacker_Lane1</Name>
+				<DisplayName TxtId=""><![CDATA[{0} - Jam - Stacker Lane 1: {1} - Item: {2}]]></DisplayName>
+				<Severity>Warning</Severity>
+			</EventId>
+			<EventId>
+				<Name Id="309">Jam_Stacker_Lane2</Name>
+				<DisplayName TxtId=""><![CDATA[{0} - Jam - Stacker Lane 2: {1} - Item: {2}]]></DisplayName>
+				<Severity>Warning</Severity>
+			</EventId>
+			<EventId>
+				<Name Id="310">Jam_Stacker_Lane3</Name>
+				<DisplayName TxtId=""><![CDATA[{0} - Jam - Stacker Lane 3: {1} - Item: {2}]]></DisplayName>
+				<Severity>Warning</Severity>
+			</EventId>
+			<EventId>
+				<Name Id="311">Jam_Stacker_Lane4</Name>
+				<DisplayName TxtId=""><![CDATA[{0} - Jam - Stacker Lane 4: {1} - Item: {2}]]></DisplayName>
+				<Severity>Warning</Severity>
+			</EventId>
+			<EventId>
+				<Name Id="312">Jam_Stacker_Lane5</Name>
+				<DisplayName TxtId=""><![CDATA[{0} - Jam - Stacker Lane 5: {1} - Item: {2}]]></DisplayName>
+				<Severity>Warning</Severity>
+			</EventId>
+			<EventId>
+				<Name Id="313">Jam_Stacker_Lane6</Name>
+				<DisplayName TxtId=""><![CDATA[{0} - Jam - Stacker Lane 6: {1} - Item: {2}]]></DisplayName>
+				<Severity>Warning</Severity>
+			</EventId>
+			<EventId>
+				<Name Id="314">Jam_Reject_Rear</Name>
+				<DisplayName TxtId=""><![CDATA[{0} - Jam - Rear Reject - {1}]]></DisplayName>
+				<Severity>Warning</Severity>
+			</EventId>
+			<EventId>
+				<Name Id="315">Jam_Reject_Front</Name>
+				<DisplayName TxtId=""><![CDATA[{0} - Jam - Front Reject - {1}]]></DisplayName>
+				<Severity>Warning</Severity>
+			</EventId>
+			<EventId>
+				<Name Id="316">Jam_Measure_Sensor</Name>
+				<DisplayName TxtId=""><![CDATA[{0} - Jam - Measurement Sensor - {1}]]></DisplayName>
+				<Severity>Warning</Severity>
+			</EventId>
+			<EventId>
+				<Name Id="317">Jam_OverTorque_Primary</Name>
+				<DisplayName TxtId=""><![CDATA[{0} - OverTorque - Primary Motor: {1} - Item: {2}]]></DisplayName>
+				<Severity>Warning</Severity>
+			</EventId>
+			<EventId>
+				<Name Id="318">Jam_OverTorque_XF1</Name>
+				<DisplayName TxtId=""><![CDATA[{0} - OverTorque - First Crossfold Motor: {1} - Item: {2}]]></DisplayName>
+				<Severity>Warning</Severity>
+			</EventId>
+			<EventId>
+				<Name Id="319">Jam_OverTorque_XF2</Name>
+				<DisplayName TxtId=""><![CDATA[{0} - OverTorque - Second Crossfold Motor: {1} - Item: {2}]]></DisplayName>
+				<Severity>Warning</Severity>
+			</EventId>
+			<EventId>
+				<Name Id="320">Jam_OverTorque_Stacker</Name>
+				<DisplayName TxtId=""><![CDATA[{0} - OverTorque - Stacker Motor: {1} - Item: {2}]]></DisplayName>
+				<Severity>Warning</Severity>
+			</EventId>
+			<EventId>
+				<Name Id="350">Align_MeasureSensor</Name>
+				<DisplayName TxtId=""><![CDATA[{0} - MisAlignment - Measurement Sensor]]></DisplayName>
+				<Severity>Warning</Severity>
+			</EventId>
+			<EventId>
+				<Name Id="351">Align_OverwideLeft</Name>
+				<DisplayName TxtId=""><![CDATA[{0} - MisAlignment - Overwide Left Sensor]]></DisplayName>
+				<Severity>Warning</Severity>
+			</EventId>
+			<EventId>
+				<Name Id="352">Align_OverwideRight</Name>
+				<DisplayName TxtId=""><![CDATA[{0} - MisAlignment - Overwide Right Sensor]]></DisplayName>
+				<Severity>Warning</Severity>
+			</EventId>
+			<EventId>
+				<Name Id="353">Align_XF1_Sensor</Name>
+				<DisplayName TxtId=""><![CDATA[{0} - MisAlignment - First Crossfold Sensor]]></DisplayName>
+				<Severity>Warning</Severity>
+			</EventId>
+			<EventId>
+				<Name Id="354">Align_XF2_Sensor</Name>
+				<DisplayName TxtId=""><![CDATA[{0} - MisAlignment - Second Crossfold Sensor]]></DisplayName>
+				<Severity>Warning</Severity>
+			</EventId>
+			<EventId>
+				<Name Id="355">Align_Stack_Sensor_1</Name>
+				<DisplayName TxtId=""><![CDATA[{0} - MisAlignment - Stack Sensor 1]]></DisplayName>
+				<Severity>Warning</Severity>
+			</EventId>
+			<EventId>
+				<Name Id="356">Align_Stack_Sensor_2</Name>
+				<DisplayName TxtId=""><![CDATA[{0} - MisAlignment - Stack Sensor 2]]></DisplayName>
+				<Severity>Warning</Severity>
+			</EventId>
+			<EventId>
+				<Name Id="357">Align_Stack_Sensor_3</Name>
+				<DisplayName TxtId=""><![CDATA[{0} - MisAlignment - Stack Sensor 3]]></DisplayName>
+				<Severity>Warning</Severity>
+			</EventId>
+			<EventId>
+				<Name Id="358">Align_Stack_Sensor_4</Name>
+				<DisplayName TxtId=""><![CDATA[{0} - MisAlignment - Stack Sensor 4]]></DisplayName>
+				<Severity>Warning</Severity>
+			</EventId>
+			<EventId>
+				<Name Id="359">Align_Stack_Sensor_5</Name>
+				<DisplayName TxtId=""><![CDATA[{0} - MisAlignment - Stack Sensor 5]]></DisplayName>
+				<Severity>Warning</Severity>
+			</EventId>
+			<EventId>
+				<Name Id="360">Align_Stack_Sensor_6</Name>
+				<DisplayName TxtId=""><![CDATA[{0} - MisAlignment - Stack Sensor 6]]></DisplayName>
+				<Severity>Warning</Severity>
+			</EventId>
+			<EventId>
+				<Name Id="361">Align_Sort_Sensor_1</Name>
+				<DisplayName TxtId=""><![CDATA[{0} - MisAlignment - Inlet Sort Sensor 1]]></DisplayName>
+				<Severity>Warning</Severity>
+			</EventId>
+			<EventId>
+				<Name Id="362">Align_Sort_Sensor_2</Name>
+				<DisplayName TxtId=""><![CDATA[{0} - MisAlignment - Inlet Sort Sensor 2]]></DisplayName>
+				<Severity>Warning</Severity>
+			</EventId>
+			<EventId>
+				<Name Id="363">Align_Sort_Sensor_3</Name>
+				<DisplayName TxtId=""><![CDATA[{0} - MisAlignment - Inlet Sort Sensor 3]]></DisplayName>
+				<Severity>Warning</Severity>
+			</EventId>
+			<EventId>
+				<Name Id="364">Align_Sort_Sensor_4</Name>
+				<DisplayName TxtId=""><![CDATA[{0} - MisAlignment - Inlet Sort Sensor 4]]></DisplayName>
+				<Severity>Warning</Severity>
+			</EventId>
+			<EventId>
+				<Name Id="365">Align_Sort_Sensor_5</Name>
+				<DisplayName TxtId=""><![CDATA[{0} - MisAlignment - Inlet Sort Sensor 5]]></DisplayName>
+				<Severity>Warning</Severity>
+			</EventId>
+			<EventId>
+				<Name Id="366">Align_Sort_Sensor_6</Name>
+				<DisplayName TxtId=""><![CDATA[{0} - MisAlignment - Inlet Sort Sensor 6]]></DisplayName>
+				<Severity>Warning</Severity>
+			</EventId>
+			<EventId>
+				<Name Id="400">Info_SkisCalibrating</Name>
+				<DisplayName TxtId=""><![CDATA[{0} - Skis Calibrating]]></DisplayName>
+				<Severity>Verbose</Severity>
+			</EventId>
+			<EventId>
+				<Name Id="999">System_VFD_FirmwareUpdate</Name>
+				<DisplayName TxtId=""><![CDATA[{0} - System VFD Firmware Update Enabled]]></DisplayName>
+				<Severity>Info</Severity>
+			</EventId>
+			<EventId>
+				<Name Id="1">TestEvent1</Name>
+				<DisplayName TxtId=""><![CDATA[ChicagoDryerEventClassEvent4_DisplayText]]></DisplayName>
+				<Severity>Verbose</Severity>
+			</EventId>
+			<Hides>
+				<Hide GUID="{808F17B9-E158-40A2-B232-A3BD4248BE6A}"/>
+				<Hide GUID="{50CD0DBD-B4E1-410E-B643-B97C7CC1F152}"/>
+				<Hide GUID="{08BDB118-760D-470E-98E0-90E70F138B81}"/>
+				<Hide GUID="{14A19A83-476F-4D4E-A50D-03AEF3122E14}"/>
+				<Hide GUID="{082D2460-AA2D-44BF-AC9D-30F2E6826FAF}"/>
+				<Hide GUID="{AE00617D-4FF8-4F65-8FBF-F96A893D4DD6}"/>
+				<Hide GUID="{265136FF-CC5D-4C52-B47D-34163D5F9CC0}"/>
+				<Hide GUID="{E19979A6-47F3-4DF8-9768-EDE3C8A6C225}"/>
+				<Hide GUID="{737E3630-9B00-4BC6-A5E6-A1F1FB3A035E}"/>
+				<Hide GUID="{C217FD95-96CF-4C63-88C6-1A32C0CD0F95}"/>
+				<Hide GUID="{9A2F7FC4-1644-4132-98D9-8314EFC3D8B5}"/>
+				<Hide GUID="{EE6F8FCA-1D9D-4890-B0C2-D4A73C978BF2}"/>
+				<Hide GUID="{A54B8D65-0A2E-4CD6-B101-F8980136628F}"/>
+				<Hide GUID="{10DDB593-07EE-4BA0-BF51-6FA0BE880E00}"/>
+				<Hide GUID="{15D9C20E-BDD5-4444-B4D9-B358808754C1}"/>
+				<Hide GUID="{8EF621C3-878D-4291-A816-3BC5441F7F48}"/>
+				<Hide GUID="{ECDAB38F-9EC5-48D5-A4C1-14A5EF19348E}"/>
+				<Hide GUID="{FAE8D372-58C5-4C9E-9990-5691A15F01E1}"/>
+				<Hide GUID="{F2DC973B-19B5-4F79-BB76-880033434605}"/>
+				<Hide GUID="{81F33B1D-5DF8-4EC9-B710-45BC8AF5D6A7}"/>
+				<Hide GUID="{AFB68A20-35D5-4B9F-BBF8-E8686AB45002}"/>
+				<Hide GUID="{35C8F996-0F2F-4EAD-9720-62DA289D8BE3}"/>
+				<Hide GUID="{CCB1798C-E1C1-4F34-BCC6-80953CD2E7CA}"/>
+				<Hide GUID="{21E19BC8-1401-4F9F-BA9A-55849F5EA4E0}"/>
+				<Hide GUID="{42A258C0-BE14-4335-BD63-CF08C0DA102B}"/>
+				<Hide GUID="{BAA960DD-DD20-41F5-9468-9326030E252A}"/>
+				<Hide GUID="{94572146-C9B2-4A7D-A62A-A4D229DD882F}"/>
+				<Hide GUID="{0FF85E0A-ED1D-4DFE-BA8F-FACB760AA172}"/>
+				<Hide GUID="{5F198EFF-BD35-4DF6-8866-DB82491B1A13}"/>
+				<Hide GUID="{09ADDDBE-7D39-4A61-AD27-3671A04CA905}"/>
+				<Hide GUID="{FF24E261-2763-42E8-8444-FC6F02AA6724}"/>
+				<Hide GUID="{F871D8FB-3B8D-432B-8309-811A5BCD8D5D}"/>
+				<Hide GUID="{3C1CA689-8C8D-495E-BFB8-CB459C0F737C}"/>
+				<Hide GUID="{BAD81CEA-BBD0-4C87-9D30-DBABCE1D2F66}"/>
+				<Hide GUID="{E4E0CDFB-BB49-46FE-9DB0-5273C3BFF783}"/>
+				<Hide GUID="{D5FA4599-B51F-4755-8302-5B225084984F}"/>
+				<Hide GUID="{FC6ED490-78AC-453E-8A8F-42AA8B3D0DB2}"/>
+				<Hide GUID="{65BB81EE-893F-4AEB-B412-0D9E278498E2}"/>
+				<Hide GUID="{26A087F7-77A7-4D8A-B085-26571FE69FE9}"/>
+				<Hide GUID="{93FB6425-A956-4EEA-8706-FDF84D78B5AF}"/>
+				<Hide GUID="{C7C9722A-8362-49AD-865E-500987D07CE2}"/>
+			</Hides>
+		</DataType>
+		<DataType>
+			<Name GUID="{362CCD1C-B4A7-4A0C-9651-94DBBC50856D}" PersistentType="true">TestEventClass</Name>
 			<DisplayName TxtId=""><![CDATA[NewEventClass_DisplayText]]></DisplayName>
 			<EventId>
-				<Name Id="1">Event</Name>
+				<Name Id="1">TestEvent1</Name>
 				<DisplayName TxtId=""><![CDATA[Event_DisplayText]]></DisplayName>
 				<Severity>Verbose</Severity>
 			</EventId>
 			<EventId>
-				<Name Id="0100">System_Standby</Name>
-				<DisplayName TxtId=""><![CDATA[ChicagoDryerEventClassEvent2_DisplayText]]></DisplayName>
+				<Name Id="2">TestEvent2</Name>
+				<DisplayName TxtId=""><![CDATA[TestEventClassEvent2_DisplayText]]></DisplayName>
 				<Severity>Verbose</Severity>
-				<Properties>
-					<Property>
-						<Name>Index</Name>
-						<Value>1</Value>
-					</Property>
-				</Properties>
-				<Properties>
-					<Property>
-						<Name>Index</Name>
-						<Value>1</Value>
-					</Property>
-				</Properties>
 			</EventId>
 			<EventId>
-				<Name Id="9411">Circuit_Breaker_Tripped</Name>
-				<DisplayName TxtId=""><![CDATA[Circuit Breaker Tripped]]></DisplayName>
-				<Severity>Error</Severity>
-				<Properties>
-					<Property>
-						<Name>Index</Name>
-						<Value>0</Value>
-					</Property>
-				</Properties>
-				<Properties>
-					<Property>
-						<Name>Index</Name>
-						<Value>0</Value>
-					</Property>
-				</Properties>
+				<Name Id="3">TestEvent3</Name>
+				<DisplayName TxtId=""><![CDATA[TestEventClassEvent3_DisplayText]]></DisplayName>
+				<Severity>Verbose</Severity>
+			</EventId>
+			<EventId>
+				<Name Id="4">TestEvent4</Name>
+				<DisplayName TxtId=""><![CDATA[TestEventClassEvent4_DisplayText]]></DisplayName>
+				<Severity>Verbose</Severity>
+			</EventId>
+			<EventId>
+				<Name Id="555">CircuitBreakerTripped</Name>
+				<DisplayName TxtId=""><![CDATA[{0} - Circuit Breaker {1} Channel {2} State: {3}]]></DisplayName>
+				<Severity>Verbose</Severity>
 			</EventId>
 			<Hides>
-				<Hide GUID="{BC70E85A-D28B-4178-9F93-6A7085E397B4}"/>
-				<Hide GUID="{2C554616-5AB5-4E9F-B4F9-E6FC44836F9D}"/>
+				<Hide GUID="{8FF1D482-54A8-4699-84BB-B5C5B5BAAAFB}"/>
+				<Hide GUID="{1630EAF1-1497-4C27-826F-91D8CA3497F1}"/>
+				<Hide GUID="{3B70351D-450A-449A-BE69-0178551DF98C}"/>
+				<Hide GUID="{A10047F6-8338-4121-8BF3-9008E9FC2CFC}"/>
 			</Hides>
 		</DataType>
 	</DataTypes>
 	<Project ProjectGUID="{0FA1E132-C18C-40A5-84D5-C6FAD0612D87}" TargetNetId="10.1.14.1.1.1" Target64Bit="true" ShowHideConfigurations="#x6">
 		<System>
+			<Settings>
+				<ProjectVariant PvUseParameter="true">
+					<Variant>
+						<Name>Hardware</Name>
+						<Name>Sim</Name>
+						<Parameters RouterMemory="32" CoresPerPkg="0" MaxWinCpus="1" MaxNonWinCpus="0">
+							<Cpu Id="0" Percent="80" BaseTime="10000"/>
+							<Affinity ObjId="#x02010030"/>
+							<Affinity ObjId="#x08500010"/>
+							<Affinity ObjId="#x03000011"/>
+						</Parameters>
+					</Variant>
+				</ProjectVariant>
+			</Settings>
 			<Tasks>
 				<Task Id="3" Priority="20" CycleTime="20000" AmsPort="350" AdtTasks="true">
 					<Name>PlcTask</Name>
 				</Task>
 			</Tasks>
+			<ProjectVariant PvUseLink="true" PvUseSimulation="true">
+				<Variant>
+					<Name>Hardware</Name>
+					<Simulation Enable="false"/>
+					<TargetNetId>10.1.14.1.1.1</TargetNetId>
+				</Variant>
+				<Variant>
+					<Name>Sim</Name>
+					<Simulation Enable="true"/>
+					<TargetNetId>10.1.14.1.1.1</TargetNetId>
+				</Variant>
+			</ProjectVariant>
 		</System>
 		<Plc>
 			<Project GUID="{60FE63E8-E690-4826-960C-041235D04655}" Name="Untitled1" PrjFilePath="Untitled1\Untitled1.plcproj" TmcFilePath="Untitled1\Untitled1.tmc" ReloadTmc="true" AmsPort="851" FileArchiveSettings="#x000e" SymbolicMapping="true">
-				<Instance Id="#x08502000" TcSmClass="TComPlcObjDef" KeepUnrestoredLinks="2" TmcHash="{5595F7CD-8B80-0676-8F0A-B6C6CFC66349}" TmcPath="Untitled1\Untitled1.tmc">
+				<Instance Id="#x08502000" TcSmClass="TComPlcObjDef" KeepUnrestoredLinks="2" TmcHash="{ABC040D3-A411-0905-7283-A8FF5AB57F1D}" TmcPath="Untitled1\Untitled1.tmc">
 					<Name>Untitled1 Instance</Name>
 					<CLSID ClassFactory="TcPlc30">{08500001-0000-0000-F000-000000000064}</CLSID>
 					<Vars VarGrpType="2" AreaNo="1">
@@ -216,6 +837,14 @@
 			</Device>
 			<Device File="Device 2 (EtherCAT).xti" Id="2"/>
 		</Io>
+		<Variants SpecificLocalBootFolder="true">
+			<Variant Save="true">
+				<Name>Sim</Name>
+			</Variant>
+			<Variant>
+				<Name>Hardware</Name>
+			</Variant>
+		</Variants>
 	</Project>
 	<Mappings>
 		<MappingInfo Identifier="{00000000-2001-0850-0020-500840000403}" Id="#x02030010"/>

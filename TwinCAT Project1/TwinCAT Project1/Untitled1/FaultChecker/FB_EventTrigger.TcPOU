@@ -3,155 +3,178 @@
   <POU Name="FB_EventTrigger" Id="{c2ca63a9-7bc3-4cc8-b616-f70b88c447a4}" SpecialFunc="None">
     <Declaration><![CDATA[FUNCTION_BLOCK FB_EventTrigger
 VAR_INPUT
+	
 END_VAR
 VAR_OUTPUT
 END_VAR
 VAR
+	bTriggered:BOOL;
 	
-	myEventCode : E_MachineStatus;  
+	aTriggerData : ARRAY [0..1000] OF TriggerData ;
+	aTriggerSettings : ARRAY [0..1000] OF TriggerSettings ;
+	myClass : GUID;
+	fbTcMessage		: FB_TcMessage;
+	fbSource		: FB_TcSourceInfo;
 	
-	
-	bPrimaryCondition  : POINTER TO BOOL; // only condition one mandatory. others default true
-	//bCondition2  : REFERENCE TO BOOL := TRUE;
-	//bCondition3  : REFERENCE TO BOOL := TRUE;
-	//TODO make bools a dynamice list too? 
-	
-	
-	sShortErrorMessage : STRING(64) := 'FAULT';
-	sLongErrorMessage : STRING(255) := 'DESCRIPTION OF FAULT';
-	
-	tDebounceTime : TIME;
-	timerDebounceTimer :TON;
-	
-	nRepeatTriggerCount : USINT :=1;
-	nOccurrenceCount :USINT:=0;
-	
-	dtWhen : DATE_AND_TIME;
-	
-	fbGetTime : NT_GetTime;
-	
-	bLatch :BOOL;
-	
-	fbTimeOnce : R_TRIG;
-	
-	bState :BOOL;
-	
-	
-	
+	//selfSource: FB_TcSourceInfo;
 END_VAR
 ]]></Declaration>
     <Implementation>
-      <ST><![CDATA[Update();]]></ST>
+      <ST><![CDATA[]]></ST>
     </Implementation>
-    <Method Name="Active" Id="{122cb1d5-f9ea-4146-9220-7285b4e36f3b}">
-      <Declaration><![CDATA[METHOD PUBLIC Active : BOOL
-]]></Declaration>
-      <Implementation>
-        <ST><![CDATA[Active:=bState;]]></ST>
-      </Implementation>
-    </Method>
-    <Method Name="FB_init" Id="{85ad1e16-c8ba-41f1-be9f-4ce604c77009}">
-      <Declaration><![CDATA[METHOD FB_init : BOOL
+    <Method Name="Configure" Id="{9c0fec47-f6ea-4551-8cc3-641fce0cb94c}">
+      <Declaration><![CDATA[METHOD PUBLIC Configure
 VAR_INPUT
-	bInitRetains : BOOL; // if TRUE, the retain variables are initialized (warm start / cold start)
-	bInCopyCode : BOOL;  // if TRUE, the instance afterwards gets moved into the copy code (online change)
-	bCondition1  : POINTER TO BOOL;
-	//bCondition2  : REFERENCE TO BOOL;
-	//bCondition3  : REFERENCE TO BOOL;
-	tActivationDelay : TIME;
-	nActivationCount : USINT;
-	//sErrorName: STRING(64);
-	//sErrorDescription: STRING (255);
-	eEventCode: E_MachineStatus;
+	nEventID : UDINT;
+	stTriggerSettings : TriggerSettings;
 END_VAR
 ]]></Declaration>
       <Implementation>
-        <ST><![CDATA[bPrimaryCondition:=	bCondition1;
-//bCondition2:=	bCondition2;
-//bCondition3:=	bCondition3;
-tDebounceTime:=	tActivationDelay;
-nRepeatTriggerCount :=	nActivationCount;
-//sShortErrorMessage:=	sErrorName;
-//sLongErrorMessage:=	sErrorDescription;
-myEventCode := eEventCode;]]></ST>
+        <ST><![CDATA[aTriggerSettings[nEventID]:=stTriggerSettings;]]></ST>
       </Implementation>
     </Method>
-    <Method Name="GetEventSeverity" Id="{60b699d6-c7fa-46ba-9b1b-9adaf133e2bc}">
-      <Declaration><![CDATA[METHOD PUBLIC GetEventSeverity : CdEventSeverity
+    <Method Name="FB_Init" Id="{c2ac4f44-1013-4aa6-8737-fa7910229efa}">
+      <Declaration><![CDATA[//FB_Init is always available implicitly and it is used primarily for initialization.
+//The return value is not evaluated. For a specific influence, you can also declare the
+//methods explicitly and provide additional code there with the standard initialization
+//code. You can evaluate the return value.
+METHOD FB_Init: BOOL
 VAR_INPUT
-END_VAR
-]]></Declaration>
-      <Implementation>
-        <ST><![CDATA[//GetEventSeverity:= TO_E_MyEnum((myEventCode / 100) MOD 10) ;]]></ST>
-      </Implementation>
-    </Method>
-    <Method Name="GetLongMessage" Id="{1b0e99e6-532f-4819-935e-355eb30f6700}">
-      <Declaration><![CDATA[METHOD GetLongMessage : STRING(500)
-VAR_INPUT
-END_VAR
-VAR
-	sTemp:STRING(500);
-END_VAR
-]]></Declaration>
-      <Implementation>
-        <ST><![CDATA[sTemp:= CONCAT( STR1:= sTemp, STR2:= TO_STRING(GetEventSeverity()));
-//sTemp:= CONCAT( STR1:= sTemp, STR2:= (GetEventSeverity()));
-sTemp:= CONCAT( STR1:= sTemp, STR2:= ' - ');
-sTemp:= CONCAT( STR1:= sTemp, STR2:= sShortErrorMessage);
-sTemp:= CONCAT( STR1:= sTemp, STR2:= ' - ');
-sTemp:= CONCAT( STR1:= sTemp, STR2:= sLongErrorMessage);
-sTemp:= CONCAT( STR1:= sTemp, STR2:= ' - ');
-sTemp:= CONCAT( STR1:= sTemp, STR2:= DT_TO_STRING(dtWhen));
-
-GetLongMessage:=sTemp;]]></ST>
-      </Implementation>
-    </Method>
-    <Method Name="GetShortMessage" Id="{feecc7c7-0096-4635-80d2-ecba8eaf2ca1}">
-      <Declaration><![CDATA[METHOD GetShortMessage : STRING(255)
-VAR_INPUT
-END_VAR
-VAR
-	sTemp:STRING(255);
+    bInitRetains: BOOL; // TRUE: the retain variables are initialized (reset warm / reset cold)
+    bInCopyCode: BOOL;  // TRUE: the instance will be copied to the copy code afterward (online change)   
+	eventClass : GUID;
 END_VAR]]></Declaration>
       <Implementation>
-        <ST><![CDATA[sTemp:= CONCAT( STR1:= TO_STRING(GetEventSeverity()), STR2:= ' - ');
-sTemp:= CONCAT( STR1:= sTemp, STR2:= sShortErrorMessage);
-GetShortMessage:=sTemp;]]></ST>
+        <ST><![CDATA[myClass:=eventClass;]]></ST>
       </Implementation>
     </Method>
-    <Method Name="ResetFault" Id="{cef258ab-cf3a-45c1-b7dc-bbadc8e50c5f}">
-      <Declaration><![CDATA[METHOD ResetFault
+    <Method Name="GetState" Id="{122cb1d5-f9ea-4146-9220-7285b4e36f3b}">
+      <Declaration><![CDATA[METHOD PUBLIC GetState : BOOL
 VAR_INPUT
+	nEventID : UDINT;
 END_VAR
 ]]></Declaration>
       <Implementation>
-        <ST><![CDATA[nOccurrenceCount:=0;
-bState:=FALSE;
-bLatch:=FALSE;]]></ST>
+        <ST><![CDATA[GetState:=aTriggerData[nEventID].bTriggered;]]></ST>
       </Implementation>
     </Method>
-    <Method Name="Update" Id="{3dcef8bd-4dc4-4aea-a261-190621c5d430}">
-      <Declaration><![CDATA[METHOD Update
+    <Method Name="placeholder" Id="{7eee2762-7014-43aa-953c-c28623414831}">
+      <Declaration><![CDATA[METHOD PUBLIC placeholder
 VAR_INPUT
+		nEventEntry: TcEventEntry;
+	nEventID: UDINT:=0;
+
+	bTrigger: BOOL;
+	sSource: STRING :=__POUNAME();
+	nI : INT :=0;
+	nJ : INT :=0;
+	sK : STRING :='';
+	eSeverity :TcEventSeverity:=TcEventSeverity.Verbose;
 END_VAR
 ]]></Declaration>
       <Implementation>
-        <ST><![CDATA[timerDebounceTimer(IN:= bPrimaryCondition^ (*AND bCondition2 AND bCondition3 *), PT := tDebounceTime);
-IF timerDebounceTimer.Q AND bLatch = FALSE THEN
-	nOccurrenceCount := nOccurrenceCount +1;
-	bLatch:=TRUE;
+        <ST><![CDATA[]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="Reset" Id="{f203afe3-8938-4df8-aa45-47f3a6a59c6b}">
+      <Declaration><![CDATA[METHOD PUBLIC Reset
+VAR_INPUT
+	nEventID : UDINT;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[aTriggerData[nEventID].bTriggered:=FALSE;
+aTriggerData[nEventID].nActivationCount:=0;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="Trigger" Id="{e2976bb1-b6a1-4521-a2a6-9b55a100387f}">
+      <Declaration><![CDATA[METHOD PUBLIC Trigger
+VAR_INPUT
+	nEventID: UDINT;
+	bTrigger: BOOL;
+	sSource: STRING :=__POUNAME();
+	arg1 : STRING :='';
+	arg2 : STRING :='';
+	arg3 : STRING :='';
+	eSeverity :TcEventSeverity:=TcEventSeverity.Verbose;
+END_VAR
+VAR
+	string1 :STRING;
+string2 :STRING;
+string3:STRING;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[fbSource.sName:=sSource;
+string1:=TO_STRING(arg1);
+string2:=TO_STRING(arg2);
+string3:=TO_STRING(arg3);
+
+
+IF aTriggerSettings[nEventID].tDebounceTime > T#0MS THEN
+	aTriggerData[nEventID].timerDebounceTimer(IN:= bTrigger, PT := aTriggerSettings[nEventID].tDebounceTime);
+	aTriggerData[nEventID].GetEventTrigger(CLK:=aTriggerData[nEventID].timerDebounceTimer.Q);
+ELSE
+	aTriggerData[nEventID].GetEventTrigger(CLK:=bTrigger);
 END_IF
 
-IF(bPrimaryCondition^ =FALSE)THEN//if we have a falling edge on our fault allow re triggering
-	bLatch:=FALSE;
+IF aTriggerData[nEventID].GetEventTrigger.Q THEN
+	aTriggerData[nEventID].nActivationCount := aTriggerData[nEventID].nActivationCount +1;
 END_IF
 
-IF(nOccurrenceCount >= nRepeatTriggerCount) THEN
-	bState:=TRUE;
-	fbTimeOnce(CLK:=bState);
-	fbGetTime(START:=fbTimeOnce.Q);
-	dtWhen:=Tc2_Utilities.SYSTEMTIME_TO_DT(fbGetTime.TIMESTR);
+
+
+IF(aTriggerData[nEventID].nActivationCount >= aTriggerSettings[nEventID].nActivationThreshold) THEN
+	aTriggerData[nEventID].bTriggered :=TRUE;
+ELSE	
+	aTriggerData[nEventID].bTriggered:=FALSE;
+END_IF
+
+IF aTriggerSettings[nEventID].bAutoResetCount AND bTrigger = FALSE THEN
+	aTriggerData[nEventID].nActivationCount :=0;
+END_IF
+
+
+
+
+aTriggerData[nEventID].SendEventTrigger(CLK:=aTriggerData[nEventID].bTriggered);
+
+IF aTriggerData[nEventID].SendEventTrigger.Q THEN
+	IF(aTriggerSettings[nEventID].eEventType = E_EventType.Message) THEN
+		fbTcMessage.Create(eventClass:=myClass, nEventID:= TO_UDINT(nEventID), eSeverity:=eSeverity ,ipSourceInfo:=fbSource);
+		fbTcMessage.ipArguments.Clear();
+		fbTcMessage.ipArguments.AddUDInt(TO_UDINT(nEventID));
+		fbTcMessage.ipArguments.AddString(string1);
+		fbTcMessage.ipArguments.AddString(string2);
+		fbTcMessage.ipArguments.AddString(string3);
+		fbTcMessage.Send(0);
+	
+	ELSE
+		fbTcMessage.Create(eventClass:=TC_EVENT_CLASSES.TestEventClass, nEventID:= TO_UDINT(nEventID), eSeverity:=eSeverity ,ipSourceInfo:=fbSource);
+		fbTcMessage.ipArguments.Clear();
+		fbTcMessage.ipArguments.AddUDInt(TO_UDINT(nEventID));
+		fbTcMessage.ipArguments.AddString(string1);
+		fbTcMessage.ipArguments.AddString(string2);
+		fbTcMessage.ipArguments.AddString(string3);
+		fbTcMessage.Send(0);
+	END_IF
 END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="TriggerEvent" Id="{16ba81cb-a13e-48f5-95ba-0aa66f291352}">
+      <Declaration><![CDATA[METHOD PUBLIC TriggerEvent//A wrapper provided for convience. Only differs From Trigger in the data type. 
+VAR_INPUT
+	nEventEntry: TcEventEntry;
+	bTrigger: BOOL;
+	sSource: STRING :=__POUNAME();
+	arg1 : STRING :='';
+	arg2 : STRING :='';
+	arg3 : STRING :='';
+	eSeverity :TcEventSeverity:=TcEventSeverity.Verbose;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[Trigger(nEventID:=nEventEntry.nEventId,bTrigger,sSource,arg1,arg2,arg3,eSeverity);]]></ST>
       </Implementation>
     </Method>
   </POU>

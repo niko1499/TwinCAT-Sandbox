@@ -60,9 +60,9 @@ END_VAR
         <ST><![CDATA[//FOR nIdx := LOWER_BOUND(aFaultsToCheck,1) TO UPPER_BOUND(aFaultsToCheck,1) DO
 
 FOR nIdx := 0 TO nWriteIndex-1 DO
-	IF(aFaultsToCheck[nIdx]^.Active())THEN
-		nActiveEventCount:=nActiveEventCount+1;
-	END_IF
+	//IF(aFaultsToCheck[nIdx]^.GetState())THEN
+		//nActiveEventCount:=nActiveEventCount+1;
+///	END_IF
 END_FOR;
 GetActiveEventCount:=nActiveEventCount;
 ]]></ST>
@@ -92,10 +92,10 @@ END_VAR
         <ST><![CDATA[//FOR nIdx := LOWER_BOUND(aFaultsToCheck,1) TO UPPER_BOUND(aFaultsToCheck,1) DO
 
 FOR nIdx := 0 TO nWriteIndex-1 DO
-	IF(aFaultsToCheck[nIdx]^.Active()) THEN
-		GetFirstActiveEvent:=aFaultsToCheck[nIdx];
-		EXIT;
-	END_IF
+	//IF(aFaultsToCheck[nIdx]^.GetState()) THEN
+	//	GetFirstActiveEvent:=aFaultsToCheck[nIdx];
+	//	EXIT;
+	//END_IF
 END_FOR;
 ]]></ST>
       </Implementation>
@@ -126,7 +126,7 @@ FOR nIdx := 0 TO nWriteIndex-1 DO
 	//TODO-NIKO DELETE DEBUG CODE COMMENT
 	
 );  *)
-aFaultsToCheck[nIdx]^.Update();
+//aFaultsToCheck[nIdx]^.Update();
 END_FOR;
 ]]></ST>
       </Implementation>

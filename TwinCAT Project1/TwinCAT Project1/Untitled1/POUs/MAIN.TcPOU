@@ -43,32 +43,17 @@ VAR
 	
 	test: BOOL :=FALSE;
 	
-	bOnce :BOOL :=FALSE;
+	bOnce :BOOL :=TRUE;
 	fbFaultChecker : FB_FaultChecker;
 	
-	bChannelOneTripped:BOOL:=FALSE;
-	bDeviceOffline:BOOL:=FALSE;
-	fb_eventTrigger1 : FB_EventTrigger(ADR(bChannelOneTripped),
-	                       tActivationDelay:=T#2S,
-					       nActivationCount:=1,
-					   	 //  sErrorName:='Circuit Breaker Tripped',
-                          // sErrorDescription:='Lane 1 conveyor motor over current. Check Tension',
-    					   eEventCode:=E_MachineStatus.Error); 
-						   
-						  
-	fb_eventTrigger2 : FB_EventTrigger(ADR(bChannelOneTripped),
-	                       tActivationDelay:=T#0S,
-					       nActivationCount:=3,
-					   	   //sErrorName:='Repeat Breaker Trip',
-                           //sErrorDescription:='Lane 1 conveyor breaker tripped 3 times.',
-    					   eEventCode:=E_MachineStatus.Critical); 
-						   
-   fb_EventTrigger3 : FB_EventTrigger(ADR(bDeviceOffline),
-	                       tActivationDelay:=T#2S,
-					       nActivationCount:=1,
-					   	   //sErrorName:='Lost Comms with PULSE PISA-M',
-                          // sErrorDescription:='Watchdog timer with device expired. Possible wiring issue or loss of power.',
-    					   eEventCode:=E_MachineStatus.Warning); 
+	bTestTrigger1:BOOL:=FALSE;
+	bTestTrigger2:BOOL:=FALSE;
+	bTestTrigger3:BOOL:=FALSE;
+	
+	stDelayedActivation : TriggerSettings;
+	stRepeatActivation : TriggerSettings;				   
+					  
+
 	
 	nLastEventCount: UINT;
 	nIndex: INT;
@@ -79,7 +64,7 @@ VAR
 END_VAR
 ]]></Declaration>
     <Implementation>
-      <ST><![CDATA[IF bOnce THEN
+      <ST><![CDATA[(*IF bOnce THEN
 (*
 event1:= FB_FaultEvent(bChannelOneTripped,
 	                   tActivationDelay:=T#2S,
@@ -89,12 +74,31 @@ event1:= FB_FaultEvent(bChannelOneTripped,
 					   eSeverity:=TcEventSeverity.Error);
 *)
 
-fbFaultChecker.AddTrigger(ADR(fb_eventTrigger1));
-  fbFaultChecker.AddTrigger(ADR(fb_eventTrigger2));
+//fb_EventTrigger3.Activate(bBoolA :=FALSE);
+
+//fbFaultChecker.AddTrigger(ADR(fb_eventTrigger1));
+ // fbFaultChecker.AddTrigger(ADR(fb_eventTrigger2));
+
   fbFaultChecker.AddTrigger(ADR(fb_EventTrigger3));
+  
 bOnce := FALSE;
 END_IF
+*)
+//TC_EVENTS.TestEventClass.TestEvent2.nEventId
+stDelayedActivation.tDebounceTime:=T#3S;
+stRepeatActivation.nActivationThreshold:=2;
 
+
+GVL_Fault.fbEventTrigger.Configure(nEventID:=TC_EVENTS.TestEventClass.TestEvent1.nEventId,stDelayedActivation);
+GVL_Fault.fbEventTrigger.Configure(nEventID:=TC_EVENTS.TestEventClass.TestEvent2.nEventId,stRepeatActivation);
+
+GVL_Fault.fbEventTrigger.TriggerEvent(nEventEntry:=TC_EVENTS.TestEventClass.TestEvent1, bTestTrigger1,sSource:=__POUNAME());
+GVL_Fault.fbEventTrigger.Trigger(nEventID:=TC_EVENTS.TestEventClass.TestEvent2.nEventId, bTestTrigger2);
+
+TestSourceMethod();
+//IF bTestTrigger1 THEN
+	
+//END_IF
 
 (*
 IF bChannelOneTripped THEN
@@ -133,7 +137,7 @@ END_FOR;
 status := myPisa.GetCommMode();
 
 
-bDeviceOffline:=status = PisaPulseCommMode.Offline;
+//bTestTrigger3:=status = PisaPulseCommMode.Offline;
 
 GVL_IO.aOutputs[8] := GVL_IO.aInputs[8]; // Output 8 mirrors input 8
 
@@ -142,19 +146,19 @@ GVL_IO.aOutputs[8] := GVL_IO.aInputs[8]; // Output 8 mirrors input 8
 
 
 IF fbFaultChecker.GetActiveEventCount()<> nLastEventCount and test THEN
-
+(*
 FOR in := 0 TO fbFaultChecker.GetTotalEventCount()-1DO
 	//fbFaultChecker.GetEvent(nIndex:=in)^.Active;
 	
 	
-	IF (fbFaultChecker.GetEvent(nIndex:=in)^.Active())THEN 
+	IF (fbFaultChecker.GetEvent(nIndex:=in)^.GetState())THEN 
 		ADSLOGSTR(
 			msgCtrlMask := ADSLOG_MSGTYPE_HINT, 
 			msgFmtStr   := fbFaultChecker.GetEvent(nIndex:=in)^.GetLongMessage(),
 			strArg      := '');
 	END_IF
 END_FOR
-
+*)
 (*
 ADSLOGSTR(
 	msgCtrlMask := ADSLOG_MSGTYPE_HINT, 
@@ -264,5 +268,20 @@ END_IF
 
 ]]></ST>
     </Implementation>
+    <Method Name="TestSourceMethod" Id="{4bab0114-c884-4d29-8e7d-9431da96108b}">
+      <Declaration><![CDATA[METHOD TestSourceMethod
+VAR
+	source :FB_TcSourceInfo();
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[
+//.ResetToDefault();
+//source.sName:=__CURRENT_FILE_NAME;
+
+//GVL_Fault.fb_eventTrigger1.Activate(nEventID:=555,bTrigger:=bTestTrigger1, sSource:=__POUNAME());
+GVL_Fault.fbEventTrigger.Trigger(nEventID:=555,bTrigger:=bTestTrigger3, sSource:=__POUNAME(),'2', '4','TRIPPED',eSeverity:=TcEventSeverity.Critical);]]></ST>
+      </Implementation>
+    </Method>
   </POU>
 </TcPlcObject>

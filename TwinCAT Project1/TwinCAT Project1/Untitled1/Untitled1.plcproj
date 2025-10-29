@@ -27,24 +27,37 @@
     <Compile Include="DUTs\E_SwitchType.TcDUT">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="FaultChecker\CdEventSeverity.TcTLEO">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="FaultChecker\E_MachineStatus.TcDUT">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="FaultChecker\FB_FaultChecker.TcPOU">
+    <Compile Include="FaultChecker\E_EventType.TcDUT">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="FaultChecker\FB_EventTrigger.TcPOU">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="FaultChecker\TriggerData.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="FaultChecker\TC_EventSeverityToString.TcPOU">
       <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="FaultChecker\TriggerSettings.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="GVLs\GVL_Fault.TcGVL">
+      <SubType>Code</SubType>
+      <LinkAlways>true</LinkAlways>
     </Compile>
     <Compile Include="GVLs\GVL_IO.TcGVL">
       <SubType>Code</SubType>
       <LinkAlways>true</LinkAlways>
+    </Compile>
+    <Compile Include="Junk\CdEventSeverity.TcTLEO">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Junk\E_MachineStatus.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Junk\FB_FaultChecker.TcPOU">
+      <SubType>Code</SubType>
     </Compile>
     <Compile Include="PlcTask.TcTTO">
       <SubType>Code</SubType>
@@ -90,6 +103,7 @@
     <Folder Include="DUTs" />
     <Folder Include="GVLs" />
     <Folder Include="FaultChecker" />
+    <Folder Include="Junk" />
     <Folder Include="POUs\Hardware" />
     <Folder Include="POUs\Hardware\PULS PISA" />
     <Folder Include="POUs\Hardware\PULS PISA\DTUs" />
@@ -133,6 +147,12 @@
         <v>{192FAD59-8248-4824-A8DE-9177C94C195A}</v>
         <o>
           <v n="Name">"{192FAD59-8248-4824-A8DE-9177C94C195A}"</v>
+          <d n="SubKeys" t="Hashtable" />
+          <d n="Values" t="Hashtable" />
+        </o>
+        <v>{246001F4-279D-43AC-B241-948EB31120E1}</v>
+        <o>
+          <v n="Name">"{246001F4-279D-43AC-B241-948EB31120E1}"</v>
           <d n="SubKeys" t="Hashtable" />
           <d n="Values" t="Hashtable" />
         </o>
